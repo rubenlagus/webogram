@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Time: Mon Jan 04 2016 19:53:23 GMT+0100 (CET)
+# Time: Mon Jan 04 2016 19:58:04 GMT+0100 (CET)
 
 
 CACHE:
@@ -61,9 +61,11 @@ img/placeholders/UserAvatar7@2x.png
 img/placeholders/UserAvatar8@2x.png
 img/placeholders/VideoThumbConversation.gif
 img/placeholders/VideoThumbModal.gif
+js/lib/angular-local-storage.js
 js/lib/bin_utils.js
 js/lib/crypto_worker.js
 js/lib/polyfill.js
+js/lib/ui-utils.js
 js/locales/de-de.json
 js/locales/en-us.json
 js/locales/es-es.json
@@ -71,13 +73,11 @@ js/locales/it-it.json
 js/locales/nl-nl.json
 js/locales/pt-br.json
 js/locales/ru-ru.json
-vendor/angular-local-storage/angular-local-storage.js
 vendor/closure/long.js
 vendor/cryptoJS/crypto.js
 vendor/jsbn/jsbn_combined.js
 vendor/leemon_bigint/bigint.js
 vendor/rusha/rusha.js
-vendor/ui-utils/ui-utils.js
 vendor/angular/i18n/angular-locale_de-de.js
 vendor/angular/i18n/angular-locale_en-us.js
 vendor/angular/i18n/angular-locale_es-es.js
