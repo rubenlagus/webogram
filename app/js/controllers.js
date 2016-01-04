@@ -9,18 +9,17 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', ['myApp.i18n'])
+angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.utils'])
+  .config(function (localStorageServiceProvider) {
+    localStorageServiceProvider.setPrefix('tsupport');
+    localStorageServiceProvider.setStorageCookie(0, '/');
+    localStorageServiceProvider.setStorageCookieDomain('https://rubenlagus.github.io'); // TODO set production domain
+  })
 
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
         $location.url('/im');
-        return;
-      }
-      if (location.protocol == 'http:' &&
-          !Config.Modes.http &&
-          Config.App.domains.indexOf(location.hostname) != -1) {
-        location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
       $location.url('/login');
@@ -38,12 +37,6 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
         $location.url('/im');
-        return;
-      }
-      if (location.protocol == 'http:' &&
-          !Config.Modes.http &&
-          Config.App.domains.indexOf(location.hostname) != -1) {
-        location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
       TelegramMeWebService.setAuthorized(false);
@@ -412,7 +405,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     LayoutSwitchService.start();
   })
 
-  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, HttpsMigrateService, LayoutSwitchService, LocationParamsService, AppStickersManager) {
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService) {
 
     $scope.$on('$routeUpdate', updateCurDialog);
 
@@ -591,6 +584,18 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       $scope.$broadcast('dialogs_search_toggle');
     };
 
+    $scope.addTemplate = function ($fileContent) {
+      TemplatesService.addTemplates($fileContent);
+    };
+
+    $scope.addDefaultTemplate = function() {
+      $modal.open({
+        templateUrl: templateUrl('default_templates_modal'),
+        controller: 'LoadDeafultsTemplatesController',
+        windowClass: 'md_simple_modal_window mobile_modal'
+      });
+    };
+
     updateCurDialog();
 
     function updateCurDialog() {
@@ -626,7 +631,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     }
 
     ChangelogNotifyService.checkUpdate();
-    HttpsMigrateService.start();
+    TemplatesChangelogNotifyService.checkUpdate();
     LayoutSwitchService.start();
     LocationParamsService.start();
     AppStickersManager.start();
@@ -1479,7 +1484,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
 
         if (!$rootScope.idle.isIDLE) {
-          AppMessagesManager.readHistory($scope.curDialog.peerID);
+          //AppMessagesManager.readHistory($scope.curDialog.peerID);
         }
 
         updateBotActions();
@@ -1856,7 +1861,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
           }
         } else {
           $timeout(function () {
-            AppMessagesManager.readHistory($scope.curDialog.peerID);
+            //AppMessagesManager.readHistory($scope.curDialog.peerID);
           });
         }
 
@@ -2042,7 +2047,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     $rootScope.$watch('idle.isIDLE', function (newVal) {
       if (!newVal && $scope.curDialog && $scope.curDialog.peerID && !$scope.historyFilter.mediaType && !$scope.historyState.skipped) {
-        AppMessagesManager.readHistory($scope.curDialog.peerID);
+        //AppMessagesManager.readHistory($scope.curDialog.peerID);
       }
       if (!newVal) {
         unreadAfterIdle = false;
@@ -2060,7 +2065,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.$on('user_update', angular.noop);
   })
 
-  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor) {
+  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, localStorageService) {
+    $scope.templatesDic = {};
+    loadTemplatesFromStorage();
 
     $scope.$watch('curDialog.peer', resetDraft);
     $scope.$on('user_update', angular.noop);
@@ -2069,6 +2076,25 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       replySelect(messageID);
     });
     $scope.$on('ui_typing', onTyping);
+    $scope.$on('templatesLoaded', function() {
+      loadTemplatesFromStorage();
+    });
+
+    function loadTemplatesFromStorage() {
+      angular.forEach(localStorageService.keys(), function(template) {
+        $scope.templatesDic[template] = localStorageService.get(template);
+      })
+    }
+
+
+    $scope.onKeyUp = function () {
+      $scope.$broadcast('ui_message_before_send');
+      var possibleKey = $scope.draftMessage.text;
+      if (possibleKey in $scope.templatesDic) {
+        $scope.draftMessage.text = $scope.templatesDic[possibleKey];
+        $scope.$broadcast('ui_peer_draft');
+      }
+    };
 
     $scope.draftMessage = {
       text: '',
@@ -2101,32 +2127,41 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       $timeout(function () {
         var text = $scope.draftMessage.text;
 
-        if (angular.isString(text) && text.length > 0) {
-          text = text.replace(/:([a-z0-9\-\+\*_]+?):/gi, function (all, shortcut) {
-            var emojiCode = EmojiHelper.shortcuts[shortcut];
-            if (emojiCode !== undefined) {
-              return EmojiHelper.emojis[emojiCode][0];
-            }
-            return all;
-          });
+        if (Config.Mobile && text.length > 2 && text[0] === '#' && text[text.length-1] === '#' ) {
+          var possibleKey = text.substring(1, text.length-1);
+          if (possibleKey in $scope.templatesDic) {
+            text = $scope.templatesDic[possibleKey];
+            $scope.draftMessage.text = text;
+            $scope.$broadcast('ui_peer_draft');
+          }
+        } else {
+          if (angular.isString(text) && text.length > 0) {
+            text = text.replace(/:([a-z0-9\-\+\*_]+?):/gi, function (all, shortcut) {
+              var emojiCode = EmojiHelper.shortcuts[shortcut];
+              if (emojiCode !== undefined) {
+                return EmojiHelper.emojis[emojiCode][0];
+              }
+              return all;
+            });
 
-          var timeout = 0;
-          var options = {
-            replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
-          };
-          do {
-            AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
-            text = text.substr(4096);
-          } while (text.length);
+            var timeout = 0;
+            var options = {
+              replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
+            };
+            do {
+              AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
+              text = text.substr(4096);
+            } while (text.length);
+          }
+          fwdsSend();
+
+          if (forceDraft == $scope.curDialog.peer) {
+            forceDraft = false;
+          }
+
+          resetDraft();
+          $scope.$broadcast('ui_message_send');
         }
-        fwdsSend();
-
-        if (forceDraft == $scope.curDialog.peer) {
-          forceDraft = false;
-        }
-
-        resetDraft();
-        $scope.$broadcast('ui_message_send');
       });
 
       return cancelEvent(e);
@@ -2374,7 +2409,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
       if (newVal && newVal.length) {
         if (!$scope.historyFilter.mediaType && !$scope.historyState.skipped) {
-          AppMessagesManager.readHistory($scope.curDialog.peerID);
+          //AppMessagesManager.readHistory($scope.curDialog.peerID);
         }
 
         var backupDraftObj = {};
@@ -4690,3 +4725,53 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       LocationParamsService.shareUrl('https://telegram.me/addstickers/' + $scope.stickerset.short_name, $scope.stickerset.title);
     };
   })
+  .controller('TemplatesChangelogModalController', function ($scope) {
+
+    var TYPEADD = "ADDEDTEMPLATE";
+    var TYPEUPDATE = "UPDATEDTEMPLATE";
+    var TYPEREMOVE = "DELETEDTEMPLATE";
+    $scope.added = [];
+    $scope.removed = [];
+    $scope.updated = [];
+
+    $scope.computeUpdates = function () {
+      $scope.templateLogs.forEach(function(templateLog) {
+        var type = templateLog.type,
+          template = templateLog.template,
+          update;
+        if (type === TYPEADD) {
+          update = {};
+          update.keys = template.keys;
+          update.separator = " -> ";
+          update.value = template.value;
+          $scope.added.push(update);
+        } else if (type === TYPEUPDATE) {
+          update = {};
+          update.keys = template.keys;
+          update.separator = " -> ";
+          update.value = template.value;
+          $scope.updated.push(update);
+        } else if (type === TYPEREMOVE) {
+          update = {};
+          update.keys = template.keys;
+          update.separator = " -> ";
+          update.value = template.value;
+          $scope.removed.push(update);
+        }
+      });
+    };
+
+    $scope.computeUpdates();
+  })
+  .controller('LoadDeafultsTemplatesController', function ($scope,  $modalInstance, TemplatesService, localStorageService) {
+
+    $scope.defaultLanguages = "";
+
+    $scope.updateDefaultTemplates = function () {
+      localStorageService.set("templatesLanguage", $scope.defaultLanguages);
+      TemplatesService.updateDefaultTemplates($scope.defaultLanguages);
+      $modalInstance.close();
+    }
+  })
+
+

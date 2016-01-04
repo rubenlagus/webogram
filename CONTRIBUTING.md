@@ -4,7 +4,7 @@ You can help this project by reporting problems, suggestions, localizing it or c
 
 ### Report a problem or suggestion
 
-Go to our [issue tracker](https://github.com/zhukov/webogram/issues) and check if your problem/suggestion is already reported. If not, create a new issue with a descriptive title and detail your suggestion or steps to reproduce the problem.
+Go to our [issue tracker](https://github.com/rubenlagus/webogram/issues) and check if your problem/suggestion is already reported. If not, create a new issue with a descriptive title and detail your suggestion or steps to reproduce the problem.
 
 ### Localization
 
@@ -24,7 +24,7 @@ If you know how to code, we welcome you to send fixes and new features, but in o
 * Don't modify or work on the master branch, we'll use it to always be in sync with webogram upstream.
 
 ```
-$ git remote add upstream git@github.com:zhukov/webogram.git
+$ git remote add upstream git@github.com:rubenlagus/webogram.git
 $ git fetch upstream
 ```
 
