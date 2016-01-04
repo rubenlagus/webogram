@@ -3406,7 +3406,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       restrict: 'A',
       scope: false,
       link: link
-    }
+    };
   })
 
   .directive('myComposerDropdown', function () {

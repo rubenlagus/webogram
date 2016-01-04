@@ -24,11 +24,11 @@ gulp.task('templates', function() {
 });
 
 gulp.task('usemin', ['templates', 'enable-production'], function() {
-  return gulp.src(['app/index.html', 'app/badbrowser.html'])
+  gulp.src(['app/index.html', 'app/badbrowser.html'])
     .pipe($.usemin({
-      html: [$.minifyHtml({empty: true})],
+      html: [ function () {return $.minifyHtml({ empty: true }) }],
       js: ['concat', $.ngAnnotate(), $.uglify({outSourceMap: false})],
-      css: ['concat', $.minifyCss({compatibility: true, keepBreaks: true})]
+      css: ['concat', function () { return $.minifyCss({compatibility: true, keepBreaks: true}) }]
     }))
     .pipe(gulp.dest('dist'));
 });
@@ -75,8 +75,6 @@ gulp.task('copy', function() {
       .pipe(gulp.dest('dist/vendor/rusha')),
     gulp.src('app/vendor/cryptoJS/crypto.js')
       .pipe(gulp.dest('dist/vendor/cryptoJS')),
-    gulp.src('app/vendor/bower-components/js/angular-local-storage.js')
-      .pipe(gulp.dest('dist/vendor/bower-components/js')),
     gulp.src(['app/nacl/mtproto_crypto.pexe', 'app/nacl/mtproto_crypto.nmf'])
       .pipe(gulp.dest('dist/nacl/')),
     gulp.src('app/js/background.js')

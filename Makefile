@@ -10,14 +10,15 @@ ghdist:
 	rm -rf dist
 	mkdir dist
 	cp -r .git dist/
-	cd dist && git checkout gh-pages
+	cd dist && git checkout -b gh-pages --track ruben/gh-pages
 
 publish:
 	./node_modules/gulp/bin/gulp.js clean
-	cd dist && git pull origin gh-pages
+	cd dist && git pull ruben gh-pages
+	./node_modules/gulp/bin/gulp.js templates
 	./node_modules/gulp/bin/gulp.js publish
 	echo -n "Please open http://localhost:8000/dist/index.html and check if everything works fine." && read -e
-	cd dist && git add --all . && git commit -am "merged with master" && git push origin gh-pages
+	cd dist && git add --all . && git commit -am "merged with master" && git push -u ruben gh-pages
 
 bump:
 	./node_modules/gulp/bin/gulp.js bump
