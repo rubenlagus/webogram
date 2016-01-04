@@ -1,9 +1,10 @@
-[![Stories in Ready](https://badge.waffle.io/zhukov/webogram.png?label=ready&title=Ready)](https://waffle.io/zhukov/webogram)
-## [Webogram](https://web.telegram.org) — Telegram Web App
+## [TWebogram](http://rubenlagus.github.io/webogram) – UNOFFICIAL Telegram Support Web App
 
-Telegram offers great [apps for mobile communication](https://www.telegram.org). It is based on the [MTProto protocol](https://core.telegram.org/mtproto) and has an [Open API](https://core.telegram.org/api). I personally like Telegram for its speed and cloud-support (that makes a web app possible, unlike in the case of WA and others).
+TWebogram offers great [apps for mobile communication](https://www.telegram.org). It is based on the [MTProto protocol](https://core.telegram.org/mtproto) and has an [Open API](http://core.telegram.org/api). I personally like Telegram for its speed and cloud-support (that makes a web app possible, unlike in the case of WA and others).
 
-MTProto data can be carried over HTTP (SSL is also supported), so this project is my take at creating one.
+MTProto data can be carried over HTTP, but no official web-version for Telegram exists for the time being. So this project is my take at creating one.
+
+Based on [Webogram](https://github.com/zhukov/webogram), thanks to [@zhukov](https://github.com/zhukov).
 
 That said, I'm using this app myself and I'd like to share its sources, so anyone can contribute to the development. Any help is welcome!
 
@@ -28,21 +29,13 @@ Here are some screenshots of the interface:
 
 ### Maintained locations
 
-
 | Description        | URL           | Type  |
 | ------------- |-------------| -----:|
-| Online Web-version (hosted on Telegram servers)      | https://web.telegram.org/ | hosted
-| Online Web-version (hosted on GitHub pages)      | https://zhukov.github.io/webogram | hosted
-| Chrome Web Store      | [https://chrome.google.com/webstore/detail/telegram/ clhhggbfdinjmjhajaheehoeibfljjno](https://chrome.google.com/webstore/detail/telegram/clhhggbfdinjmjhajaheehoeibfljjno) |   packed
-| Firefox & FirefoxOS Marketplace | https://marketplace.firefox.com/app/telegram |    packed
-
-
+| Online Web-version (hosted on GitHub pages)      | http://rubenlagus.github.io/webogram | hosted
 
 **Hosted version**: the app is downloaded via HTTPS as a usual website. Will be available offline due to application cache.
 
-**Packed version**: the app is downloaded at once in a package via HTTPS. The package is updated less frequently than the Web-version.
-
-All of the apps above are submitted and maintained by [@zhukov](https://github.com/zhukov), so feel free to use them and report bugs [here](https://github.com/zhukov/webogram/issues). Please do not report bugs which are only reproducible in different locations.
+All of the apps above are submitted and maintained by [@rubenlagus](https://github.com/rubenlagus), so feel free to use them and report bugs [here](https://github.com/rubenlagus/webogram/issues). Please do not report bugs which reproduce only in different locations.
 
 
 ## Technical details
@@ -98,6 +91,7 @@ Besides the frameworks mentioned above, other libraries are used for protocol an
 * [nanoScrollerJS](https://github.com/jamesflorentino/nanoScrollerJS)
 * [gemoji](https://github.com/github/gemoji)
 * [emoji-data](https://github.com/iamcal/emoji-data)
+* [angular-local-storage](https://github.com/grevory/angular-local-storage)
 
 Many thanks to all these libraries' authors and contributors. A detailed list with descriptions and licenses is available [here](/app/vendor).
 

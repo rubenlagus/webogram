@@ -27,6 +27,13 @@
           <li><a href="" ng-click="openChangelog()">
             <i class="icon icon-about"></i><span my-i18n="head_about"></span>
           </a></li>
+          <li ng-if="isLoggedIn">
+            <input ng-show="false" id="selectTemplateFile" type="file" class="im_attach_input" multiple="false" title="{{'add_template' | i18n}}" on-read-file="addTemplate($fileContent)" />
+            <a my-i18n="add_template" ng-click="triggerClick()"></a>
+          </li>
+          <li><a href="" ng-click="addDefaultTemplate()">
+            <span>Default templates</span>
+          </a></li>
         </ul>
       </div>
     </div>

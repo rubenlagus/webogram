@@ -1,12 +1,12 @@
 {
-  "name": "Telegram",
-  "description": "Telegram Web App.\nMore info & source code here: https://github.com/zhukov/webogram",
+  "name": "TWebogram",
+  "description": "Telegram Support Web App.\nMore info & source code here: https://github.com/rubenlagus/webogram",
   "version": "0.5.3",
   "main": "app/index.html",
   "single-instance": true,
   "dom_storage_quota": 40,
   "window": {
-    "title": "Telegram",
+    "title": "TWebogram",
     "icon": "app/img/icons/icon128.png",
     "toolbar": false,
     "frame": true,
@@ -23,12 +23,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/zhukov/webogram.git"
+    "url": "https://github.com/rubenlagus/webogram.git"
   },
   "author": "zhukov",
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/zhukov/webogram/issues"
+    "url": "https://github.com/rubenlagus/webogram/issues"
   },
   "locales": [
     "en-us",
@@ -39,7 +39,7 @@
     "nl-nl",
     "pt-br"
   ],
-  "homepage": "http://zhukov.github.io/webogram",
+  "homepage": "http://rubenlagus.github.io/webogram",
   "devDependencies": {
     "del": "^1.2.0",
     "event-stream": "^3.1.0",

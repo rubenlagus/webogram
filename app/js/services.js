@@ -9,7 +9,7 @@
 
 /* Services */
 
-angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
+angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageModule'])
 
 .service('AppUsersManager', function ($rootScope, $modal, $modalStack, $filter, $q, qSync, MtpApiManager, RichTextProcessor, ErrorService, Storage, _) {
   var users = {},
@@ -4432,3 +4432,133 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils'])
     shareUrl: shareUrl
   };
 })
+
+  .service('TemplatesService', function ($rootScope, $http, localStorageService) {
+
+    function addTemplates($fileContent, defaultTemplates) {
+      // Templates support
+      defaultTemplates = defaultTemplates | false;
+      var mainRegex = new RegExp("[{]KEYS[}]\\n?([^{]+)[{]VALUE[}]\\n?([^{]+)", "g");
+      var keysRegex = /(\w+)/g;
+      var match = mainRegex.exec($fileContent);
+      if (match != null && defaultTemplates) {
+        localStorageService.clearAll();
+      }
+      while (match != null) {
+        var keys = match[1] | match[4];
+        var value = match[2] | match[5];
+        var keysMatch = keysRegex.exec(keys);
+        while (keysMatch != null) {
+          var key = keysMatch[0].replace(/\n/g, "");
+          if (key != "") {
+            localStorageService.set(key, value);
+          }
+          keysMatch = keysRegex.exec(keys);
+        }
+        match = mainRegex.exec($fileContent);
+      }
+      $rootScope.$broadcast('templatesLoaded');
+    }
+
+    function addTemplate(key, value) {
+      // Templates support
+      localStorageService.set(key, value);
+      $rootScope.$broadcast('templatesLoaded');
+    }
+
+    function setLastTemplateVersion(languageCode) {
+      var url = "http://sa.laagacht.net:9992/bot/templates/maxHash/" + languageCode;
+      $http.get(url).then(function (response) {
+        localStorageService.set("lastTemplateVersion", response.data.hash);
+      });
+      localStorageService.set("templatesLanguage", languageCode);
+    }
+
+    function addDefautTemplates(templates, language) {
+      // Templates support
+      if (templates.length > 0) {
+        localStorageService.clearAll();
+      }
+      angular.forEach(templates, function (template) {
+        var value = template.value;
+        angular.forEach(template.keys, function (key) {
+          if (angular.isDefined(key) && key != "") {
+            localStorageService.set(key, value);
+          }
+        });
+      });
+      $rootScope.$broadcast('templatesLoaded');
+    }
+
+    function updateDefaultTemplates(languageCode) {
+      var url = "http://sa.laagacht.net:9992/bot/templates/" + languageCode;
+      $http.get(url).then(function (response) {
+        addDefautTemplates(response.data);
+        setLastTemplateVersion(languageCode);
+      });
+    }
+
+    function getDifferences(lastTemplateVersion, templatesLanguage) {
+      var url = "http://sa.laagacht.net:9992/bot/templates/difference/" + templatesLanguage + "/" + lastTemplateVersion;
+      return $http.get(url);
+    }
+
+    function removeTemplate(key) {
+      localStorageService.remove(key);
+    }
+
+    return {
+      addTemplates: addTemplates,
+      updateDefaultTemplates: updateDefaultTemplates,
+      getDifferences: getDifferences,
+      setLastTemplateVersion: setLastTemplateVersion,
+      addTemplate: addTemplate,
+      removeTemplate: removeTemplate
+    };
+  })
+
+  .service('TemplatesChangelogNotifyService', function (TemplatesService, localStorageService, $rootScope, $modal) {
+
+    function checkUpdate() {
+      var templatesLanguage = localStorageService.get("templatesLanguage"),
+        lastTemplateVersion = localStorageService.get("lastTemplateVersion");
+
+      if (!angular.isUndefined(lastTemplateVersion) && !angular.isUndefined(templatesLanguage)) {
+        var promise = TemplatesService.getDifferences(lastTemplateVersion, templatesLanguage);
+        promise.then(function (response) {
+          if (response.data.length > 0){
+            response.data.forEach(function (templateLog) {
+              var keys = templateLog.template.keys;
+              keys.forEach(function(key) {
+                if (templateLog.type === "DELETEDTEMPLATE") {
+                  TemplatesService.removeTemplate(key)
+                } else {
+                  TemplatesService.addTemplate(key, templateLog.template.value)
+                }
+              });
+            });
+            showChangelog(response.data);
+          }
+          TemplatesService.setLastTemplateVersion(templatesLanguage);
+        });
+      }
+    }
+
+    function showChangelog(templateLogs) {
+      var $scope = $rootScope.$new();
+      $scope.templateLogs = templateLogs;
+
+      $modal.open({
+        controller: 'TemplatesChangelogModalController',
+        templateUrl: templateUrl('templates_changelog_modal'),
+        scope: $scope,
+        windowClass: 'changelog_modal_window mobile_modal'
+      });
+    }
+
+    return {
+      checkUpdate: checkUpdate,
+      showChangelog: showChangelog
+    }
+  })
+

@@ -135,7 +135,7 @@
 
               <div class="im_send_form_wrap1">
 
-                <div class="im_send_form_wrap clearfix" ng-controller="AppImSendController">
+                <div class="im_send_form_wrap clearfix" ng-controller="AppImSendController" ui-keyup="{ 'tab':'onKeyUp()'}">
                   <form my-send-form draft-message="draftMessage" mentions="mentions" commands="commands" class="im_send_form" ng-class="{im_send_form_empty: !draftMessage.text.length, composer_progress_enabled: draftMessage.inlineProgress}">
 
                     <div class="im_send_reply_wrap" ng-if="draftMessage.replyToMessage != null">

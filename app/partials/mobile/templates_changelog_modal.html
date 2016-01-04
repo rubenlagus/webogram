@@ -1,0 +1,50 @@
+<div class="changelog_modal_wrap">
+
+  <a class="modal-close-button" ng-click="$close()"><i></i></a>
+
+  <div class="modal-body">
+    <div class="changelog_card_wrap">
+      <div class="changelog_card"></div>
+      <h2 class="changelog_header">Templates Changelog</h2>
+    </div>
+
+    <div class="changelog_versions_wrap">
+
+    <div class="changelog_versions_wrap">
+      <div class="modal_section changelog_version_wrap" ng-if="added.length > 0">
+        <h3 class="modal_section_header changelog_version_title">
+          Added
+        </h3>
+        <div class="modal_section_body changelog_version_changes">
+          <ul class="list-unstyled changelog_version_changes_list">
+            <li ng-repeat="update in added"><b>{{update.keys}}</b> {{update.separator}} {{update.value}}<br><br></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal_section changelog_version_wrap" ng-if="updated.length > 0">
+        <h3 class="modal_section_header changelog_version_title">
+          Updated
+        </h3>
+        <div class="modal_section_body changelog_version_changes">
+          <ul class="list-unstyled changelog_version_changes_list">
+            <li ng-repeat="update in updated"><b>{{update.keys}}</b> {{update.separator}} {{update.value}}<br><br></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="modal_section changelog_version_wrap" ng-if="removed.length > 0">
+        <h3 class="modal_section_header changelog_version_title">
+          Added
+        </h3>
+        <div class="modal_section_body changelog_version_changes">
+          <ul class="list-unstyled changelog_version_changes_list">
+            <li ng-repeat="update in removed"><b>{{update.keys}}</b> {{update.separator}} {{update.value}}<br><br></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
