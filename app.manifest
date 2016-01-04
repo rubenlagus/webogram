@@ -1,10 +1,13 @@
 CACHE MANIFEST
-# Time: Mon Jan 04 2016 21:46:05 GMT+0100 (CET)
+# Time: Mon Jan 04 2016 21:50:44 GMT+0100 (CET)
 
 
 CACHE:
 favicon.ico
 favicon_unread.ico
+css/app.css
+css/desktop.css
+css/mobile.css
 img/Manytabs.png
 img/Manytabs_2x.png
 img/Telegram.png
@@ -21,9 +24,6 @@ img/iphone_home120.png
 img/iphone_startup.png
 img/logo_share.png
 img/sound_a.mp3
-css/app.css
-css/desktop.css
-css/mobile.css
 js/app.js
 nacl/mtproto_crypto.nmf
 nacl/mtproto_crypto.pexe
@@ -44,6 +44,9 @@ img/icons/PhotoIcons.png
 img/icons/PhotoIcons_2x.png
 img/icons/ProfileIcons.png
 img/icons/ProfileIcons_2x.png
+js/lib/bin_utils.js
+js/lib/crypto_worker.js
+js/lib/polyfill.js
 img/placeholders/DialogListAvatarSystem@2x.png
 img/placeholders/GroupAvatar1@2x.png
 img/placeholders/GroupAvatar2@2x.png
@@ -61,9 +64,6 @@ img/placeholders/UserAvatar7@2x.png
 img/placeholders/UserAvatar8@2x.png
 img/placeholders/VideoThumbConversation.gif
 img/placeholders/VideoThumbModal.gif
-js/lib/bin_utils.js
-js/lib/crypto_worker.js
-js/lib/polyfill.js
 js/locales/de-de.json
 js/locales/en-us.json
 js/locales/es-es.json
@@ -71,8 +71,8 @@ js/locales/it-it.json
 js/locales/nl-nl.json
 js/locales/pt-br.json
 js/locales/ru-ru.json
-vendor/cryptoJS/crypto.js
 vendor/closure/long.js
+vendor/cryptoJS/crypto.js
 vendor/jsbn/jsbn_combined.js
 vendor/leemon_bigint/bigint.js
 vendor/rusha/rusha.js
