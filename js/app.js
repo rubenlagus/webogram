@@ -50650,7 +50650,7 @@ angular.module('izhukov.utils', [])
 
 })
 
-.service('FileManager', ["$window", "$q", "$timeout", "qSync", function ($window, $q, $timeout, qSync) {
+.service('FileManager', function ($window, $q, $timeout, qSync) {
 
   $window.URL = $window.URL || $window.webkitURL;
   $window.BlobBuilder = $window.BlobBuilder || $window.WebKitBlobBuilder || $window.MozBlobBuilder;
@@ -50929,9 +50929,9 @@ angular.module('izhukov.utils', [])
     getFileCorrectUrl: getFileCorrectUrl,
     download: downloadFile
   };
-}])
+})
 
-.service('IdbFileStorage', ["$q", "$window", "FileManager", function ($q, $window, FileManager) {
+.service('IdbFileStorage', function ($q, $window, FileManager) {
 
   $window.indexedDB = $window.indexedDB || $window.webkitIndexedDB || $window.mozIndexedDB || $window.OIndexedDB || $window.msIndexedDB;
   $window.IDBTransaction = $window.IDBTransaction || $window.webkitIDBTransaction || $window.OIDBTransaction || $window.msIDBTransaction;
@@ -51153,10 +51153,10 @@ angular.module('izhukov.utils', [])
     getFile: getFile,
     getFileWriter: getFileWriter
   };
-}])
+})
 
 
-.service('TmpfsFileStorage', ["$q", "$window", "FileManager", function ($q, $window, FileManager) {
+.service('TmpfsFileStorage', function ($q, $window, FileManager) {
 
   $window.requestFileSystem = $window.requestFileSystem || $window.webkitRequestFileSystem;
 
@@ -51253,9 +51253,9 @@ angular.module('izhukov.utils', [])
     getFile: getFile,
     getFileWriter: getFileWriter
   };
-}])
+})
 
-.service('MemoryFileStorage', ["$q", "FileManager", function ($q, FileManager) {
+.service('MemoryFileStorage', function ($q, FileManager) {
 
   var storage = {};
 
@@ -51287,9 +51287,9 @@ angular.module('izhukov.utils', [])
     getFile: getFile,
     getFileWriter: getFileWriter
   };
-}])
+})
 
-.service('WebpManager', ["qSync", "$q", function (qSync, $q) {
+.service('WebpManager', function (qSync, $q) {
   var nativeWebpSupport = false;
 
   var image = new Image();
@@ -51401,10 +51401,10 @@ angular.module('izhukov.utils', [])
     getPngBlobFromWebp: getPngBlobFromWebp
   }
 
-}])
+})
 
 
-.service('CryptoWorker', ["$timeout", "$q", function ($timeout, $q) {
+.service('CryptoWorker', function ($timeout, $q) {
 
   var webWorker = false,
       naClEmbed = false,
@@ -51559,9 +51559,9 @@ angular.module('izhukov.utils', [])
       });
     },
   };
-}])
+})
 
-.service('ExternalResourcesManager', ["$q", "$http", function ($q, $http) {
+.service('ExternalResourcesManager', function ($q, $http) {
   var urlPromises = {};
 
   function downloadImage (url) {
@@ -51579,9 +51579,9 @@ angular.module('izhukov.utils', [])
   return {
     downloadImage: downloadImage
   }
-}])
+})
 
-.service('IdleManager', ["$rootScope", "$window", "$timeout", function ($rootScope, $window, $timeout) {
+.service('IdleManager', function ($rootScope, $window, $timeout) {
 
   $rootScope.idle = {isIDLE: false};
 
@@ -51660,9 +51660,9 @@ angular.module('izhukov.utils', [])
       $($window).on('mousemove', onEvent);
     }
   }
-}])
+})
 
-.service('AppRuntimeManager', ["$window", function ($window) {
+.service('AppRuntimeManager', function ($window) {
 
   return {
     reload: function () {
@@ -51693,9 +51693,9 @@ angular.module('izhukov.utils', [])
       }
     }
   }
-}])
+})
 
-.service('RichTextProcessor', ["$sce", "$sanitize", function ($sce, $sanitize) {
+.service('RichTextProcessor', function ($sce, $sanitize) {
 
   var emojiMap = {},
       emojiData = Config.Emoji,
@@ -52329,7 +52329,7 @@ angular.module('izhukov.utils', [])
     return text.join('');
   }
 
-}])
+})
 
 
 
@@ -52585,12 +52585,12 @@ angular.module('izhukov.mtproto', ['izhukov.utils'])
   };
 })
 
-.service('MtpSecureRandom', ["$window", function ($window) {
+.service('MtpSecureRandom', function ($window) {
   $($window).on('click keydown', rng_seed_time);
   return new SecureRandom();
-}])
+})
 
-.factory('MtpTimeManager', ["Storage", function (Storage) {
+.factory('MtpTimeManager', function (Storage) {
   var lastMessageID = [0, 0],
       timeOffset = 0;
 
@@ -52636,9 +52636,9 @@ angular.module('izhukov.mtproto', ['izhukov.utils'])
     generateID: generateMessageID,
     applyServerTime: applyServerTime,
   };
-}])
+})
 
-.factory('MtpAuthorizer', ["MtpDcConfigurator", "MtpRsaKeysManager", "MtpSecureRandom", "MtpTimeManager", "CryptoWorker", "$http", "$q", "$timeout", function (MtpDcConfigurator, MtpRsaKeysManager, MtpSecureRandom, MtpTimeManager, CryptoWorker, $http, $q, $timeout) {
+.factory('MtpAuthorizer', function (MtpDcConfigurator, MtpRsaKeysManager, MtpSecureRandom, MtpTimeManager, CryptoWorker, $http, $q, $timeout) {
 
   var chromeMatches = navigator.userAgent.match(/Chrome\/(\d+(\.\d+)?)/),
       chromeVersion = chromeMatches && parseFloat(chromeMatches[1]) || false,
@@ -53012,9 +53012,9 @@ angular.module('izhukov.mtproto', ['izhukov.utils'])
     auth: mtpAuth
   };
 
-}])
+})
 
-.factory('MtpNetworkerFactory', ["MtpDcConfigurator", "MtpTimeManager", "MtpSecureRandom", "Storage", "CryptoWorker", "AppRuntimeManager", "$http", "$q", "$timeout", "$interval", "$rootScope", function (MtpDcConfigurator, MtpTimeManager, MtpSecureRandom, Storage, CryptoWorker, AppRuntimeManager, $http, $q, $timeout, $interval, $rootScope) {
+.factory('MtpNetworkerFactory', function (MtpDcConfigurator, MtpTimeManager, MtpSecureRandom, Storage, CryptoWorker, AppRuntimeManager, $http, $q, $timeout, $interval, $rootScope) {
 
   var updatesProcessor,
       iii = 0,
@@ -54050,7 +54050,7 @@ angular.module('izhukov.mtproto', ['izhukov.utils'])
     startAll: startAll
   };
 
-}])
+})
 
 /*!
  * Webogram v0.5.2 - messaging web application for MTProto
@@ -54061,7 +54061,7 @@ angular.module('izhukov.mtproto', ['izhukov.utils'])
 
 angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
 
-.factory('MtpApiManager', ["Storage", "MtpAuthorizer", "MtpNetworkerFactory", "MtpSingleInstanceService", "AppRuntimeManager", "ErrorService", "qSync", "$rootScope", "$q", "TelegramMeWebService", function (Storage, MtpAuthorizer, MtpNetworkerFactory, MtpSingleInstanceService, AppRuntimeManager, ErrorService, qSync, $rootScope, $q, TelegramMeWebService) {
+.factory('MtpApiManager', function (Storage, MtpAuthorizer, MtpNetworkerFactory, MtpSingleInstanceService, AppRuntimeManager, ErrorService, qSync, $rootScope, $q, TelegramMeWebService) {
   var cachedNetworkers = {},
       cachedUploadNetworkers = {},
       cachedExportPromise = {},
@@ -54332,9 +54332,9 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
     setUserAuth: mtpSetUserAuth,
     logOut: mtpLogOut
   }
-}])
+})
 
-.factory('MtpApiFileManager', ["MtpApiManager", "$q", "qSync", "FileManager", "IdbFileStorage", "TmpfsFileStorage", "MemoryFileStorage", "WebpManager", function (MtpApiManager, $q, qSync, FileManager, IdbFileStorage, TmpfsFileStorage, MemoryFileStorage, WebpManager) {
+.factory('MtpApiFileManager', function (MtpApiManager, $q, qSync, FileManager, IdbFileStorage, TmpfsFileStorage, MemoryFileStorage, WebpManager) {
 
   var cachedFs = false;
   var cachedFsPromise = false;
@@ -54777,9 +54777,9 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
     saveSmallFile: saveSmallFile,
     uploadFile: uploadFile
   };
-}])
+})
 
-.service('MtpSingleInstanceService', ["_", "$rootScope", "$compile", "$timeout", "$interval", "$modalStack", "Storage", "AppRuntimeManager", "IdleManager", "ErrorService", "MtpNetworkerFactory", function (_, $rootScope, $compile, $timeout, $interval, $modalStack, Storage, AppRuntimeManager, IdleManager, ErrorService, MtpNetworkerFactory) {
+.service('MtpSingleInstanceService', function (_, $rootScope, $compile, $timeout, $interval, $modalStack, Storage, AppRuntimeManager, IdleManager, ErrorService, MtpNetworkerFactory) {
 
   var instanceID = nextRandomInt(0xFFFFFFFF);
   var started = false;
@@ -54884,7 +54884,7 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
   return {
     start: start
   }
-}])
+})
 
 
 /**
@@ -57747,7 +57747,7 @@ config(['$locationProvider', '$routeProvider', '$compileProvider', 'StorageProvi
 
 angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageModule'])
 
-.service('AppUsersManager', ["$rootScope", "$modal", "$modalStack", "$filter", "$q", "qSync", "MtpApiFileManager", "MtpApiManager", "RichTextProcessor", "ErrorService", "Storage", "_", function ($rootScope, $modal, $modalStack, $filter, $q, qSync, MtpApiFileManager, MtpApiManager, RichTextProcessor, ErrorService, Storage, _) {
+.service('AppUsersManager', function ($rootScope, $modal, $modalStack, $filter, $q, qSync, MtpApiFileManager, MtpApiManager, RichTextProcessor, ErrorService, Storage, _) {
   var users = {},
       usernames = {},
       cachedPhotoLocations = {},
@@ -58218,9 +58218,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     resolveUsername: resolveUsername,
     openImportContact: openImportContact
   }
-}])
+})
 
-.service('PhonebookContactsService', ["$q", "$modal", "$sce", "FileManager", function ($q, $modal, $sce, FileManager) {
+.service('PhonebookContactsService', function ($q, $modal, $sce, FileManager) {
 
   return {
     isAvailable: isAvailable,
@@ -58303,9 +58303,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     return deferred.promise;
   }
 
-}])
+})
 
-.service('AppChatsManager', ["$q", "$rootScope", "$modal", "_", "MtpApiFileManager", "MtpApiManager", "AppUsersManager", "AppPhotosManager", "RichTextProcessor", function ($q, $rootScope, $modal, _, MtpApiFileManager, MtpApiManager, AppUsersManager, AppPhotosManager, RichTextProcessor) {
+.service('AppChatsManager', function ($q, $rootScope, $modal, _, MtpApiFileManager, MtpApiManager, AppUsersManager, AppPhotosManager, RichTextProcessor) {
   var chats = {},
       usernames = {},
       channelAccess = {},
@@ -58561,9 +58561,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     wrapForFull: wrapForFull,
     openChat: openChat
   }
-}])
+})
 
-.service('AppPeersManager', ["qSync", "AppUsersManager", "AppChatsManager", "MtpApiManager", function (qSync, AppUsersManager, AppChatsManager, MtpApiManager) {
+.service('AppPeersManager', function (qSync, AppUsersManager, AppChatsManager, MtpApiManager) {
 
   function getInputPeer (peerString) {
     var firstChar = peerString.charAt(0),
@@ -58723,9 +58723,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     isMegagroup: isMegagroup,
     isBot: isBot
   }
-}])
+})
 
-.service('AppProfileManager', ["$q", "$rootScope", "AppUsersManager", "AppChatsManager", "AppPeersManager", "AppPhotosManager", "NotificationsManager", "MtpApiManager", "ApiUpdatesManager", "RichTextProcessor", function ($q, $rootScope, AppUsersManager, AppChatsManager, AppPeersManager, AppPhotosManager, NotificationsManager, MtpApiManager, ApiUpdatesManager, RichTextProcessor) {
+.service('AppProfileManager', function ($q, $rootScope, AppUsersManager, AppChatsManager, AppPeersManager, AppPhotosManager, NotificationsManager, MtpApiManager, ApiUpdatesManager, RichTextProcessor) {
 
   var botInfos = {};
   var chatsFull = {};
@@ -59034,9 +59034,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     getChatFull: getChatFull,
     getChannelFull: getChannelFull
   }
-}])
+})
 
-.service('AppPhotosManager', ["$modal", "$window", "$rootScope", "MtpApiManager", "MtpApiFileManager", "AppUsersManager", "FileManager", function ($modal, $window, $rootScope, MtpApiManager, MtpApiFileManager, AppUsersManager, FileManager) {
+.service('AppPhotosManager', function ($modal, $window, $rootScope, MtpApiManager, MtpApiFileManager, AppUsersManager, FileManager) {
   var photos = {},
       windowW = $(window).width(),
       windowH = $(window).height();
@@ -59290,9 +59290,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     openPhoto: openPhoto,
     downloadPhoto: downloadPhoto
   }
-}])
+})
 
-.service('AppWebPagesManager', ["$modal", "$sce", "$window", "$rootScope", "MtpApiManager", "AppPhotosManager", "AppDocsManager", "RichTextProcessor", function ($modal, $sce, $window, $rootScope, MtpApiManager, AppPhotosManager, AppDocsManager, RichTextProcessor) {
+.service('AppWebPagesManager', function ($modal, $sce, $window, $rootScope, MtpApiManager, AppPhotosManager, AppDocsManager, RichTextProcessor) {
 
   var webpages = {};
   var pendingWebPages = {};
@@ -59437,10 +59437,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     wrapForFull: wrapForFull,
     wrapForHistory: wrapForHistory
   }
-}])
+})
 
 
-.service('AppVideoManager', ["$sce", "$rootScope", "$modal", "$window", "MtpApiFileManager", "AppUsersManager", "FileManager", "qSync", function ($sce, $rootScope, $modal, $window, MtpApiFileManager, AppUsersManager, FileManager, qSync) {
+.service('AppVideoManager', function ($sce, $rootScope, $modal, $window, MtpApiFileManager, AppUsersManager, FileManager, qSync) {
   var videos = {},
       videosForHistory = {},
       windowW = $(window).width(),
@@ -59634,9 +59634,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     downloadVideo: downloadVideo,
     saveVideoFile: saveVideoFile
   }
-}])
+})
 
-.service('AppDocsManager', ["$sce", "$rootScope", "$modal", "$window", "$q", "RichTextProcessor", "MtpApiFileManager", "FileManager", "qSync", function ($sce, $rootScope, $modal, $window, $q, RichTextProcessor, MtpApiFileManager, FileManager, qSync) {
+.service('AppDocsManager', function ($sce, $rootScope, $modal, $window, $q, RichTextProcessor, MtpApiFileManager, FileManager, qSync) {
   var docs = {},
       docsForHistory = {},
       windowW = $(window).width(),
@@ -59873,9 +59873,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     openDoc: openDoc,
     saveDocFile: saveDocFile
   }
-}])
+})
 
-.service('AppAudioManager', ["$sce", "$rootScope", "$modal", "$window", "MtpApiFileManager", "FileManager", "qSync", function ($sce, $rootScope, $modal, $window, MtpApiFileManager, FileManager, qSync) {
+.service('AppAudioManager', function ($sce, $rootScope, $modal, $window, MtpApiFileManager, FileManager, qSync) {
   var audios = {};
   var audiosForHistory = {};
 
@@ -59985,9 +59985,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     downloadAudio: downloadAudio,
     saveAudioFile: saveAudioFile
   }
-}])
+})
 
-.service('AppStickersManager', ["$q", "$rootScope", "$modal", "_", "FileManager", "MtpApiManager", "MtpApiFileManager", "AppDocsManager", "Storage", function ($q, $rootScope, $modal, _, FileManager, MtpApiManager, MtpApiFileManager, AppDocsManager, Storage) {
+.service('AppStickersManager', function ($q, $rootScope, $modal, _, FileManager, MtpApiManager, MtpApiFileManager, AppDocsManager, Storage) {
 
   var currentStickers = [];
   var currentStickersets = [];
@@ -60243,9 +60243,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       windowClass: 'stickerset_modal_window mobile_modal'
     });
   }
-}])
+})
 
-.service('ApiUpdatesManager', ["$rootScope", "MtpNetworkerFactory", "AppUsersManager", "AppChatsManager", "AppPeersManager", "MtpApiManager", function ($rootScope, MtpNetworkerFactory, AppUsersManager, AppChatsManager, AppPeersManager, MtpApiManager) {
+.service('ApiUpdatesManager', function ($rootScope, MtpNetworkerFactory, AppUsersManager, AppChatsManager, AppPeersManager, MtpApiManager) {
 
   var updatesState = {
     pendingPtsUpdates: [],
@@ -60703,9 +60703,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     addChannelState: addChannelState,
     attach: attach
   }
-}])
+})
 
-.service('StatusManager', ["$timeout", "$rootScope", "MtpApiManager", "AppUsersManager", "IdleManager", function ($timeout, $rootScope, MtpApiManager, AppUsersManager, IdleManager) {
+.service('StatusManager', function ($timeout, $rootScope, MtpApiManager, AppUsersManager, IdleManager) {
 
   var toPromise;
   var lastOnlineUpdated = 0;
@@ -60773,9 +60773,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     return true;
   }
 
-}])
+})
 
-.service('NotificationsManager', ["$rootScope", "$window", "$interval", "$q", "_", "MtpApiManager", "AppPeersManager", "IdleManager", "Storage", "AppRuntimeManager", "FileManager", function ($rootScope, $window, $interval, $q, _, MtpApiManager, AppPeersManager, IdleManager, Storage, AppRuntimeManager, FileManager) {
+.service('NotificationsManager', function ($rootScope, $window, $interval, $q, _, MtpApiManager, AppPeersManager, IdleManager, Storage, AppRuntimeManager, FileManager) {
 
   navigator.vibrate = navigator.vibrate || navigator.mozVibrate || navigator.webkitVibrate;
 
@@ -61215,9 +61215,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     return vibrateSupport;
   }
 
-}])
+})
 
-.service('PasswordManager', ["$timeout", "$q", "$rootScope", "MtpApiManager", "CryptoWorker", "MtpSecureRandom", function ($timeout, $q, $rootScope, MtpApiManager, CryptoWorker, MtpSecureRandom) {
+.service('PasswordManager', function ($timeout, $q, $rootScope, MtpApiManager, CryptoWorker, MtpSecureRandom) {
 
   return {
     check: check,
@@ -61315,10 +61315,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     return CryptoWorker.sha256Hash(buffer);
   }
 
-}])
+})
 
 
-.service('ErrorService', ["$rootScope", "$modal", "$window", function ($rootScope, $modal, $window) {
+.service('ErrorService', function ($rootScope, $modal, $window) {
 
   var shownBoxes = 0;
 
@@ -61383,11 +61383,11 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     alert: alert,
     confirm: confirm
   }
-}])
+})
 
 
 
-.service('PeersSelectService', ["$rootScope", "$modal", function ($rootScope, $modal) {
+.service('PeersSelectService', function ($rootScope, $modal) {
 
   function selectPeer (options) {
     var scope = $rootScope.$new();
@@ -61434,10 +61434,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     selectPeer: selectPeer,
     selectPeers: selectPeers
   }
-}])
+})
 
 
-.service('ContactsSelectService', ["$rootScope", "$modal", function ($rootScope, $modal) {
+.service('ContactsSelectService', function ($rootScope, $modal) {
 
   function select (multiSelect, options) {
     options = options || {};
@@ -61467,10 +61467,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       return select (false, options);
     }
   }
-}])
+})
 
 
-.service('ChangelogNotifyService', ["Storage", "$rootScope", "$modal", function (Storage, $rootScope, $modal) {
+.service('ChangelogNotifyService', function (Storage, $rootScope, $modal) {
 
   function checkUpdate () {
     Storage.get('last_version').then(function (lastVersion) {
@@ -61499,9 +61499,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     checkUpdate: checkUpdate,
     showChangelog: showChangelog
   }
-}])
+})
 
-.service('HttpsMigrateService', ["ErrorService", "Storage", function (ErrorService, Storage) {
+.service('HttpsMigrateService', function (ErrorService, Storage) {
 
   var started = false;
 
@@ -61540,10 +61540,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     start: start,
     check: check
   }
-}])
+})
 
 
-.service('LayoutSwitchService', ["ErrorService", "Storage", "AppRuntimeManager", "$window", function (ErrorService, Storage, AppRuntimeManager, $window) {
+.service('LayoutSwitchService', function (ErrorService, Storage, AppRuntimeManager, $window) {
 
   var started = false;
   var confirmShown = false;
@@ -61601,9 +61601,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     start: start,
     switchLayout: switchLayout
   }
-}])
+})
 
-.service('TelegramMeWebService', ["Storage", function (Storage) {
+.service('TelegramMeWebService', function (Storage) {
 
   var disabled =  Config.Modes.test ||
                   Config.App.domains.indexOf(location.hostname) == -1 ||
@@ -61636,10 +61636,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     setAuthorized: sendAsyncRequest
   };
 
-}])
+})
 
 
-.service('LocationParamsService', ["$rootScope", "$routeParams", "AppPeersManager", "AppUsersManager", "AppMessagesManager", "PeersSelectService", "AppStickersManager", "ErrorService", function ($rootScope, $routeParams, AppPeersManager, AppUsersManager, AppMessagesManager, PeersSelectService, AppStickersManager, ErrorService) {
+.service('LocationParamsService', function ($rootScope, $routeParams, AppPeersManager, AppUsersManager, AppMessagesManager, PeersSelectService, AppStickersManager, ErrorService) {
 
   var tgAddrRegExp = /^(web\+)?tg:(\/\/)?(.+)/;
 
@@ -61845,9 +61845,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     start: start,
     shareUrl: shareUrl
   };
-}])
+})
 
-  .service('TemplatesService', ["$rootScope", "$http", "localStorageService", function ($rootScope, $http, localStorageService) {
+  .service('TemplatesService', function ($rootScope, $http, localStorageService) {
 
     function addTemplates($fileContent, defaultTemplates) {
       // Templates support
@@ -61929,9 +61929,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       addTemplate: addTemplate,
       removeTemplate: removeTemplate
     };
-  }])
+  })
 
-  .service('TemplatesChangelogNotifyService', ["TemplatesService", "localStorageService", "$rootScope", "$modal", function (TemplatesService, localStorageService, $rootScope, $modal) {
+  .service('TemplatesChangelogNotifyService', function (TemplatesService, localStorageService, $rootScope, $modal) {
 
     function checkUpdate() {
       var templatesLanguage = localStorageService.get("templatesLanguage"),
@@ -61974,7 +61974,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       checkUpdate: checkUpdate,
       showChangelog: showChangelog
     };
-  }])
+  })
 
 
 /*!
@@ -61989,7 +61989,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 /* Controllers */
 
 angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.utils'])
-  .controller('AppWelcomeController', ["$scope", "$location", "MtpApiManager", "ErrorService", "ChangelogNotifyService", "LayoutSwitchService", function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
+  .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
         $location.url('/im');
@@ -62000,9 +62000,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     ChangelogNotifyService.checkUpdate();
     LayoutSwitchService.start();
-  }])
+  })
 
-  .controller('AppLoginController', ["$scope", "$rootScope", "$location", "$timeout", "$modal", "$modalStack", "MtpApiManager", "ErrorService", "NotificationsManager", "PasswordManager", "ChangelogNotifyService", "IdleManager", "LayoutSwitchService", "TelegramMeWebService", "_", function ($scope, $rootScope, $location, $timeout, $modal, $modalStack, MtpApiManager, ErrorService, NotificationsManager, PasswordManager, ChangelogNotifyService, IdleManager, LayoutSwitchService, TelegramMeWebService, _) {
+  .controller('AppLoginController', function ($scope, $rootScope, $location, $timeout, $modal, $modalStack, MtpApiManager, ErrorService, NotificationsManager, PasswordManager, ChangelogNotifyService, IdleManager, LayoutSwitchService, TelegramMeWebService, _) {
 
     $modalStack.dismissAll();
     IdleManager.start();
@@ -62376,9 +62376,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     ChangelogNotifyService.checkUpdate();
     LayoutSwitchService.start();
-  }])
+  })
 
-  .controller('AppIMController', ["$q", "qSync", "$scope", "$location", "$routeParams", "$modal", "$rootScope", "$modalStack", "MtpApiManager", "AppUsersManager", "AppChatsManager", "AppMessagesManager", "AppPeersManager", "ContactsSelectService", "ChangelogNotifyService", "ErrorService", "AppRuntimeManager", "LayoutSwitchService", "LocationParamsService", "AppStickersManager", "TemplatesChangelogNotifyService", "localStorageService", "TemplatesService", function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService) {
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService) {
 
     $scope.$on('$routeUpdate', updateCurDialog);
 
@@ -62608,9 +62608,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
     LocationParamsService.start();
     AppStickersManager.start();
-  }])
+  })
 
-  .controller('AppImDialogsController', ["$scope", "$location", "$q", "$timeout", "$routeParams", "MtpApiManager", "AppUsersManager", "AppChatsManager", "AppMessagesManager", "AppProfileManager", "AppPeersManager", "PhonebookContactsService", "ErrorService", "AppRuntimeManager", function ($scope, $location, $q, $timeout, $routeParams, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppProfileManager, AppPeersManager, PhonebookContactsService, ErrorService, AppRuntimeManager) {
+  .controller('AppImDialogsController', function ($scope, $location, $q, $timeout, $routeParams, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppProfileManager, AppPeersManager, PhonebookContactsService, ErrorService, AppRuntimeManager) {
 
     $scope.dialogs = [];
     $scope.contacts = [];
@@ -62999,9 +62999,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       }
     }
 
-  }])
+  })
 
-  .controller('AppImHistoryController', ["$scope", "$location", "$timeout", "$modal", "$rootScope", "MtpApiManager", "AppUsersManager", "AppChatsManager", "AppMessagesManager", "AppPeersManager", "ApiUpdatesManager", "PeersSelectService", "IdleManager", "StatusManager", "NotificationsManager", "ErrorService", function ($scope, $location, $timeout, $modal, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService) {
+  .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService) {
 
     $scope.$watchCollection('curDialog', applyDialogSelect);
 
@@ -64032,13 +64032,13 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       }
     });
 
-  }])
+  })
 
-  .controller('AppImPanelController', ["$scope", function($scope) {
+  .controller('AppImPanelController', function($scope) {
     $scope.$on('user_update', angular.noop);
-  }])
+  })
 
-  .controller('AppImSendController', ["$scope", "$timeout", "MtpApiManager", "Storage", "AppProfileManager", "AppChatsManager", "AppUsersManager", "AppPeersManager", "AppDocsManager", "AppMessagesManager", "MtpApiFileManager", "RichTextProcessor", "localStorageService", function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, localStorageService) {
+  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, localStorageService) {
     $scope.templatesDic = {};
     loadTemplatesFromStorage();
 
@@ -64468,9 +64468,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       $scope.$broadcast('ui_message_send');
       $scope.$broadcast('ui_peer_draft');
     }
-  }])
+  })
 
-  .controller('AppLangSelectController', ["$scope", "_", "Storage", "ErrorService", "AppRuntimeManager", function ($scope, _, Storage, ErrorService, AppRuntimeManager) {
+  .controller('AppLangSelectController', function ($scope, _, Storage, ErrorService, AppRuntimeManager) {
     $scope.supportedLocales = Config.I18n.supported;
     $scope.langNames = Config.I18n.languages;
     $scope.curLocale = Config.I18n.locale;
@@ -64488,15 +64488,15 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         });
       }
     };
-  }])
+  })
 
-  .controller('AppFooterController', ["$scope", "LayoutSwitchService", function ($scope, LayoutSwitchService) {
+  .controller('AppFooterController', function ($scope, LayoutSwitchService) {
     $scope.switchLayout = function (mobile) {
       LayoutSwitchService.switchLayout(mobile);
     }
-  }])
+  })
 
-  .controller('PhotoModalController', ["$q", "$scope", "$rootScope", "$modalInstance", "AppPhotosManager", "AppMessagesManager", "AppPeersManager", "AppWebPagesManager", "PeersSelectService", "ErrorService", function ($q, $scope, $rootScope, $modalInstance, AppPhotosManager, AppMessagesManager, AppPeersManager, AppWebPagesManager, PeersSelectService, ErrorService) {
+  .controller('PhotoModalController', function ($q, $scope, $rootScope, $modalInstance, AppPhotosManager, AppMessagesManager, AppPeersManager, AppWebPagesManager, PeersSelectService, ErrorService) {
 
     $scope.photo = AppPhotosManager.wrapForFull($scope.photoID);
     $scope.nav = {};
@@ -64696,9 +64696,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
-  }])
+  })
 
-  .controller('UserpicModalController', ["$q", "$scope", "$rootScope", "$modalInstance", "MtpApiManager", "AppPhotosManager", "AppUsersManager", "AppPeersManager", "AppMessagesManager", "ApiUpdatesManager", "PeersSelectService", "ErrorService", function ($q, $scope, $rootScope, $modalInstance, MtpApiManager, AppPhotosManager, AppUsersManager, AppPeersManager, AppMessagesManager, ApiUpdatesManager, PeersSelectService, ErrorService) {
+  .controller('UserpicModalController', function ($q, $scope, $rootScope, $modalInstance, MtpApiManager, AppPhotosManager, AppUsersManager, AppPeersManager, AppMessagesManager, ApiUpdatesManager, PeersSelectService, ErrorService) {
 
     $scope.photo = AppPhotosManager.wrapForFull($scope.photoID);
     $scope.photo.thumb = {
@@ -64892,9 +64892,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       AppPhotosManager.downloadPhoto($scope.photoID);
     };
 
-  }])
+  })
 
-  .controller('ChatpicModalController', ["$q", "$scope", "$rootScope", "$modalInstance", "MtpApiManager", "AppPhotosManager", "AppChatsManager", "AppPeersManager", "AppMessagesManager", "ApiUpdatesManager", "PeersSelectService", "ErrorService", function ($q, $scope, $rootScope, $modalInstance, MtpApiManager, AppPhotosManager, AppChatsManager, AppPeersManager, AppMessagesManager, ApiUpdatesManager, PeersSelectService, ErrorService) {
+  .controller('ChatpicModalController', function ($q, $scope, $rootScope, $modalInstance, MtpApiManager, AppPhotosManager, AppChatsManager, AppPeersManager, AppMessagesManager, ApiUpdatesManager, PeersSelectService, ErrorService) {
 
     $scope.photo = AppPhotosManager.wrapForFull($scope.photoID);
     $scope.photo.thumb = {
@@ -64951,9 +64951,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       AppPhotosManager.downloadPhoto($scope.photoID);
     };
 
-  }])
+  })
 
-  .controller('VideoModalController', ["$scope", "$rootScope", "$modalInstance", "PeersSelectService", "AppMessagesManager", "AppVideoManager", "AppPeersManager", "ErrorService", function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppVideoManager, AppPeersManager, ErrorService) {
+  .controller('VideoModalController', function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppVideoManager, AppPeersManager, ErrorService) {
 
     $scope.video = AppVideoManager.wrapForFull($scope.videoID);
 
@@ -64990,9 +64990,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         $modalInstance.dismiss();
       }
     });
-  }])
+  })
 
-  .controller('DocumentModalController', ["$scope", "$rootScope", "$modalInstance", "PeersSelectService", "AppMessagesManager", "AppDocsManager", "AppPeersManager", "ErrorService", function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppDocsManager, AppPeersManager, ErrorService) {
+  .controller('DocumentModalController', function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppDocsManager, AppPeersManager, ErrorService) {
 
     $scope.document = AppDocsManager.wrapForHistory($scope.docID);
 
@@ -65025,9 +65025,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         $modalInstance.dismiss();
       }
     });
-  }])
+  })
 
-  .controller('EmbedModalController', ["$q", "$scope", "$rootScope", "$modalInstance", "AppPhotosManager", "AppMessagesManager", "AppPeersManager", "AppWebPagesManager", "PeersSelectService", "ErrorService", function ($q, $scope, $rootScope, $modalInstance, AppPhotosManager, AppMessagesManager, AppPeersManager, AppWebPagesManager, PeersSelectService, ErrorService) {
+  .controller('EmbedModalController', function ($q, $scope, $rootScope, $modalInstance, AppPhotosManager, AppMessagesManager, AppPeersManager, AppWebPagesManager, PeersSelectService, ErrorService) {
 
     $scope.webpage = AppWebPagesManager.wrapForFull($scope.webpageID);
 
@@ -65053,9 +65053,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
-  }])
+  })
 
-  .controller('UserModalController', ["$scope", "$location", "$rootScope", "AppProfileManager", "$modal", "AppUsersManager", "MtpApiManager", "NotificationsManager", "AppPhotosManager", "AppMessagesManager", "AppPeersManager", "PeersSelectService", "ErrorService", function ($scope, $location, $rootScope, AppProfileManager, $modal, AppUsersManager, MtpApiManager, NotificationsManager, AppPhotosManager, AppMessagesManager, AppPeersManager, PeersSelectService, ErrorService) {
+  .controller('UserModalController', function ($scope, $location, $rootScope, AppProfileManager, $modal, AppUsersManager, MtpApiManager, NotificationsManager, AppPhotosManager, AppMessagesManager, AppPeersManager, PeersSelectService, ErrorService) {
 
     var peerString = AppUsersManager.getUserString($scope.userID);
 
@@ -65164,9 +65164,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     }
 
-  }])
+  })
 
-  .controller('ChatModalController', ["$scope", "$timeout", "$rootScope", "$modal", "AppUsersManager", "AppChatsManager", "AppProfileManager", "AppPhotosManager", "MtpApiManager", "MtpApiFileManager", "NotificationsManager", "AppMessagesManager", "AppPeersManager", "ApiUpdatesManager", "ContactsSelectService", "ErrorService", function ($scope, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {
+  .controller('ChatModalController', function ($scope, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {
 
     $scope.chatFull = AppChatsManager.wrapForFull($scope.chatID, {});
     $scope.settings = {notifications: true};
@@ -65337,9 +65337,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       return AppChatsManager.hasRights($scope.chatID, action);
     }
 
-  }])
+  })
 
-  .controller('ChannelModalController', ["$scope", "$timeout", "$rootScope", "$modal", "AppUsersManager", "AppChatsManager", "AppProfileManager", "AppPhotosManager", "MtpApiManager", "MtpApiFileManager", "NotificationsManager", "AppMessagesManager", "AppPeersManager", "ApiUpdatesManager", "ContactsSelectService", "ErrorService", function ($scope, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {
+  .controller('ChannelModalController', function ($scope, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {
 
     $scope.chatFull = AppChatsManager.wrapForFull($scope.chatID, {});
     $scope.settings = {notifications: true};
@@ -65499,9 +65499,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       return AppChatsManager.hasRights($scope.chatID, action);
     }
 
-  }])
+  })
 
-  .controller('SettingsModalController', ["$rootScope", "$scope", "$timeout", "$modal", "AppUsersManager", "AppChatsManager", "AppPhotosManager", "MtpApiManager", "Storage", "NotificationsManager", "MtpApiFileManager", "PasswordManager", "ApiUpdatesManager", "ChangelogNotifyService", "LayoutSwitchService", "AppRuntimeManager", "ErrorService", "_", function ($rootScope, $scope, $timeout, $modal, AppUsersManager, AppChatsManager, AppPhotosManager, MtpApiManager, Storage, NotificationsManager, MtpApiFileManager, PasswordManager, ApiUpdatesManager, ChangelogNotifyService, LayoutSwitchService, AppRuntimeManager, ErrorService, _) {
+  .controller('SettingsModalController', function ($rootScope, $scope, $timeout, $modal, AppUsersManager, AppChatsManager, AppPhotosManager, MtpApiManager, Storage, NotificationsManager, MtpApiFileManager, PasswordManager, ApiUpdatesManager, ChangelogNotifyService, LayoutSwitchService, AppRuntimeManager, ErrorService, _) {
 
     $scope.profile = {};
     $scope.photo = {};
@@ -65761,9 +65761,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.switchToDesktop = function () {
       LayoutSwitchService.switchLayout(false);
     };
-  }])
+  })
 
-  .controller('ChangelogModalController', ["$scope", "$modal", function ($scope, $modal) {
+  .controller('ChangelogModalController', function ($scope, $modal) {
 
     $scope.currentVersion = Config.App.version;
     if (!$scope.lastVersion) {
@@ -65801,9 +65801,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         windowClass: 'md_simple_modal_window mobile_modal'
       });
     };
-  }])
+  })
 
-  .controller('ProfileEditModalController', ["$scope", "$modalInstance", "AppUsersManager", "MtpApiManager", function ($scope,  $modalInstance, AppUsersManager, MtpApiManager) {
+  .controller('ProfileEditModalController', function ($scope,  $modalInstance, AppUsersManager, MtpApiManager) {
 
     $scope.profile = {};
     $scope.error = {};
@@ -65843,9 +65843,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         delete $scope.profile.updating;
       });
     }
-  }])
+  })
 
-  .controller('UsernameEditModalController', ["$scope", "$modalInstance", "AppUsersManager", "MtpApiManager", function ($scope,  $modalInstance, AppUsersManager, MtpApiManager) {
+  .controller('UsernameEditModalController', function ($scope,  $modalInstance, AppUsersManager, MtpApiManager) {
 
     $scope.profile = {};
     $scope.error = {};
@@ -65901,9 +65901,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         }
       });
     })
-  }])
+  })
 
-  .controller('SessionsListModalController', ["$scope", "$q", "$timeout", "_", "MtpApiManager", "ErrorService", "$modalInstance", function ($scope, $q, $timeout, _, MtpApiManager, ErrorService, $modalInstance) {
+  .controller('SessionsListModalController', function ($scope, $q, $timeout, _, MtpApiManager, ErrorService, $modalInstance) {
 
     $scope.slice = {limit: 20, limitDelta: 20};
 
@@ -65961,9 +65961,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       stopped = true;
     });
 
-  }])
+  })
 
-  .controller('PasswordUpdateModalController', ["$scope", "$q", "_", "PasswordManager", "MtpApiManager", "ErrorService", "$modalInstance", function ($scope, $q, _, PasswordManager, MtpApiManager, ErrorService, $modalInstance) {
+  .controller('PasswordUpdateModalController', function ($scope, $q, _, PasswordManager, MtpApiManager, ErrorService, $modalInstance) {
 
     $scope.passwordSettings = {};
 
@@ -66067,9 +66067,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       }
       $scope.$broadcast('value_updated');
     })
-  }])
+  })
 
-  .controller('PasswordRecoveryModalController', ["$scope", "$q", "_", "PasswordManager", "MtpApiManager", "ErrorService", "$modalInstance", function ($scope, $q, _, PasswordManager, MtpApiManager, ErrorService, $modalInstance) {
+  .controller('PasswordRecoveryModalController', function ($scope, $q, _, PasswordManager, MtpApiManager, ErrorService, $modalInstance) {
 
     $scope.checkCode = function () {
       $scope.recovery.updating = true;
@@ -66099,9 +66099,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
-  }])
+  })
 
-  .controller('ContactsModalController', ["$scope", "$timeout", "$modal", "$modalInstance", "MtpApiManager", "AppUsersManager", "ErrorService", function ($scope, $timeout, $modal, $modalInstance, MtpApiManager, AppUsersManager, ErrorService) {
+  .controller('ContactsModalController', function ($scope, $timeout, $modal, $modalInstance, MtpApiManager, AppUsersManager, ErrorService) {
 
     $scope.contacts = [];
     $scope.foundPeers = [];
@@ -66231,9 +66231,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       AppUsersManager.openImportContact();
     };
 
-  }])
+  })
 
-  .controller('PeerSelectController', ["$scope", "$modalInstance", "$q", "AppPeersManager", "ErrorService", function ($scope, $modalInstance, $q, AppPeersManager, ErrorService) {
+  .controller('PeerSelectController', function ($scope, $modalInstance, $q, AppPeersManager, ErrorService) {
 
     $scope.selectedPeers = {};
     $scope.selectedPeerIDs = [];
@@ -66287,9 +66287,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.toggleSearch = function () {
       $scope.$broadcast('dialogs_search_toggle');
     };
-  }])
+  })
 
-  .controller('ChatCreateModalController', ["$scope", "$modalInstance", "$rootScope", "MtpApiManager", "AppUsersManager", "AppChatsManager", "ApiUpdatesManager", function ($scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, ApiUpdatesManager) {
+  .controller('ChatCreateModalController', function ($scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, ApiUpdatesManager) {
     $scope.group = {name: ''};
 
     $scope.createGroup = function () {
@@ -66324,9 +66324,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
-  }])
+  })
 
-  .controller('ChatEditModalController', ["$scope", "$modalInstance", "$rootScope", "MtpApiManager", "AppUsersManager", "AppChatsManager", "ApiUpdatesManager", function ($scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, ApiUpdatesManager) {
+  .controller('ChatEditModalController', function ($scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, ApiUpdatesManager) {
 
     var chat = AppChatsManager.getChat($scope.chatID);
     $scope.group = {name: chat.title};
@@ -66362,9 +66362,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         delete $scope.group.updating;
       });
     };
-  }])
+  })
 
-  .controller('ChannelEditModalController', ["$q", "$scope", "$modalInstance", "$rootScope", "MtpApiManager", "AppUsersManager", "AppChatsManager", "AppProfileManager", "ApiUpdatesManager", function ($q, $scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, AppProfileManager, ApiUpdatesManager) {
+  .controller('ChannelEditModalController', function ($q, $scope, $modalInstance, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, AppProfileManager, ApiUpdatesManager) {
 
     var channel = AppChatsManager.getChat($scope.chatID);
     var initial = {title: channel.title};
@@ -66411,9 +66411,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         about: $scope.channel.about
       });
     }
-  }])
+  })
 
-  .controller('ChatInviteLinkModalController', ["_", "$scope", "$timeout", "$modalInstance", "AppChatsManager", "AppProfileManager", "ErrorService", function (_, $scope, $timeout, $modalInstance, AppChatsManager, AppProfileManager, ErrorService) {
+  .controller('ChatInviteLinkModalController', function (_, $scope, $timeout, $modalInstance, AppChatsManager, AppProfileManager, ErrorService) {
 
     $scope.exportedInvite = {link: _('group_invite_link_loading_raw')};
 
@@ -66455,9 +66455,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     updateLink();
 
-  }])
+  })
 
-  .controller('ImportContactModalController', ["$scope", "$modalInstance", "$rootScope", "AppUsersManager", "ErrorService", "PhonebookContactsService", function ($scope, $modalInstance, $rootScope, AppUsersManager, ErrorService, PhonebookContactsService) {
+  .controller('ImportContactModalController', function ($scope, $modalInstance, $rootScope, AppUsersManager, ErrorService, PhonebookContactsService) {
     if ($scope.importContact === undefined) {
       $scope.importContact = {};
     }
@@ -66494,9 +66494,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       })
     };
 
-  }])
+  })
 
-  .controller('CountrySelectModalController', ["$scope", "$modalInstance", "$rootScope", "_", function ($scope, $modalInstance, $rootScope, _) {
+  .controller('CountrySelectModalController', function ($scope, $modalInstance, $rootScope, _) {
 
     $scope.search = {};
     $scope.slice = {limit: 20, limitDelta: 20}
@@ -66536,10 +66536,10 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         });
       }
     });
-  }])
+  })
 
 
-  .controller('PhonebookModalController', ["$scope", "$modalInstance", "$rootScope", "AppUsersManager", "PhonebookContactsService", "ErrorService", function ($scope, $modalInstance, $rootScope, AppUsersManager, PhonebookContactsService, ErrorService) {
+  .controller('PhonebookModalController', function ($scope, $modalInstance, $rootScope, AppUsersManager, PhonebookContactsService, ErrorService) {
 
     $scope.search           = {};
     $scope.phonebook        = [];
@@ -66647,9 +66647,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
-  }])
+  })
 
-  .controller('StickersetModalController', ["$scope", "$rootScope", "$modalInstance", "MtpApiManager", "RichTextProcessor", "AppStickersManager", "AppDocsManager", "AppMessagesManager", "LocationParamsService", function ($scope, $rootScope, $modalInstance, MtpApiManager, RichTextProcessor, AppStickersManager, AppDocsManager, AppMessagesManager, LocationParamsService) {
+  .controller('StickersetModalController', function ($scope, $rootScope, $modalInstance, MtpApiManager, RichTextProcessor, AppStickersManager, AppDocsManager, AppMessagesManager, LocationParamsService) {
     $scope.slice = {limit: 20, limitDelta: 20};
 
     AppStickersManager.getStickerset($scope.inputStickerset).then(function (result) {
@@ -66696,8 +66696,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.share = function () {
       LocationParamsService.shareUrl('https://telegram.me/addstickers/' + $scope.stickerset.short_name, $scope.stickerset.title);
     };
-  }])
-  .controller('TemplatesChangelogModalController', ["$scope", function ($scope) {
+  })
+  .controller('TemplatesChangelogModalController', function ($scope) {
 
     var TYPEADD = "ADDEDTEMPLATE";
     var TYPEUPDATE = "UPDATEDTEMPLATE";
@@ -66734,8 +66734,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     };
 
     $scope.computeUpdates();
-  }])
-  .controller('LoadDeafultsTemplatesController', ["$scope", "$modalInstance", "TemplatesService", "localStorageService", function ($scope,  $modalInstance, TemplatesService, localStorageService) {
+  })
+  .controller('LoadDeafultsTemplatesController', function ($scope,  $modalInstance, TemplatesService, localStorageService) {
 
     $scope.defaultLanguages = "";
 
@@ -66744,7 +66744,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       TemplatesService.updateDefaultTemplates($scope.defaultLanguages);
       $modalInstance.close();
     }
-  }])
+  })
 
 
 
@@ -66761,25 +66761,25 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
 angular.module('myApp.filters', ['myApp.i18n'])
 
-  .filter('userName', ["_", function(_) {
+  .filter('userName', function(_) {
     return function (user) {
       if (!user || !user.first_name && !user.last_name) {
         return _('user_name_deleted');
       }
       return user.first_name + (user.last_name ? ' ' + user.last_name : '');
     }
-  }])
+  })
 
-  .filter('userFirstName', ["_", function(_) {
+  .filter('userFirstName', function(_) {
     return function (user) {
       if (!user || !user.first_name && !user.last_name) {
         return _('user_first_name_deleted');
       }
       return user.first_name || user.last_name;
     }
-  }])
+  })
 
-  .filter('userStatus', ["$filter", "_", function($filter, _) {
+  .filter('userStatus', function($filter, _) {
     var relativeTimeFilter = $filter('relativeTime');
     return function (user, botChatPrivacy) {
       var statusType = user && user.status && user.status._;
@@ -66817,18 +66817,18 @@ angular.module('myApp.filters', ['myApp.i18n'])
           return _('user_status_long_ago');
       }
     }
-  }])
+  })
 
-  .filter('chatTitle', ["_", function(_) {
+  .filter('chatTitle', function(_) {
     return function (chat) {
       if (!chat || !chat.title) {
         return _('chat_title_deleted');
       }
       return chat.title;
     }
-  }])
+  })
 
-  .filter('dateOrTime', ["$filter", function($filter) {
+  .filter('dateOrTime', function($filter) {
     var dateFilter = $filter('date');
 
     return function (timestamp, extended) {
@@ -66848,9 +66848,9 @@ angular.module('myApp.filters', ['myApp.i18n'])
 
       return dateFilter(ticks, format);
     }
-  }])
+  })
 
-  .filter('time', ["$filter", function($filter) {
+  .filter('time', function($filter) {
     var cachedDates = {},
         dateFilter = $filter('date'),
         format = Config.Mobile ? 'shortTime' : 'mediumTime';
@@ -66862,9 +66862,9 @@ angular.module('myApp.filters', ['myApp.i18n'])
 
       return cachedDates[timestamp] = dateFilter(timestamp * 1000, format);
     }
-  }])
+  })
 
-  .filter('myDate', ["$filter", function($filter) {
+  .filter('myDate', function($filter) {
     var cachedDates = {},
         dateFilter = $filter('date');
 
@@ -66875,7 +66875,7 @@ angular.module('myApp.filters', ['myApp.i18n'])
 
       return cachedDates[timestamp] = dateFilter(timestamp * 1000, 'fullDate');
     }
-  }])
+  })
 
   .filter('duration', [function() {
     return function (duration) {
@@ -66894,13 +66894,13 @@ angular.module('myApp.filters', ['myApp.i18n'])
     }
   }])
 
-  .filter('durationRemains', ["$filter", function($filter) {
+  .filter('durationRemains', function($filter) {
     var durationFilter = $filter('duration');
 
     return function (done, total) {
       return '-' + durationFilter(total - done);
     }
-  }])
+  })
 
   .filter('phoneNumber', [function() {
     return function (phoneRaw) {
@@ -66934,7 +66934,7 @@ angular.module('myApp.filters', ['myApp.i18n'])
     }
   }])
 
-  .filter('formatSizeProgress', ["$filter", "_", function ($filter, _) {
+  .filter('formatSizeProgress', function ($filter, _) {
     var formatSizeFilter = $filter('formatSize');
     return function (progress) {
       var done = formatSizeFilter(progress.done, true),
@@ -66947,7 +66947,7 @@ angular.module('myApp.filters', ['myApp.i18n'])
       }
       return _('format_size_progress', {done: done, total: total});
     }
-  }])
+  })
 
   .filter('formatShortNumber', [function () {
     return function (num) {
@@ -66972,14 +66972,14 @@ angular.module('myApp.filters', ['myApp.i18n'])
     }
   }])
 
-  .filter('richText', ["$filter", function ($filter) {
+  .filter('richText', function ($filter) {
     var linkyFilter = $filter('linky');
     return function (text) {
       return linkyFilter(text, '_blank').replace(/\n|&#10;/g, '<br/>');
     }
-  }])
+  })
 
-  .filter('relativeTime', ["$filter", "_", function($filter, _) {
+  .filter('relativeTime', function($filter, _) {
     var langMinutesPluralize = _.pluralize('relative_time_pluralize_minutes_ago'),
         langHoursPluralize = _.pluralize('relative_time_pluralize_hours_ago'),
         dateOrTimeFilter = $filter('dateOrTime');
@@ -67000,7 +67000,7 @@ angular.module('myApp.filters', ['myApp.i18n'])
       }
       return dateOrTimeFilter(timestamp, true);
     }
-  }])
+  })
 
 /*!
  * Webogram v0.5.2 - messaging web application for MTProto
@@ -67013,7 +67013,7 @@ angular.module('myApp.filters', ['myApp.i18n'])
 
 angular.module('myApp.services')
 
-.service('AppMessagesManager', ["$q", "$rootScope", "$location", "$filter", "$timeout", "$sce", "ApiUpdatesManager", "AppUsersManager", "AppChatsManager", "AppPeersManager", "AppPhotosManager", "AppVideoManager", "AppDocsManager", "AppStickersManager", "AppAudioManager", "AppWebPagesManager", "MtpApiManager", "MtpApiFileManager", "RichTextProcessor", "NotificationsManager", "Storage", "AppProfileManager", "TelegramMeWebService", "ErrorService", "StatusManager", "_", function ($q, $rootScope, $location, $filter, $timeout, $sce, ApiUpdatesManager, AppUsersManager, AppChatsManager, AppPeersManager, AppPhotosManager, AppVideoManager, AppDocsManager, AppStickersManager, AppAudioManager, AppWebPagesManager, MtpApiManager, MtpApiFileManager, RichTextProcessor, NotificationsManager, Storage, AppProfileManager, TelegramMeWebService, ErrorService, StatusManager, _) {
+.service('AppMessagesManager', function ($q, $rootScope, $location, $filter, $timeout, $sce, ApiUpdatesManager, AppUsersManager, AppChatsManager, AppPeersManager, AppPhotosManager, AppVideoManager, AppDocsManager, AppStickersManager, AppAudioManager, AppWebPagesManager, MtpApiManager, MtpApiFileManager, RichTextProcessor, NotificationsManager, Storage, AppProfileManager, TelegramMeWebService, ErrorService, StatusManager, _) {
 
   var messagesStorage = {};
   var messagesForHistory = {};
@@ -69991,7 +69991,7 @@ angular.module('myApp.services')
     wrapReplyMarkup: wrapReplyMarkup,
     regroupWrappedHistory: regroupWrappedHistory
   }
-}]);
+});
 
 angular.module("myApp.templates", []).run(["$templateCache", function($templateCache) {$templateCache.put("partials/desktop/audio_player.html","<div class=\"audio_player_wrap clearfix\">\n	<a class=\"im_message_file_button\" ng-click=\"togglePlay()\" ng-class=\"{im_message_file_button_dl_audio: audio.downloaded}\">\n	  <i class=\"im_message_file_button_icon\" ng-class=\"{audio_player_btn_icon_pause: mediaPlayer.player.playing}\"></i>\n	</a>\n	<div class=\"audio_player_title_wrap\">\n		<div class=\"audio_player_meta pull-right\" ng-if=\"audio.downloaded &amp;&amp; (mediaPlayer.player.duration || audio.duration)\" ng-switch=\"mediaPlayer.player.playing || mediaPlayer.player.currentTime > 0\">\n			<span ng-switch-when=\"true\" class=\"audio_player_duration\" ng-bind=\"mediaPlayer.player.currentTime | durationRemains : (mediaPlayer.player.duration || audio.duration)\"></span>\n			<span ng-switch-default class=\"audio_player_duration\" ng-bind=\"mediaPlayer.player.duration || audio.duration | duration\"></span>\n		</div>\n		<a ng-click=\"download()\" class=\"audio_player_title\" ng-switch=\"::audio.audioTitle.length > 0 ? 2 : (audio.file_name.length > 0 ? 1 : 0)\">\n			<span ng-switch-when=\"2\">\n				<strong ng-bind=\"::audio.audioPerformer\"></strong>\n				<span ng-bind=\"::(audio.audioPerformer ? \'– \' : \'\') + audio.audioTitle\"></span>\n			</span>\n			<span ng-switch-when=\"1\" ng-bind=\"::audio.file_name\"></span>\n			<span ng-switch-default my-i18n=\"message_attach_audio_message\"></span>\n		</a>\n		<i ng-if=\"::message.pFlags.media_unread || false\" ng-show=\"message.pFlags.media_unread\" class=\"icon icon-audio-unread\"></i>\n		<div class=\"audio_player_meta\" ng-if=\"!audio.downloaded || !(mediaPlayer.player.duration || audio.duration)\" ng-switch=\"audio.progress.enabled\">\n			<span ng-switch-when=\"true\" class=\"audio_player_size\" ng-bind=\"audio.progress | formatSizeProgress\"></span>\n			<span ng-switch-default class=\"audio_player_size\" ng-bind=\"audio.size | formatSize\"></span>\n		</div>\n	</div>\n	<div class=\"audio_player_actions\" ng-if=\"!audio.progress.enabled &amp;&amp; !audio.downloaded\">\n    <a ng-if=\"audio._ == \'document\'\" ng-click=\"download()\" my-i18n=\"message_attach_document_download\"></a>\n    <a ng-click=\"togglePlay()\" my-i18n=\"message_attach_audio_play\"></a>\n	</div>\n	<div class=\"audio_player_progress_wrap\" ng-if=\"audio.progress.enabled || audio.downloaded\" ng-switch=\"audio.progress.enabled\">\n		<div ng-switch-when=\"true\" class=\"clearfix im_message_cancelable_progress_wrap\">\n		  <a class=\"im_message_media_progress_cancel pull-right\" ng-click=\"audio.progress.cancel()\" my-i18n=\"modal_cancel\"></a>\n		  <div class=\"im_message_download_progress_wrap\">\n		    <div class=\"progress tg_down_progress\">\n		      <div class=\"progress-bar progress-bar-success\" ng-style=\"{width: audio.progress.percent + \'%\'}\"></div>\n		    </div>\n		  </div>\n		</div>\n	  <div ng-switch-default class=\"im_message_playback_progress_wrap\">\n	  	<div class=\"audio_player_seek_slider\" my-slider slider-model=\"mediaPlayer.player.currentTime\" slider-max=\"mediaPlayer.player.duration || audio.duration\" slider-onchange=\"seek(value)\"></div>\n	  	<div class=\"audio_player_volume_slider\" my-slider slider-model=\"mediaPlayer.player.volume\" slider-min=\"0\" slider-max=\"1\" slider-onchange=\"setVolume(value)\"></div>\n	  </div>\n	</div>\n	<audio ng-if=\"audio.url\" media-player=\"mediaPlayer.player\">\n	  <source ng-src=\"{{::audio.url}}\" type=\"{{audio.mime_type || \'audio/ogg\'}}\" volume=\"{{::volume}}\" />\n	</audio>\n</div>");
 $templateCache.put("partials/desktop/changelog_modal.html","<div class=\"changelog_modal_wrap md_modal_wrap\" my-modal-position>\n\n  <div class=\"md_modal_head\">\n    <div class=\"md_modal_title_wrap\">\n      <div class=\"md_modal_actions_wrap clearfix\">\n        <a class=\"md_modal_action md_modal_action_close\" ng-click=\"$close()\" my-i18n=\"modal_close\"></a>\n      </div>\n      <div class=\"md_modal_title\" my-i18n=\"head_about\"></div>\n    </div>\n\n    <div class=\"peer_modal_profile_wrap clearfix\">\n      <div class=\"peer_modal_photo_wrap pull-left\">\n        <div class=\"peer_modal_photo telegram_modal_logo\"></div>\n      </div>\n      <div class=\"peer_modal_profile\">\n        <div class=\"peer_modal_profile_name\">Telegram Web</div>\n        <div class=\"peer_modal_profile_description\">Version {{currentVersion}}</div>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"md_modal_split_actions_wrap\">\n    <div class=\"md_modal_split_actions\">\n      <a href=\"https://twitter.com/telegram_web\" target=\"_blank\" class=\"md_modal_split_action\">\n        <i class=\"md_modal_split_action_twitter\"></i>\n      </a>\n    </div>\n  </div>\n\n  <div class=\"md_modal_body\">\n\n    <div class=\"md_modal_sections\">\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.5.2\')\">\n        <div class=\"md_modal_section_version\">0.5.2</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Unread counters for muted chats now colored in gray.</li>\n            <li>Improved previews for sticker sets: Click on a sticker to view the whole set, click on stickers in a set to send right away, added a \'Share\' button.</li>\n            <li>Improved performance.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.5.1\')\">\n        <div class=\"md_modal_section_version\">0.5.1</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Groups that have reached their capacity of 200 users can be upgraded to supergroups of up to 1,000 members.</li>\n            <li>Check out the <a href=\"https://telegram.org/blog/supergroups\" target=\"_blank\">Telegram Blog</a> for more info</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.5.0\')\">\n        <div class=\"md_modal_section_version\">0.5.0</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Removed annoying \"multiple tabs open\" error.</li>\n            <li>Improved message forwarding.</li>\n            <li>Added view counter to messages from channels.</li>\n            <li>Improved image loading in Safari and Firefox.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.9\')\">\n        <div class=\"md_modal_section_version\">0.4.9</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>New emoji and sticker menu, tabs for sticker packs.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.8\')\">\n        <div class=\"md_modal_section_version\">0.4.8</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Introducing Channels – a great new way to broadcast your messages to unlimited audiences.</li>\n            <li>Check out the <a href=\"https://telegram.org/blog/channels\" target=\"_blank\">Telegram Blog</a> for more info</li>\n            <li>Improved performance in Safari on OS X El Capitan.</li>\n            <li>Added formatting for fixed-width code, surround text with `single backticks` for inline text and ```triple backticks``` for blocks of pre-formatted text.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.7\')\">\n        <div class=\"md_modal_section_version\">0.4.7</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>New bot API, free for everyone. If you\'re an engineer, create your own bots for games, services or integrations.\n            </li>\n            <li>Check out <a href=\"https://telegram.org/blog/bot-revolution\" target=\"_blank\">Telegram Blog</a> for more info</li>\n            <li>Improved Stickers support: now stickers are loading much faster.</li>\n            <li>Click on any custom stickers in chats to view and add sticker sets.</li>\n            <li>[Mobile] Reply to a message easily: tap on any message and select \"Reply\".</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.6\')\">\n        <div class=\"md_modal_section_version\">0.4.6</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Install and share custom sticker sets like this one: <a href=\"tg://addstickers?set=Animals\">telegram.me/addstickers/Animals</a></li>\n            <li>If you\'re an artist, create custom sticker sets using our <a href=\"tg://resolve?domain=stickers\">@Stickers</a> bot.</li>\n            <li>Check out <a href=\"https://telegram.org/blog/stickers-revolution\" target=\"_blank\">Telegram Blog</a> for more info</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.5\')\">\n        <div class=\"md_modal_section_version\">0.4.5</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>\n              Invite links for group chats:<br/>\n              Check out <a href=\"https://telegram.org/blog/invite-links\" target=\"_blank\">Telegram Blog</a> for more info\n            </li>\n            <li>Smart notifications</li>\n            <li>\'Listened\' status for voice messages</li>\n            <li>Places in locations (venues, landmarks)</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.4\')\">\n        <div class=\"md_modal_section_version\">0.4.4</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Link Previews:<br/>\n            Get rich link summaries for tweets, YouTube videos, Instagram photos and other content.</li>\n\n            <li>Check out <a href=\"https://telegram.org/blog/link-preview\" target=\"_blank\">Telegram Blog</a> for more info.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.3\')\">\n        <div class=\"md_modal_section_version\">0.4.3</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Sessions List:<br/>\n            View your active Telegram sessions (on desktop, tablet and mobile devices) and close specific sessions remotely.</li>\n\n            <li>Two-step verification:<br/>\n            Set up an additional password that will be required to log into your Telegram account.</li>\n\n            <li>Check out <a href=\"https://telegram.org/blog/sessions-and-2-step-verification\" target=\"_blank\">Telegram Blog</a> for more info.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.2\')\">\n        <div class=\"md_modal_section_version\">0.4.2</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Optimization for screens with smaller Y-resolutions.</li>\n            <li>Supported Spotify URL embeds.</li>\n            <li>Mentions of the current user in group chats are now highlighted.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.1\')\">\n        <div class=\"md_modal_section_version\">0.4.1</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Reply to specific messages in groups.</li>\n            <li>Mention @usernames in groups to notify multiple users.</li>\n            <li>Revised notifications in groups: mentioned users and people you reply to will be notified (private chat notification settings apply in this case instead of group settings). Check out <a href=\"https://telegram.org/blog/replies-mentions-hashtags\" target=\"_blank\">Telegram Blog</a> for more info.</li>\n            <li>Setting to disable message preview</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.4.0\')\">\n        <div class=\"md_modal_section_version\">0.4.0</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Full stickers support</li>\n            <li>Multisearch box: instantly find chats, usernames and messages</li>\n            <li>Emoji autocomplete: e.g., type <strong>:kiss</strong> in the message field to see the list. <a href=\"http://www.emoji-cheat-sheet.com/\" target=\"_blank\">Full cheat sheet &raquo;</a></li>\n            <li>Added \'typing\' notification in chats list</li>\n            <li>Online members counter in group headers</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.9\')\">\n        <div class=\"md_modal_section_version\">0.3.9</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>[Desktop] Material design completed</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.8\')\">\n        <div class=\"md_modal_section_version\">0.3.8</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Telegram.me links open right in Telegram Web when authorized</li>\n            <li>@username mentions in messages are clickable and open a conversation with the user</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.7\')\">\n        <div class=\"md_modal_section_version\">0.3.7</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>[Desktop] New material design for modal windows</li>\n            <li>[Desktop] Forward messages to multiple recipients</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.6\')\">\n        <div class=\"md_modal_section_version\">0.3.6</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>New viewer for photos, videos, documents.</li>\n            <li>[FirefoxOS] Improved media downloads.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.5\')\">\n        <div class=\"md_modal_section_version\">0.3.5</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Added embedded Soundcloud tracks and playlists.</li>\n            <li>Added global user search to contacts list.</li>\n            <li>Added switch to mobile version on window resize.</li>\n            <li>Migrate to HTTPS notification</li>\n            <li>Bugfixes.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.4\')\">\n        <div class=\"md_modal_section_version\">0.3.4</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Added embedded Facebook posts and Vimeo videos.</li>\n            <li>Improved IE10+ support: downloading files and style fixes.</li>\n            <li>Added unsupported media playback warning.</li>\n            <li>Bugfixes.</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.3\')\">\n        <div class=\"md_modal_section_version\">0.3.3</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Added Native Client module: dramatically improved encryption speed; Download and upload speed is now as high as in native applications.</li>\n            <li>HTTPS. We recommend you to use <a href=\"https://web.telegram.org\" target=\"_blank\">https://web.telegram.org</a>.</li>\n            <li>Added multiple open tabs warning. Please note, that only one tab with Telegram Web will work.</li>\n            <li>Added embedded Instagram, Twitter, Vine, YouTube links.</li>\n            <li>Jump to selected spot when playing back audio.</li>\n            <li>Bugfixes</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.2\')\">\n        <div class=\"md_modal_section_version\">0.3.2</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Usernames support: <a href=\"\" ng-click=\"changeUsername()\">Choose a username right now!</a></li>\n            <li>Search can now find public users by username.</li>\n            <li>Most popular emoticons shown in \'recent\' when empty</li>\n            <li>[ChromeApp] Added saving window position and size</li>\n            <li>Bugfixes</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.1\')\">\n        <div class=\"md_modal_section_version\">0.3.1</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>New languages: Spanish, German and Italian are now available </li>\n            <li>New custom-made audio player</li>\n            <li>Bad browser page for IE 6-9</li>\n            <li>Perfomance improvements and bugfixes</li>\n          </ul>\n        </div>\n      </div>\n\n      <div class=\"md_modal_versioned_section_wrap\" ng-if=\"canShowVersion(\'0.3.0\')\">\n        <div class=\"md_modal_section_version\">0.3.0</div>\n        <div class=\"md_modal_section_description changelog_version_changes\">\n          <ul class=\"list-unstyled changelog_version_changes_list\">\n            <li>Log in codes may be received in other Telegram apps</li>\n            <li>Partner\'s online status updates automatically</li>\n            <li>Added support for non-english hashtags in messages</li>\n            <li>Fixed invalid scrollbar width bug</li>\n            <li>[Desktop] Added automatic country code detection</li>\n            <li>[FirefoxOS] Improved PUSH-notifications for &lt;= 1.1</li>\n            <li>[FirefoxOS] Fixed emoji in notifications</li>\n            <li>[FirefoxOS] Fixed attachment bug for &lt;= 1.1</li>\n            <li>[FirefoxOS] Added phonebook permissions handling</li>\n            <li>[FirefoxOS] Added ability to share Gallery photos in Telegram</li>\n          </ul>\n        </div>\n      </div>\n\n    </div>\n\n\n    <div class=\"changelog_footer_wrap clearfix\">\n      <a class=\"changelog_github_link\" href=\"https://github.com/zhukov/webogram\" target=\"_blank\">GitHub</a>\n      <a ng-show=\"changelogHidden\" class=\"changelog_more_link\" href=\"\" ng-click=\"showAllVersions()\">View Previous Updates</a>\n    </div>\n\n  </div>\n\n</div>");
@@ -71726,7 +71726,7 @@ angular.module('myApp.directives', ['myApp.filters'])
     };
   })
 
-  .directive('myMessage', ["$filter", "_", function($filter, _) {
+  .directive('myMessage', function($filter, _) {
 
     var dateFilter = $filter('myDate'),
         dateSplitHtml = '<div class="im_message_date_split im_service_message_wrap"><div class="im_service_message"></div></div>',
@@ -71858,7 +71858,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         applyPending();
       }
     }
-  }])
+  })
   .directive('myExternalEmbed', function () {
 
     var twitterAttached = false;
@@ -72023,7 +72023,7 @@ angular.module('myApp.directives', ['myApp.filters'])
     };
   })
 
-  .directive('myReplyMessage', ["AppPhotosManager", "AppMessagesManager", "AppPeersManager", "$rootScope", function(AppPhotosManager, AppMessagesManager, AppPeersManager, $rootScope) {
+  .directive('myReplyMessage', function(AppPhotosManager, AppMessagesManager, AppPeersManager, $rootScope) {
 
     return {
       templateUrl: templateUrl('reply_message'),
@@ -72082,9 +72082,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       })
     }
 
-  }])
+  })
 
-  .directive('myForwardedMessages', ["AppPhotosManager", "AppMessagesManager", "AppPeersManager", "$rootScope", function(AppPhotosManager, AppMessagesManager, AppPeersManager, $rootScope) {
+  .directive('myForwardedMessages', function(AppPhotosManager, AppMessagesManager, AppPeersManager, $rootScope) {
 
     return {
       templateUrl: templateUrl('forwarded_messages'),
@@ -72133,9 +72133,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       })
     }
 
-  }])
+  })
 
-  .directive('myMessageText', ["AppPeersManager", "AppMessagesManager", "AppUsersManager", "RichTextProcessor", function(AppPeersManager, AppMessagesManager, AppUsersManager, RichTextProcessor) {
+  .directive('myMessageText', function(AppPeersManager, AppMessagesManager, AppUsersManager, RichTextProcessor) {
     return {
       link: link,
       scope: {
@@ -72186,9 +72186,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         })
       }
     }
-  }])
+  })
 
-  .directive('myMessageViews', ["$filter", "AppMessagesManager", function($filter, AppMessagesManager) {
+  .directive('myMessageViews', function($filter, AppMessagesManager) {
 
     var formatNumberFilter = $filter('formatShortNumber');
 
@@ -72213,7 +72213,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         }
       })
     }
-  }])
+  })
 
   .directive('myReplyMarkup', function() {
 
@@ -72250,7 +72250,7 @@ angular.module('myApp.directives', ['myApp.filters'])
 
   })
 
-  .directive('myMessagePhoto', ["AppPhotosManager", function(AppPhotosManager) {
+  .directive('myMessagePhoto', function(AppPhotosManager) {
     return {
       scope: {
         'media': '=myMessagePhoto',
@@ -72262,8 +72262,8 @@ angular.module('myApp.directives', ['myApp.filters'])
         $scope.preloadPhoto = AppPhotosManager.preloadPhoto;
       }
     };
-  }])
-  .directive('myMessageVideo', ["AppVideoManager", function(AppVideoManager) {
+  })
+  .directive('myMessageVideo', function(AppVideoManager) {
     return {
       scope: {
         'media': '=myMessageVideo',
@@ -72280,8 +72280,8 @@ angular.module('myApp.directives', ['myApp.filters'])
         };
       }
     };
-  }])
-  .directive('myMessageDocument', ["AppDocsManager", function(AppDocsManager) {
+  })
+  .directive('myMessageDocument', function(AppDocsManager) {
     return {
       scope: {
         'document': '=myMessageDocument',
@@ -72301,7 +72301,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         };
       }
     };
-  }])
+  })
   .directive('myMessageGeo', function() {
     return {
       scope: {
@@ -72323,7 +72323,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       templateUrl: templateUrl('message_attach_contact')
     };
   })
-  .directive('myMessageWebpage', ["AppWebPagesManager", "AppPhotosManager", function(AppWebPagesManager, AppPhotosManager) {
+  .directive('myMessageWebpage', function(AppWebPagesManager, AppPhotosManager) {
     return {
       scope: {
         'webpage': '=myMessageWebpage',
@@ -72346,14 +72346,14 @@ angular.module('myApp.directives', ['myApp.filters'])
         });
       }
     };
-  }])
+  })
   .directive('myMessagePending', function() {
     return {
       templateUrl: templateUrl('message_attach_pending')
     };
   })
 
-  .directive('myDialogs', ["$modalStack", "$transition", "$window", "$timeout", function ($modalStack, $transition, $window, $timeout) {
+  .directive('myDialogs', function ($modalStack, $transition, $window, $timeout) {
 
     return {
       link: link
@@ -72532,9 +72532,9 @@ angular.module('myApp.directives', ['myApp.filters'])
     }
 
 
-  }])
+  })
 
-  .directive('myDialogsList', ["$window", "$timeout", function($window, $timeout) {
+  .directive('myDialogsList', function($window, $timeout) {
 
     return {
       link: link
@@ -72647,9 +72647,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       setTimeout(updateSizes, 1000);
     };
 
-  }])
+  })
 
-  .directive('myContactsList', ["$window", "$timeout", function($window, $timeout) {
+  .directive('myContactsList', function($window, $timeout) {
 
     return {
       link: link
@@ -72681,9 +72681,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       });
     };
 
-  }])
+  })
 
-  .directive('myCountriesList', ["$window", "$timeout", function($window, $timeout) {
+  .directive('myCountriesList', function($window, $timeout) {
 
     return {
       link: link
@@ -72715,9 +72715,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       });
     };
 
-  }])
+  })
 
-  .directive('mySessionsList', ["$window", "$timeout", function($window, $timeout) {
+  .directive('mySessionsList', function($window, $timeout) {
 
     return {
       link: link
@@ -72742,9 +72742,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       $($window).on('resize', updateSizes);
     };
 
-  }])
+  })
 
-  .directive('myStickersList', ["$window", "$timeout", function($window, $timeout) {
+  .directive('myStickersList', function($window, $timeout) {
 
     return {
       link: link
@@ -72769,9 +72769,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       $($window).on('resize', updateSizes);
     };
 
-  }])
+  })
 
-  .directive('myHistory', ["$window", "$timeout", "$rootScope", "$transition", function ($window, $timeout, $rootScope, $transition) {
+  .directive('myHistory', function ($window, $timeout, $rootScope, $transition) {
 
     return {
       link: link
@@ -73111,9 +73111,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       onContentLoaded(updateSizes);
     }
 
-  }])
+  })
 
-  .directive('mySendForm', ["_", "$timeout", "$compile", "$modalStack", "$http", "$interpolate", "Storage", "AppStickersManager", "AppDocsManager", "ErrorService", "shouldFocusOnInteraction", function (_, $timeout, $compile, $modalStack, $http, $interpolate, Storage, AppStickersManager, AppDocsManager, ErrorService, shouldFocusOnInteraction) {
+  .directive('mySendForm', function (_, $timeout, $compile, $modalStack, $http, $interpolate, Storage, AppStickersManager, AppDocsManager, ErrorService, shouldFocusOnInteraction) {
     return {
       link: link,
       scope: {
@@ -73430,9 +73430,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       }
 
     }
-  }])
+  })
 
-  .directive('myLoadThumb', ["MtpApiFileManager", "FileManager", function(MtpApiFileManager, FileManager) {
+  .directive('myLoadThumb', function(MtpApiFileManager, FileManager) {
 
     return {
       link: link,
@@ -73508,9 +73508,9 @@ angular.module('myApp.directives', ['myApp.filters'])
               };
     }
 
-  }])
+  })
 
-  .directive('myLoadFullPhoto', ["MtpApiFileManager", "FileManager", "_", function(MtpApiFileManager, FileManager, _) {
+  .directive('myLoadFullPhoto', function(MtpApiFileManager, FileManager, _) {
 
     return {
       link: link,
@@ -73590,10 +73590,10 @@ angular.module('myApp.directives', ['myApp.filters'])
 
       resize();
     }
-  }])
+  })
 
 
-  .directive('myLoadVideo', ["$sce", "AppVideoManager", "ErrorService", "_", function($sce, AppVideoManager, ErrorService, _) {
+  .directive('myLoadVideo', function($sce, AppVideoManager, ErrorService, _) {
 
     return {
       link: link,
@@ -73661,9 +73661,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       });
     }
 
-  }])
+  })
 
-  .directive('myLoadGif', ["AppDocsManager", function(AppDocsManager) {
+  .directive('myLoadGif', function(AppDocsManager) {
 
     return {
       link: link,
@@ -73707,9 +73707,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         })
       }
     }
-  }])
+  })
 
-  .directive('myLoadSticker', ["MtpApiFileManager", "FileManager", "AppStickersManager", function(MtpApiFileManager, FileManager, AppStickersManager) {
+  .directive('myLoadSticker', function(MtpApiFileManager, FileManager, AppStickersManager) {
 
     var emptySrc = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
@@ -73796,9 +73796,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         });
       }
     }
-  }])
+  })
 
-  .directive('myLoadDocument', ["MtpApiFileManager", "AppDocsManager", "FileManager", function(MtpApiFileManager, AppDocsManager, FileManager) {
+  .directive('myLoadDocument', function(MtpApiFileManager, AppDocsManager, FileManager) {
 
     return {
       link: link,
@@ -73900,9 +73900,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         setZeroTimeout(checkSizes);
       });
     }
-  }])
+  })
 
-  .directive('myGeoPointMap', ["ExternalResourcesManager", function(ExternalResourcesManager) {
+  .directive('myGeoPointMap', function(ExternalResourcesManager) {
     return {
       link: link,
       scope: {
@@ -73925,10 +73925,10 @@ angular.module('myApp.directives', ['myApp.filters'])
       });
     }
 
-  }])
+  })
 
 
-  .directive('myLoadingDots', ["$interval", function($interval) {
+  .directive('myLoadingDots', function($interval) {
 
     return {
       link: link,
@@ -73958,9 +73958,9 @@ angular.module('myApp.directives', ['myApp.filters'])
 
       return animationSupported;
     }
-  }])
+  })
 
-  .directive('myFocused', ["shouldFocusOnInteraction", function(shouldFocusOnInteraction) {
+  .directive('myFocused', function(shouldFocusOnInteraction) {
     return {
       link: function($scope, element, attrs) {
         if (!shouldFocusOnInteraction) {
@@ -73971,9 +73971,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         }, 100);
       }
     };
-  }])
+  })
 
-  .directive('myFocusOn', ["shouldFocusOnInteraction", function(shouldFocusOnInteraction) {
+  .directive('myFocusOn', function(shouldFocusOnInteraction) {
     return {
       link: function($scope, element, attrs) {
         $scope.$on(attrs.myFocusOn, function () {
@@ -73986,7 +73986,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         });
       }
     };
-  }])
+  })
 
   .directive('myFileUpload', function(){
 
@@ -74112,7 +74112,7 @@ angular.module('myApp.directives', ['myApp.filters'])
 
 
 
-  .directive('myModalPosition', ["$window", "$timeout", function ($window, $timeout) {
+  .directive('myModalPosition', function ($window, $timeout) {
 
     return {
       link: link
@@ -74157,10 +74157,10 @@ angular.module('myApp.directives', ['myApp.filters'])
 
     };
 
-  }])
+  })
 
 
-  .directive('myVerticalPosition', ["$window", "$timeout", function ($window, $timeout) {
+  .directive('myVerticalPosition', function ($window, $timeout) {
 
     return {
       link: link
@@ -74202,9 +74202,9 @@ angular.module('myApp.directives', ['myApp.filters'])
 
     };
 
-  }])
+  })
 
-  .directive('myUserStatus', ["$filter", "$rootScope", "AppUsersManager", function ($filter, $rootScope, AppUsersManager) {
+  .directive('myUserStatus', function ($filter, $rootScope, AppUsersManager) {
 
     var statusFilter = $filter('userStatus'),
         ind = 0,
@@ -74254,9 +74254,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         delete statuses[curInd];
       });
     }
-  }])
+  })
 
-  .directive('myChatStatus', ["$rootScope", "_", "MtpApiManager", "AppChatsManager", "AppUsersManager", "AppProfileManager", function ($rootScope, _, MtpApiManager, AppChatsManager, AppUsersManager, AppProfileManager) {
+  .directive('myChatStatus', function ($rootScope, _, MtpApiManager, AppChatsManager, AppUsersManager, AppProfileManager) {
 
     var ind = 0;
     var statuses = {};
@@ -74352,9 +74352,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         delete statuses[curInd];
       });
     }
-  }])
+  })
 
-  .directive('myPeerMuted', ["$rootScope", "NotificationsManager", function ($rootScope, NotificationsManager) {
+  .directive('myPeerMuted', function ($rootScope, NotificationsManager) {
 
     return {
       link: link
@@ -74378,10 +74378,10 @@ angular.module('myApp.directives', ['myApp.filters'])
         element.toggleClass(className, muted);
       });
     }
-  }])
+  })
 
 
-  .directive('myPeerLink', ["AppChatsManager", "AppUsersManager", function (AppChatsManager, AppUsersManager) {
+  .directive('myPeerLink', function (AppChatsManager, AppUsersManager) {
 
     return {
       link: link
@@ -74450,9 +74450,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         });
       }
     }
-  }])
+  })
 
-  .directive('myPeerPhotolink', ["AppPeersManager", "AppUsersManager", "AppChatsManager", "MtpApiFileManager", "FileManager", function (AppPeersManager, AppUsersManager, AppChatsManager, MtpApiFileManager, FileManager) {
+  .directive('myPeerPhotolink', function (AppPeersManager, AppUsersManager, AppChatsManager, MtpApiFileManager, FileManager) {
 
     return {
       link: link
@@ -74554,9 +74554,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       }
 
     }
-  }])
+  })
 
-  .directive('myAudioPlayer', ["$timeout", "$q", "Storage", "AppAudioManager", "AppDocsManager", "AppMessagesManager", "ErrorService", function ($timeout, $q, Storage, AppAudioManager, AppDocsManager, AppMessagesManager, ErrorService) {
+  .directive('myAudioPlayer', function ($timeout, $q, Storage, AppAudioManager, AppDocsManager, AppMessagesManager, ErrorService) {
 
     var currentPlayer = false;
     var audioVolume = 0.5;
@@ -74694,9 +74694,9 @@ angular.module('myApp.directives', ['myApp.filters'])
         }
       };
     }
-  }])
+  })
 
-  .directive('mySlider', ["$window", function ($window) {
+  .directive('mySlider', function ($window) {
     return {
       link: link,
       templateUrl: templateUrl('slider')
@@ -74814,7 +74814,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       });
     }
 
-  }])
+  })
 
   .directive('myLabeledInput', function () {
 
@@ -74924,7 +74924,7 @@ angular.module('myApp.directives', ['myApp.filters'])
     };
 
   })
-  .directive("onReadFile", ["$parse", function ($parse) {
+  .directive("onReadFile", function ($parse) {
 
     function link(scope, element, attrs) {
       var fn = $parse(attrs.onReadFile);
@@ -74947,7 +74947,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       scope: false,
       link: link
     };
-  }])
+  })
 
 /*!
  * Webogram v0.5.2 - messaging web application for MTProto
@@ -74963,7 +74963,7 @@ angular.module('myApp.directives', ['myApp.filters'])
 
 angular.module('myApp.directives')
 
-	.directive('myDialogsListMobile', ["$window", "$timeout", function($window, $timeout) {
+	.directive('myDialogsListMobile', function($window, $timeout) {
 
     return {
       link: link
@@ -75047,9 +75047,9 @@ angular.module('myApp.directives')
       setTimeout(updateSizes, 1000);
     };
 
-  }])
+  })
 
-  .directive('myHistoryMobile', ["$window", "$timeout", "$rootScope", "$transition", function ($window, $timeout, $rootScope, $transition) {
+  .directive('myHistoryMobile', function ($window, $timeout, $rootScope, $transition) {
 
     return {
       link: link
@@ -75298,9 +75298,9 @@ angular.module('myApp.directives')
       onContentLoaded(updateSizes);
     }
 
-  }])
+  })
 
-  .directive('myContactsListMobile', ["$window", "$timeout", function($window, $timeout) {
+  .directive('myContactsListMobile', function($window, $timeout) {
 
     return {
       link: link
@@ -75326,9 +75326,9 @@ angular.module('myApp.directives')
       onContentLoaded(updateSizes);
     };
 
-  }])
+  })
 
-  .directive('myCountriesListMobile', ["$window", "$timeout", function($window, $timeout) {
+  .directive('myCountriesListMobile', function($window, $timeout) {
 
     return {
       link: link
@@ -75351,7 +75351,7 @@ angular.module('myApp.directives')
       onContentLoaded(updateSizes);
     };
 
-  }])
+  })
 
   .directive('myInfiniteScrollerMobile', function () {
 
