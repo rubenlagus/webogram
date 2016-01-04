@@ -25,7 +25,11 @@ angular.module('myApp', [
   'myApp.directives',
   'myApp.controllers'
 ]).
-config(['$locationProvider', '$routeProvider', '$compileProvider', 'StorageProvider', function($locationProvider, $routeProvider, $compileProvider, StorageProvider) {
+config(['$locationProvider', '$routeProvider', '$compileProvider', 'StorageProvider', 'localStorageServiceProvider', function($locationProvider, $routeProvider, $compileProvider, StorageProvider, localStorageServiceProvider) {
+
+  localStorageServiceProvider.setPrefix('tsupport');
+  localStorageServiceProvider.setStorageCookie(0, '/');
+  localStorageServiceProvider.setStorageCookieDomain('https://rubenlagus.github.io'); // TODO set production domain
 
   $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob|filesystem|chrome-extension|app):|data:image\//);
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|file|tg|mailto|blob|filesystem|chrome-extension|app):|data:/);

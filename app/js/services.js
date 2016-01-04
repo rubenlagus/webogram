@@ -4237,6 +4237,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     return {
       checkUpdate: checkUpdate,
       showChangelog: showChangelog
-    }
+    };
   })
 

@@ -10,12 +10,6 @@
 /* Controllers */
 
 angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.utils'])
-  .config(function (localStorageServiceProvider) {
-    localStorageServiceProvider.setPrefix('tsupport');
-    localStorageServiceProvider.setStorageCookie(0, '/');
-    localStorageServiceProvider.setStorageCookieDomain('https://rubenlagus.github.io'); // TODO set production domain
-  })
-
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
@@ -103,7 +97,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
           }
         }
       }
-      return selectCountry({name: _('country_select_modal_country_us_raw'), code: '+1'});
+      return selectCountry({name: _('country_select_modal_country_sup_raw'), code: '+42'});
     }
 
     function selectCountry (country) {
@@ -2080,13 +2074,6 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       loadTemplatesFromStorage();
     });
 
-    function loadTemplatesFromStorage() {
-      angular.forEach(localStorageService.keys(), function(template) {
-        $scope.templatesDic[template] = localStorageService.get(template);
-      })
-    }
-
-
     $scope.onKeyUp = function () {
       $scope.$broadcast('ui_message_before_send');
       var possibleKey = $scope.draftMessage.text;
@@ -2120,6 +2107,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     var replyToMarkup = false;
     var forceDraft = false;
+
+    function loadTemplatesFromStorage() {
+      angular.forEach(localStorageService.keys(), function(template) {
+        $scope.templatesDic[template] = localStorageService.get(template);
+      })
+    }
 
     function sendMessage (e) {
       $scope.$broadcast('ui_message_before_send');
