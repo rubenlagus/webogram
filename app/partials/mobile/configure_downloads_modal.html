@@ -1,0 +1,57 @@
+<div class="sessions_modal_wrap" my-modal-position>
+
+  <div class="tg_page_head tg_modal_head">
+    <div class="navbar navbar-static-top navbar-inverse">
+      <div class="container">
+
+        <div class="navbar-header">
+          <ul class="nav navbar-nav navbar-quick-nav">
+            <li>
+              <a ng-click="$dismiss()" class="navbar-quick-media-back">
+                <i class="icon icon-back"></i>
+                <div class="navbar-quick-back-title">
+                  <h4 my-i18n="download_settings_modal_title"></h4>
+                </div>
+              </a>
+            </li>
+          </ul>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="md_modal_body mobile_modal_body">
+    <div class="md_modal_sections clearfix">
+      <form class="modal_simple_form">
+        <div class="md_simple_form_description" my-i18n="download_settings_modal_description"></div>
+
+        <div class="mobile_modal_action_wrap">
+          <a class="mobile_modal_action tg_checkbox clearfix" ng-click="toggleThumbnails()" ng-class="downloadSettings.thumbnails ? 'tg_checkbox_on' : ''">
+            <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+            <span class="tg_checkbox_label" my-i18n="download_settings_modal_thumbnails"></span>
+          </a>
+          <div class="md_simple_form_description" my-i18n="download_settings_modal_description_thumbnails"></div>
+        </div>
+
+        <div class="mobile_modal_action_wrap">
+          <a class="mobile_modal_action tg_checkbox clearfix" ng-click="toggleStickers()" ng-class="downloadSettings.stickers ? 'tg_checkbox_on' : ''">
+            <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+            <span class="tg_checkbox_label" my-i18n="download_settings_modal_stickers"></span>
+          </a>
+          <div class="md_simple_form_description" my-i18n="download_settings_modal_description_stickers"></div>
+        </div>
+
+        <div class="mobile_modal_action_wrap">
+          <a class="mobile_modal_action tg_checkbox clearfix" ng-click="toggleProfilePhotos()" ng-class="downloadSettings.profilePhotos ? 'tg_checkbox_on' : ''">
+            <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+            <span class="tg_checkbox_label" my-i18n="download_settings_modal_profile_photos"></span>
+          </a>
+          <div class="md_simple_form_description" my-i18n="download_settings_modal_description_profile_photos"></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

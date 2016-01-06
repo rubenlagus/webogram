@@ -3601,7 +3601,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
-    $scope.showDownloadSessions = function () {
+    $scope.showDownloadSettings = function () {
       $modal.open({
         templateUrl: templateUrl('configure_downloads_modal'),
         controller: 'ConfigureDownloadsModalController',
