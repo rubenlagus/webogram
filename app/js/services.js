@@ -1407,6 +1407,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     var fullPhotoSize = choosePhotoSize(photo, fullWidth, fullHeight);
 
     if (fullPhotoSize && !fullPhotoSize.preloaded) {
+      return;
       fullPhotoSize.preloaded = true;
       if (fullPhotoSize.size) {
         MtpApiFileManager.downloadFile(fullPhotoSize.location.dc_id, {
@@ -2087,7 +2088,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
   }
 
-  function downloadDoc (docID, toFileEntry) {
+  function downloadDoc (docID, toFileEntry, shouldDownload) {
     var doc = docs[docID],
         historyDoc = docsForHistory[docID] || doc || {},
         inputFileLocation = {
@@ -2110,6 +2111,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
     historyDoc.progress = {enabled: !historyDoc.downloaded, percent: 1, total: doc.size};
 
+    if (!shouldDownload) {
+      historyDoc.progress.enabled = false;
+      historyDoc.progress.cancel = $q.reject({type: 'NOT_DOWNLOADED'}).cancel;
+    }
     var downloadPromise = MtpApiFileManager.downloadFile(doc.dc_id, inputFileLocation, doc.size, {
       mime: doc.mime_type || 'application/octet-stream',
       toFileEntry: toFileEntry
@@ -4561,4 +4566,3 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       showChangelog: showChangelog
     };
   })
-

@@ -808,5 +808,16 @@
 	"country_select_modal_country_zm": "Zambia",
 	"country_select_modal_country_tz_uk": "Zanzibar",
 	"country_select_modal_country_zw": "Zimbabwe",
-	"country_select_modal_country_sup": "Support"
+
+	"country_select_modal_country_sup": "Support",
+	"download_settings_modal_title": "Autodownload Settings",
+	"download_settings_modal_description": "When disabled, this kind of content won't be downloaded unless clicked.",
+	"download_settings_modal_description_thumbnails": "Will disable any download of thumbnail that are not already present in cache and fetching them requires extra data transference. To download them, a click is needed in their placeholder",
+	"download_settings_modal_description_stickers": "Will disable any download of stickers that are not already present in cache and fetching them requires extra data transference. To download them, a click is needed in their placeholder, a second click once the stickers is present will open the stickerset and download every sticker in it",
+	"download_settings_modal_description_profile_photos": "Will disable any download of profile pictures that are not already present in cache and fetching them requires extra data transference. To download them, a click is needed in their placeholder",
+	"download_settings_modal_thumbnails": "Thumbnails",
+	"download_settings_modal_stickers": "Stickers",
+	"download_settings_modal_profile_photos": "Profile photos",
+	"add_template": "Add template",
+	"default_templates": "Default templates"
 }

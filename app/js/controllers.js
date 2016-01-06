@@ -399,8 +399,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
   })
 
-  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService) {
-
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage) {
     $scope.$on('$routeUpdate', updateCurDialog);
 
     var pendingParams = false;
@@ -585,7 +584,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.addDefaultTemplate = function() {
       $modal.open({
         templateUrl: templateUrl('default_templates_modal'),
-        controller: 'LoadDeafultsTemplatesController',
+        controller: 'LoadDefaultsTemplatesController',
         windowClass: 'md_simple_modal_window mobile_modal'
       });
     };
@@ -624,6 +623,19 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     }
 
+    function loadAutodownloadSettings () {
+      Storage.get('downloadThumbnails', 'downloadStickers',
+        'downloadProfilePhotos').then(function (settings) {
+
+        Config.DownloadSettings = {
+          thumbnails: settings[0] ? settings[0] : false,
+          stickers: settings[1] ? settings[1] : false,
+          profilePhotos: settings[2] ? settings[2] : false
+        };
+      });
+    }
+
+    loadAutodownloadSettings();
     ChangelogNotifyService.checkUpdate();
     TemplatesChangelogNotifyService.checkUpdate();
     LayoutSwitchService.start();
@@ -1975,9 +1987,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
               unreadAfterChanged = true;
             }
           } else {
-            $timeout(function () {
+            /*$timeout(function () {
               AppMessagesManager.readHistory($scope.curDialog.peerID);
-            });
+            });*/
           }
 
           updateBotActions();
@@ -2177,6 +2189,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
               AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
               text = text.substr(4096);
             } while (text.length);
+            AppMessagesManager.readHistory($scope.curDialog.peerID);
+          } else {
+            AppMessagesManager.readHistory($scope.curDialog.peerID);
           }
           fwdsSend();
 
@@ -3713,6 +3728,14 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     };
 
+    $scope.showDownloadSessions = function () {
+      $modal.open({
+        templateUrl: templateUrl('configure_downloads_modal'),
+        controller: 'ConfigureDownloadsModalController',
+        windowClass: 'md_simple_modal_window mobile_modal'
+      });
+    }
+
     function updatePasswordState () {
       $timeout.cancel(updatePasswordTimeout);
       updatePasswordTimeout = false;
@@ -4896,7 +4919,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     $scope.computeUpdates();
   })
-  .controller('LoadDeafultsTemplatesController', function ($scope,  $modalInstance, TemplatesService, localStorageService) {
+
+  .controller('LoadDefaultsTemplatesController', function ($scope,  $modalInstance, TemplatesService, localStorageService) {
 
     $scope.defaultLanguages = "";
 
@@ -4907,4 +4931,33 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     }
   })
 
+  .controller('ConfigureDownloadsModalController', function ($scope, $modalInstance, Storage) {
+
+    $scope.downloadSettings = {};
+
+    $scope.toggleThumbnails = function () {
+      $scope.downloadSettings.thumbnails = !$scope.downloadSettings.thumbnails;
+      Config.DownloadSettings.thumbnails = $scope.downloadSettings.thumbnails;
+      Storage.set({'downloadThumbnails': $scope.downloadSettings.thumbnails});
+    };
+
+    $scope.toggleStickers = function () {
+      $scope.downloadSettings.stickers = !$scope.downloadSettings.stickers;
+      Config.DownloadSettings.stickers = $scope.downloadSettings.stickers;
+      Storage.set({'downloadStickers': $scope.downloadSettings.stickers});
+    };
+
+    $scope.toggleProfilePhotos = function () {
+      $scope.downloadSettings.profilePhotos = !$scope.downloadSettings.profilePhotos;
+      Config.DownloadSettings.profilePhotos = $scope.downloadSettings.profilePhotos;
+      Storage.set({'downloadProfilePhotos': $scope.downloadSettings.profilePhotos});
+    };
+
+    function loadSettings() {
+      $scope.downloadSettings = Config.DownloadSettings;
+    }
+
+    loadSettings();
+
+  })
 

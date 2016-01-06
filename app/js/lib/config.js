@@ -25,6 +25,8 @@ Config.App = {
   domains: ['rubenlagus.github.io']
 };
 
+Config.DownloadSettings = {};
+
 Config.Modes = {
   test: location.search.indexOf('test=1') > 0,
   debug: location.search.indexOf('debug=1') > 0,

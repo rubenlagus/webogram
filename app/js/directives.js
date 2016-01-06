@@ -1792,7 +1792,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       }
     };
 
-    function link ($scope, element, attrs) {
+    function download($scope, element, attrs, shouldDownload, doClean) {
       var counter = 0;
 
       var cachedBlob = MtpApiFileManager.getCachedFile(
@@ -1835,7 +1835,7 @@ angular.module('myApp.directives', ['myApp.filters'])
           element.attr('src', $scope.thumb.placeholder || 'img/blank.gif');
         }
 
-        MtpApiFileManager.downloadSmallFile($scope.thumb.location).then(function (blob) {
+        MtpApiFileManager.downloadSmallFile($scope.thumb.location, shouldDownload).then(function (blob) {
           if (counterSaved == counter) {
             element.attr('src', FileManager.getUrl(blob, 'image/jpeg'));
             cleanup();
@@ -1853,12 +1853,22 @@ angular.module('myApp.directives', ['myApp.filters'])
             ? angular.noop
             : function () {
                 setTimeout(function () {
-                  $scope.$destroy()
                   stopWatching();
                 }, 0);
               };
     }
 
+    function link($scope, element, attrs) {
+      download($scope, element, attrs, Config.DownloadSettings.thumbnails, true);
+      element.on('click', function() {
+        if (!$scope.downloaded) {
+          download($scope, element, attrs, true, false);
+        }
+      });
+      $scope.$on('$destroy', function(){
+        element.off('click');
+      });
+    }
   })
 
   .directive('myLoadFullPhoto', function(MtpApiFileManager, FileManager, _) {
@@ -1942,7 +1952,6 @@ angular.module('myApp.directives', ['myApp.filters'])
       resize();
     }
   })
-
 
   .directive('myLoadVideo', function($sce, AppVideoManager, ErrorService, _) {
 
@@ -2097,7 +2106,8 @@ angular.module('myApp.directives', ['myApp.filters'])
     return {
       link: link,
       scope: {
-        document: '='
+        document: '=',
+        allowDirectLoad: '@enableDirectLoad'
       }
     };
 
@@ -2113,7 +2123,25 @@ angular.module('myApp.directives', ['myApp.filters'])
         element
           .addClass('clickable')
           .on('click', function () {
-            AppStickersManager.openStickerset($scope.document.stickerSetInput);
+            if ($scope.downloaded) {
+              AppStickersManager.openStickerset($scope.document.stickerSetInput);
+            } else {
+              if (attrs.thumb && smallLocation) {
+                MtpApiFileManager.downloadSmallFile(smallLocation).then(function (blob) {
+                  setSrc(blob);
+                  $scope.downloaded = true;
+                }, function (e) {
+                  console.log('Download sticker failed', e, fullLocation);
+                });
+              } else {
+                MtpApiFileManager.downloadFile($scope.document.dc_id, fullLocation, $scope.document.size).then(function (blob) {
+                  setSrc(blob);
+                  $scope.downloaded = true;
+                }, function (e) {
+                  console.log('Download sticker failed', e, fullLocation);
+                });
+              }
+            }
           });
       }
 
@@ -2159,6 +2187,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       }
       if (cachedBlob) {
         setSrc(cachedBlob);
+        $scope.downloaded = true;
         if (fullDone) {
           return;
         }
@@ -2167,16 +2196,21 @@ angular.module('myApp.directives', ['myApp.filters'])
         imgElement.attr('src', emptySrc).appendTo(element);
       }
 
+      var allowDirectLoad =  Config.DownloadSettings.stickers || angular.isDefined($scope.allowDirectLoad);
       if (attrs.thumb && smallLocation) {
-        MtpApiFileManager.downloadSmallFile(smallLocation).then(function (blob) {
+        MtpApiFileManager.downloadSmallFile(smallLocation, allowDirectLoad).then(function (blob) {
           setSrc(blob);
+          $scope.downloaded = true;
         }, function (e) {
           console.log('Download sticker failed', e, fullLocation);
+          imgElement.attr('src', 'img/placeholders/PhotoThumbConversation.gif');
         });
       } else {
-        MtpApiFileManager.downloadFile($scope.document.dc_id, fullLocation, $scope.document.size).then(function (blob) {
+        MtpApiFileManager.downloadFile($scope.document.dc_id, fullLocation, $scope.document.size, undefined, allowDirectLoad).then(function (blob) {
           setSrc(blob);
+          $scope.downloaded = true;
         }, function (e) {
+          imgElement.attr('src', 'img/placeholders/PhotoThumbConversation.gif');
           console.log('Download sticker failed', e, fullLocation);
         });
       }
@@ -3019,8 +3053,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         }
         else if ($scope.audio.progress && $scope.audio.progress.enabled) {
           return;
-        }
-        else {
+        } else {
           var downloadPromise;
           if ($scope.audio._ == 'audio') {
             downloadPromise = AppAudioManager.downloadAudio($scope.audio.id);

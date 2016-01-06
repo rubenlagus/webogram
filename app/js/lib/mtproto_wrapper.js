@@ -409,7 +409,8 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
     return cachedSavePromises[fileName];
   }
 
-  function downloadSmallFile(location) {
+  function downloadSmallFile(location, shouldDownload) {
+    shouldDownload = angular.isDefined(shouldDownload) ? shouldDownload : true;
     if (!FileManager.isAvailable()) {
       return $q.reject({type: 'BROWSER_BLOB_NOT_SUPPORTED'});
     }
@@ -426,6 +427,12 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
     return cachedDownloadPromises[fileName] = fileStorage.getFile(fileName).then(function (blob) {
       return cachedDownloads[fileName] = blob;
     }, function () {
+      if (!shouldDownload) {
+        var deferred = $q.defer();
+        deferred.reject({type: 'ERROR_EMPTY'});
+        delete cachedDownloadPromises[fileName];
+        return deferred.promise;
+      }
       var downloadPromise = downloadRequest(location.dc_id, function () {
         var inputLocation = location;
         if (!inputLocation._ || inputLocation._ == 'fileLocation') {
@@ -470,7 +477,8 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
     return fileStorage.getFile(fileName, size);
   }
 
-  function downloadFile (dcID, location, size, options) {
+  function downloadFile (dcID, location, size, options, shouldDownload) {
+    shouldDownload = angular.isDefined(shouldDownload) ? shouldDownload : true;
     if (!FileManager.isAvailable()) {
       return $q.reject({type: 'BROWSER_BLOB_NOT_SUPPORTED'});
     }
@@ -529,6 +537,11 @@ angular.module('izhukov.mtproto.wrapper', ['izhukov.utils', 'izhukov.mtproto'])
         deferred.resolve(cachedDownloads[fileName] = blob);
       }
     }, function () {
+      if (!shouldDownload) {
+        errorHandler({type: 'ERROR_EMPTY'});
+        delete cachedDownloadPromises[fileName];
+        return;
+      }
       var fileWriterPromise = toFileEntry ? FileManager.getFileWriter(toFileEntry) : fileStorage.getFileWriter(fileName, mimeType);
 
       var processDownloaded = function (bytes) {
