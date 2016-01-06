@@ -1,0 +1,44 @@
+<div class="sessions_modal_wrap md_modal_wrap" my-modal-position>
+
+  <div class="md_modal_head md_modal_head_simple">
+    <div class="md_modal_title_wrap">
+      <div class="md_modal_actions_wrap clearfix">
+        <a class="md_modal_action md_modal_action_close" ng-click="$dismiss()" my-i18n="modal_close"></a>
+      </div>
+    </div>
+    <div class="md_modal_title" my-i18n="download_settings_modal_title"></div>
+  </div>
+
+  <div class="md_modal_body">
+    <div class="md_modal_sections clearfix">
+      <form class="modal_simple_form">
+        <div ng-if="action != 'disable'" class="md_simple_form_description" my-i18n="download_settings_modal_description"></div>
+
+        <a class="md_modal_section_toggle_wrap tg_checkbox" ng-click="toggleThumbnails()" ng-class="downloadSettings.thumbnails ? 'tg_checkbox_on' : ''">
+          <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+          <span class="tg_checkbox_label" my-i18n="download_settings_modal_thumbnails"></span>
+          <div class="md_modal_section_param_wrap">
+            <div class="md_modal_section_param_name" my-i18n="download_settings_modal_description_thumbnails"></div>
+          </div>
+        </a>
+
+        <a class="md_modal_section_toggle_wrap tg_checkbox" ng-click="toggleStickers()" ng-class="downloadSettings.stickers ? 'tg_checkbox_on' : ''">
+          <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+          <span class="tg_checkbox_label" my-i18n="download_settings_modal_stickers"></span>
+          <div class="md_modal_section_param_wrap">
+            <div class="md_modal_section_param_name" my-i18n="download_settings_modal_description_stickers"></div>
+          </div>
+        </a>
+
+        <a class="md_modal_section_toggle_wrap tg_checkbox" ng-click="toggleProfilePhotos()" ng-class="downloadSettings.profilePhotos ? 'tg_checkbox_on' : ''">
+          <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+          <span class="tg_checkbox_label" my-i18n="download_settings_modal_profile_photos"></span>
+          <div class="md_modal_section_param_wrap">
+            <div class="md_modal_section_param_name" my-i18n="download_settings_modal_description_profile_photos"></div>
+          </div>
+        </a>
+      </form>
+    </div>
+  </div>
+
+</div>

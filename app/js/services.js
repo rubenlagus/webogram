@@ -1380,6 +1380,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     var fullPhotoSize = choosePhotoSize(photo, fullWidth, fullHeight);
 
     if (fullPhotoSize && !fullPhotoSize.preloaded) {
+      return;
       fullPhotoSize.preloaded = true;
       if (fullPhotoSize.size) {
         MtpApiFileManager.downloadFile(fullPhotoSize.location.dc_id, {
@@ -1932,11 +1933,12 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
           break;
         case 'documentAttributeVideo':
           apiDoc.duration = attribute.duration;
+          apiDoc.w = attribute.w;
+          apiDoc.h = attribute.h;
           break;
         case 'documentAttributeSticker':
-          apiDoc.sticker = 1;
+          apiDoc.sticker = true;
           if (attribute.alt !== undefined) {
-            apiDoc.sticker = 2;
             apiDoc.stickerEmojiRaw = attribute.alt;
             apiDoc.stickerEmoji = RichTextProcessor.wrapRichText(apiDoc.stickerEmojiRaw, {noLinks: true, noLinebreaks: true});
           }
@@ -1953,9 +1955,30 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
           apiDoc.w = attribute.w;
           apiDoc.h = attribute.h;
           break;
+        case 'documentAttributeAnimated':
+          apiDoc.animated = true;
+          break;
       }
     });
-    apiDoc.file_name = apiDoc.file_name || '';
+
+    apiDoc.mime_type = apiDoc.mime_type || '';
+    apiDoc.file_name = apiDoc.file_name || 'file';
+    if (apiDoc._ == 'documentEmpty') {
+      apiDoc.file_name = 'DELETED';
+      apiDoc.size = 0;
+    }
+
+    if ((apiDoc.mime_type == 'image/gif' || apiDoc.animated && apiDoc.mime_type == 'video/mp4') && apiDoc.thumb && apiDoc.thumb._ == 'photoSize') {
+      apiDoc.isSpecial = 'gif';
+    }
+    else if (apiDoc.mime_type == 'image/webp' && apiDoc.sticker) {
+      apiDoc.isSpecial = 'sticker';
+    }
+    else if (apiDoc.mime_type.substr(0, 6) == 'audio/') {
+      apiDoc.isSpecial = 'audio';
+    }
+
+
   };
 
   function getDoc (docID) {
@@ -1972,8 +1995,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
 
     var doc = angular.copy(docs[docID]),
-        isGif = doc.mime_type == 'image/gif',
-        isSticker = doc.mime_type == 'image/webp' && doc.sticker,
+        isGif = doc.isSpecial == 'gif',
+        isSticker = doc.isSpecial == 'sticker',
         thumbPhotoSize = doc.thumb,
         width, height, thumb, dim;
 
@@ -2016,16 +2039,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
     doc.withPreview = !Config.Mobile && doc.mime_type.match(/^image\/(gif|png|jpeg|jpg|bmp|tiff)/) ? 1 : 0;
 
-    if (isGif && doc.thumb) {
-      doc.isSpecial = 'gif';
-    }
-    else if (isSticker) {
-      doc.isSpecial = 'sticker';
-    }
-    else if (doc.mime_type.substr(0, 6) == 'audio/') {
-      doc.isSpecial = 'audio';
-    }
-
     return docsForHistory[docID] = doc;
   }
 
@@ -2048,7 +2061,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
   }
 
-  function downloadDoc (docID, toFileEntry) {
+  function downloadDoc (docID, toFileEntry, shouldDownload) {
     var doc = docs[docID],
         historyDoc = docsForHistory[docID] || doc || {},
         inputFileLocation = {
@@ -2057,6 +2070,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
           access_hash: doc.access_hash,
           file_name: doc.file_name
         };
+
+    if (doc._ == 'documentEmpty') {
+      return $q.reject();
+    }
 
     if (historyDoc.downloaded && !toFileEntry) {
       var cachedBlob = MtpApiFileManager.getCachedFile(inputFileLocation);
@@ -2067,6 +2084,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
     historyDoc.progress = {enabled: !historyDoc.downloaded, percent: 1, total: doc.size};
 
+    if (!shouldDownload) {
+      historyDoc.progress.enabled = false;
+      historyDoc.progress.cancel = $q.reject({type: 'NOT_DOWNLOADED'}).cancel;
+    }
     var downloadPromise = MtpApiFileManager.downloadFile(doc.dc_id, inputFileLocation, doc.size, {
       mime: doc.mime_type || 'application/octet-stream',
       toFileEntry: toFileEntry
@@ -3979,6 +4000,16 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       return true;
     }
 
+    if (matches = url.match(/^search_hashtag\?hashtag=(.+?)$/)) {
+      $rootScope.$broadcast('dialogs_search', {query: '#' + decodeURIComponent(matches[1])});
+      if (Config.Mobile) {
+        $rootScope.$broadcast('history_focus', {
+          peerString: ''
+        });
+      }
+      return true;
+    }
+
     if (inner &&
         (matches = url.match(/^bot_command\?command=(.+?)(?:&bot=(.+))?$/))) {
 
@@ -4239,4 +4270,3 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       showChangelog: showChangelog
     };
   })
-

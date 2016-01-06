@@ -284,6 +284,7 @@
 	"conversation_media_video": "Video",
 	"conversation_media_document": "File",
 	"conversation_media_sticker": "Sticker",
+	"conversation_media_gif": "GIF",
 	"conversation_media_audio": "Audio",
 	"conversation_media_location": "Location",
 	"conversation_media_contact": "Contact",
@@ -521,7 +522,9 @@
 	"login_controller_unknown_country": "Unknown",
 
 	"message_forwarded_message": "Forwarded message",
+	"message_via_bot": "via {bot}",
 	"message_forwarded_message_mobile": "Forwarded from {from}, {date}",
+	"message_forwarded_via_message_mobile": "Forwarded from {from} via {bot}, {date}",
 
 	"message_attach_audio_message": "Voice message",
 	"message_attach_audio_play": "Play",
@@ -805,5 +808,16 @@
 	"country_select_modal_country_zm": "Zambia",
 	"country_select_modal_country_tz_uk": "Zanzibar",
 	"country_select_modal_country_zw": "Zimbabwe",
-	"country_select_modal_country_sup": "Support"
+
+	"country_select_modal_country_sup": "Support",
+	"download_settings_modal_title": "Autodownload Settings",
+	"download_settings_modal_description": "When disabled, this kind of content won't be downloaded unless clicked.",
+	"download_settings_modal_description_thumbnails": "Will disable any download of thumbnail that are not already present in cache and fetching them requires extra data transference. To download them, a click is needed in their placeholder",
+	"download_settings_modal_description_stickers": "Will disable any download of stickers that are not already present in cache and fetching them requires extra data transference. To download them, a click is needed in their placeholder, a second click once the stickers is present will open the stickerset and download every sticker in it",
+	"download_settings_modal_description_profile_photos": "Will disable any download of profile pictures that are not already present in cache and fetching them requires extra data transference. To download them, a click is needed in their placeholder",
+	"download_settings_modal_thumbnails": "Thumbnails",
+	"download_settings_modal_stickers": "Stickers",
+	"download_settings_modal_profile_photos": "Profile photos",
+	"add_template": "Add template",
+	"default_templates": "Default templates"
 }
