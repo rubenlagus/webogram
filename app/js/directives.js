@@ -2350,7 +2350,7 @@ angular.module('myApp.directives', ['myApp.filters'])
   .directive('myLoadingDots', function($interval) {
 
     return {
-      link: link,
+      link: link
     };
 
     function link ($scope, element, attrs) {
@@ -2937,14 +2937,15 @@ angular.module('myApp.directives', ['myApp.filters'])
 
 
         if (hasPhoto) {
-
-          MtpApiFileManager.downloadSmallFile(peer.photo.photo_small).then(function (blob) {
+          var shouldDownload = Config.DownloadSettings.profilePhotos || angular.isDefined(attrs.enableDirectLoad);
+          MtpApiFileManager.downloadSmallFile(peer.photo.photo_small, shouldDownload).then(function (blob) {
             if (curJump != jump) {
               return;
             }
             initEl.remove();
             imgEl.prependTo(element).attr('src', FileManager.getUrl(blob, 'image/jpeg'));
-
+            $scope.$root.$broadcast('user_update', peer.id);
+            $scope.downloaded = true;
           }, function (e) {
             console.log('Download image failed', e, peer.photo.photo_small, element[0]);
           });
@@ -2967,14 +2968,14 @@ angular.module('myApp.directives', ['myApp.filters'])
       if (attrs.watch) {
         $scope.$on('user_update', function (e, updUserID) {
           if (peerID == updUserID) {
-            if (!angular.equals(peer.photo && peer.photo.photo_small, peerPhoto)) {
+            if (!angular.equals(peer.photo && peer.photo.photo_small, peerPhoto) || !$scope.downloaded) {
               updatePeerPhoto();
             }
           }
         });
         $scope.$on('chat_update', function (e, updChatID) {
           if (peerID == -updChatID) {
-            if (!angular.equals(peer.photo && peer.photo.photo_small, peerPhoto)) {
+            if (!angular.equals(peer.photo && peer.photo.photo_small, peerPhoto) || !$scope.downloaded) {
               updatePeerPhoto();
             }
           }
