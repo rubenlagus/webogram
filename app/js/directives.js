@@ -2106,8 +2106,7 @@ angular.module('myApp.directives', ['myApp.filters'])
     return {
       link: link,
       scope: {
-        document: '=',
-        allowDirectLoad: '@enableDirectLoad'
+        document: '='
       }
     };
 
@@ -2196,7 +2195,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         imgElement.attr('src', emptySrc).appendTo(element);
       }
 
-      var allowDirectLoad =  Config.DownloadSettings.stickers || angular.isDefined($scope.allowDirectLoad);
+      var allowDirectLoad =  Config.DownloadSettings.stickers || angular.isDefined(attrs.enableDirectLoad);
       if (attrs.thumb && smallLocation) {
         MtpApiFileManager.downloadSmallFile(smallLocation, allowDirectLoad).then(function (blob) {
           setSrc(blob);
