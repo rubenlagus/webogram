@@ -18,9 +18,6 @@
               <a ng-click="editProfile()" my-i18n="settings_modal_edit_profile"></a>
             </li>
             <li>
-              <a ng-click="changeUsername()" my-i18n="settings_modal_edit_username"></a>
-            </li>
-            <li>
               <a ng-if="password._ == 'account.noPassword' && password.email_unconfirmed_pattern.length" ng-click="changePassword({action: 'cancel_email'})" my-i18n="settings_modal_password_email_pending_cancel_mobile">
               </a>
               <a ng-if="password._ == 'account.noPassword' && !password.email_unconfirmed_pattern" ng-click="changePassword({action: 'create'})" my-i18n="settings_modal_set_password"></a>
@@ -133,11 +130,10 @@
       <div class="mobile_modal_section_value" ng-bind="profile.phone | phoneNumber"></div>
     </div>
 
-    <div class="mobile_modal_section">
+    <div class="mobile_modal_section" ng-if="profile.username.length > 0">
       <h4 class="mobile_modal_section_header" my-i18n="user_modal_username"></h4>
-      <div class="mobile_modal_section_value" ng-click="changeUsername()" ng-switch="profile.username.length > 0">
-        <a class="settings_modal_username_link" ng-switch-when="true" href="" ng-click="changeUsername()" ng-bind="'@' + profile.username"></a>
-        <a ng-switch-default href="" ng-click="changeUsername()" my-i18n="settings_modal_empty_username_set"></a>
+      <div class="mobile_modal_section_value">
+        <a class="settings_modal_username_link" href="" ng-bind="'@' + profile.username"></a>
       </div>
     </div>
 
@@ -151,8 +147,8 @@
       <h4 class="mobile_modal_section_header" my-i18n="settings_modal_about"></h4>
       <div class="mobile_modal_section_body settings_about_section_body clearfix">
         <div class="settings_external_services pull-right">
-          <a href="https://github.com/zhukov/webogram" target="_blank" title="{{'settings_modal_source_code_github' | i18n}}" class="settings_external_service"><i class="icon icon-github"></i></a>
-          <a href="https://twitter.com/telegram_web" target="_blank" title="{{'settings_modal_follow_us_twitter' | i18n}}" class="settings_external_service"><i class="icon icon-twitter"></i></a>
+          <a href="https://github.com/rubenlagus/webogram" target="_blank" title="{{'settings_modal_source_code_github' | i18n}}" class="settings_external_service"><i class="icon icon-github"></i></a>
+          <a href="https://twitter.com/telegram" target="_blank" title="{{'settings_modal_follow_us_twitter' | i18n}}" class="settings_external_service"><i class="icon icon-twitter"></i></a>
         </div>
         <p>
           <a ng-click="openChangelog()" my-i18n="settings_modal_recent_updates">
