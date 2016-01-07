@@ -4216,13 +4216,27 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       localStorageService.remove(key);
     }
 
+    function getAllTemplates() {
+      var templates = [];
+
+      angular.forEach(localStorageService.keys(), function(key) {
+        var template = {};
+        template.key = key;
+        template.value = localStorageService.get(key);
+        templates.push(template);
+      });
+
+      return templates;
+    }
+
     return {
       addTemplates: addTemplates,
       updateDefaultTemplates: updateDefaultTemplates,
       getDifferences: getDifferences,
       setLastTemplateVersion: setLastTemplateVersion,
       addTemplate: addTemplate,
-      removeTemplate: removeTemplate
+      removeTemplate: removeTemplate,
+      getAllTemplates: getAllTemplates
     };
   })
 
