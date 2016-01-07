@@ -4521,7 +4521,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       localStorageService.set("templatesLanguage", languageCode);
     }
 
-    function addDefautTemplates(templates, language) {
+    function addDefaultTemplates(templates) {
       // Templates support
       if (templates.length > 0) {
         localStorageService.clearAll();
@@ -4540,8 +4540,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     function updateDefaultTemplates(languageCode) {
       var url = "http://sa.laagacht.net:9992/bot/templates/" + languageCode;
       $http.get(url).then(function (response) {
-        addDefautTemplates(response.data);
+        addDefaultTemplates(response.data);
         setLastTemplateVersion(languageCode);
+      }, function (error) {
+        ToastService.error(_('templates'), _('error_default_templates_load'));
       });
     }
 

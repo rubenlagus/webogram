@@ -29,11 +29,17 @@
           </a></li>
           <li ng-if="isLoggedIn">
             <input ng-show="false" id="selectTemplateFile" type="file" class="im_attach_input" multiple="false" title="{{'add_template' | i18n}}" on-read-file="addTemplate($fileContent)" />
-            <a my-i18n="add_template" ng-click="triggerClick()"></a>
+            <a ng-click="triggerClick()">
+              <i class="icon icon-add-template"></i>
+              <span my-i18n="add_template"></span>
+            </a>
           </li>
-          <li><a href="" ng-click="addDefaultTemplate()">
-            <span my-i18n="default_templates"></span>
-          </a></li>
+          <li>
+            <a ng-click="addDefaultTemplate()">
+              <i class="icon icon-default-template"></i>
+              <span my-i18n="default_templates"></span>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
