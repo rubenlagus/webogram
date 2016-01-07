@@ -723,6 +723,9 @@ function MessageComposer (textarea, options) {
 
 MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/)([A-Za-z0-9\-\+\*@_]*)$/;
 
+MessageComposer.prototype.updateTemplates = function (newTemplates) {
+  this.templates = newTemplates;
+}
 
 MessageComposer.prototype.setUpInput = function () {
   if ('contentEditable' in document.body) {

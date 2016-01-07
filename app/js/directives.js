@@ -1566,9 +1566,16 @@ angular.module('myApp.directives', ['myApp.filters'])
         });
       };
       $scope.$on('settings_changed', updateSendSettings);
+      $scope.$on('templates_updated', updateTemplates);
       updateSendSettings();
 
       $(submitBtn).on('mousedown touchstart', onMessageSubmit);
+
+      function updateTemplates(newTemplates) {
+        if (composer) {
+          composer.updateTemplates(newTemplates);
+        }
+      }
 
       function onMessageSubmit (e) {
         $timeout(function () {
