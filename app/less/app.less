@@ -84,7 +84,7 @@ a {
     border-color: #a4a4a4;
     outline: 0;
 
-    @shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(102, 175, 233, 0.6);
+    @shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(164, 164, 164, 0.6);
     .box-shadow(@shadow);
   }
 
@@ -206,6 +206,7 @@ input[type="number"] {
   overflow: hidden;
 
   &:hover {
+    color: #A870BB;
     background: #f5f5f5;
   }
 
@@ -374,7 +375,7 @@ a {
   }
 
   &.md_modal_action:hover {
-    color: #fff;
+    color: #000000;
   }
 
   &.md_modal_action_close {
@@ -766,7 +767,7 @@ a.tg_checkbox {
   }
 
   &.tg_checkbox_on span.icon-checkbox-outer {
-    background-color: #d5d5d5;
+    background-color: #A870BB;
   }
 
   i.icon-checkbox-inner {
@@ -857,7 +858,7 @@ i.icon-radio {
   border-color: #858585;
 }
 .tg_radio.tg_radio_on i.icon-radio {
-  background-color: #949494;
+  background-color: #A870BB;
 }
 a.tg_radio:hover i.icon-radio {
   background-color: #f2f2f2;
@@ -889,7 +890,7 @@ a.tg_radio_on:hover i.icon-radio {
   z-index: 2;
 }
 .tg_slider_track_fill {
-  background: #a8a8a8;
+  background: #A870BB;
   height: 4px;
 }
 .tg_slider_thumb {
@@ -998,7 +999,10 @@ a.tg_radio_on:hover i.icon-radio {
   display: inline-block;
   color: #fff;
 }
-.login_head_submit_btn:hover,
+.login_head_submit_btn:hover {
+  color: #000000;
+  text-decoration: none;
+}
 .login_head_submit_btn:focus,
 .login_head_submit_btn:active {
   color: #fff;
@@ -1118,6 +1122,7 @@ a.tg_radio_on:hover i.icon-radio {
   margin: 0;
 }
 .login_edit_phone {
+  color: #A870BB;
   margin: 5px 0 15px;
   text-align: center;
 }
@@ -1295,7 +1300,7 @@ i.icon-verified {
 .im_dialog_chat_from_wrap,
 .im_dialog_message_media,
 .im_dialog_message_service {
-  color: #656565;
+  color: #A870BB;
 }
 .im_dialog_message_text {
   color: #808080;
@@ -1354,7 +1359,7 @@ a.im_dialog_selected {
 }
 
 .im_dialog_unread {
-  background: #d3d3d3;
+  background: #A870BB;
   display: inline-block;
   float: right;
   width: 8px;
@@ -1455,7 +1460,7 @@ a.im_dialog_selected {
 
 .im_message_author,
 .im_message_fwd_author {
-  color: #656565;
+  color: #A870BB;
   font-weight: bold;
 }
 .im_message_author_via,
@@ -2684,7 +2689,10 @@ img.img_fullsize {
   font-weight: bold;
   transition: color ease-in-out 0.2s;
 
-  &:hover,
+  &:hover {
+    color: #A870BB;
+    text-decoration: none;
+  }
   &:active,
   &:focus {
     text-decoration: none;
@@ -2702,9 +2710,9 @@ img.img_fullsize {
   width: 50%;
   height: 1px;
   background: #9b9b9b;
-  -webkit-box-shadow: 0px 1px 0px 0px rgba(83,169,234,1);
-  -moz-box-shadow: 0px 1px 0px 0px rgba(83,169,234,1);
-  box-shadow: 0px 1px 0px 0px rgba(83,169,234,1);
+  -webkit-box-shadow: 0px 1px 0px 0px rgb(155, 155, 155);
+  -moz-box-shadow: 0px 1px 0px 0px rgb(155, 155, 155);
+  box-shadow: 0px 1px 0px 0px rgb(155, 155, 155);
   .transform(translate3d(0,0,0));
 
   transition: transform ease-in-out 0.2s;
@@ -2934,7 +2942,7 @@ a.composer_emoji_btn {
   z-index: 10;
   border: 0;
 
-  .box-shadow(0px 1px 1px 0px rgba(60,75,87,0.27));
+  .box-shadow(0px 1px 1px 0px rgba(73, 73, 73, 0.27));
 
   border-radius: 0;
   margin-top: -5px;
@@ -3793,7 +3801,7 @@ ul.chat_modal_migrate_list {
 
   .im_message_outer_wrap {
     // background-color: rgba(242, 246, 250, 1.0);
-    background-color: rgba(242, 246, 250, 0);
+    background-color: rgba(245, 245, 245, 0);
     animation-name: im_message_focus_fade;
     -webkit-animation-timing-function: ease-in;
     animation-timing-function: ease-out;
@@ -3803,10 +3811,10 @@ ul.chat_modal_migrate_list {
 
 @keyframes im_message_focus_fade {
     from {
-      background-color: rgba(242, 246, 250, 1.0);
+      background-color: rgb(245, 245, 245);
     }
     to {
-      background-color: rgba(242, 246, 250, 0);
+      background-color: rgba(245, 245, 245, 0);
     }
 }
 
@@ -4427,6 +4435,7 @@ a.countries_modal_search_clear {
     }
 
     &:hover {
+      color: #A870BB;
       text-decoration: none;
     }
     &.pull-right {
