@@ -11,12 +11,6 @@
             <span class="icon-bar"></span>
           </a>
           <ul class="dropdown-menu">
-            <li ng-if="photo.location">
-              <a ng-click="deletePhoto()" my-i18n="settings_modal_delete_photo"></a>
-            </li>
-            <li>
-              <a ng-click="editProfile()" my-i18n="settings_modal_edit_profile"></a>
-            </li>
             <li>
               <a ng-if="password._ == 'account.noPassword' && password.email_unconfirmed_pattern.length" ng-click="changePassword({action: 'cancel_email'})" my-i18n="settings_modal_password_email_pending_cancel_mobile">
               </a>
@@ -67,17 +61,6 @@
         <p class="mobile_user_modal_status" my-user-status="::profile.id"></p>
       </div>
 
-    </div>
-
-    <div class="mobile_modal_action_wrap" ng-switch="photo.updating">
-      <span ng-switch-when="true" class="mobile_modal_action" my-i18n>
-        <my-i18n msgid="settings_modal_photo_updating"></my-i18n>
-        <span my-loading-dots></span>
-      </span>
-      <span ng-switch-default class="mobile_modal_action mobile_modal_upload_action">
-        <input my-file-upload  type="file" multiple="false" class="im_attach_input" size="120" multiple="false" accept="image/x-png, image/png, image/gif, image/jpeg" />
-        <my-i18n msgid="settings_modal_set_photo"></my-i18n>
-      </span>
     </div>
 
     <div class="mobile_modal_action_wrap">
