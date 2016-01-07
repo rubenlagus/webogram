@@ -705,6 +705,9 @@ function MessageComposer (textarea, options) {
 
 MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/)([A-Za-z0-9\-\+\*@_]*)$/;
 
+MessageComposer.prototype.updateTemplates = function (newTemplates) {
+  this.templates = newTemplates;
+}
 
 MessageComposer.prototype.setUpInput = function () {
   this.inlinePlaceholderWrap = $('<div class="im_inline_placeholder_wrap"></div>').prependTo(this.textareaEl[0].parentNode);

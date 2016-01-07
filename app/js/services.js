@@ -9,7 +9,7 @@
 
 /* Services */
 
-angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageModule'])
+angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageModule', 'ngAnimate', 'toastr'])
 
 .service('AppUsersManager', function ($rootScope, $modal, $modalStack, $filter, $q, qSync, MtpApiManager, RichTextProcessor, ErrorService, Storage, _) {
   var users = {},
@@ -4215,6 +4215,44 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
 })
 
+.service('ToastService', function (toastr) {
+
+  function error(title, message, timeOut) {
+    timeOut = timeOut || 2000;
+    toastr.error(message, title, {
+      closeButton: true,
+      tapToDismiss: true,
+      timeOut: timeOut,
+      progressBar: false
+    });
+  }
+
+  function info(title, message, timeOut) {
+    timeOut = timeOut || 1000;
+    toastr.info(message, title, {
+      closeButton: true,
+      tapToDismiss: true,
+      timeOut: timeOut,
+      progressBar: false
+    });
+  }
+
+  function success(title, message, timeOut) {
+    timeOut = timeOut || 1000;
+    toastr.success(message, title, {
+      closeButton: true,
+      tapToDismiss: true,
+      timeOut: timeOut,
+      progressBar: false
+    });
+  }
+
+  return {
+    error: error,
+    info: info,
+    success: success
+  };
+})
 
 .service('LocationParamsService', function ($rootScope, $routeParams, AppPeersManager, AppUsersManager, AppMessagesManager, PeersSelectService, AppStickersManager, ErrorService) {
 
@@ -4438,31 +4476,35 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   };
 })
 
-  .service('TemplatesService', function ($rootScope, $http, localStorageService) {
+  .service('TemplatesService', function ($rootScope, $http, _, localStorageService, ToastService) {
 
-    function addTemplates($fileContent, defaultTemplates) {
+    function addTemplates($fileContent) {
       // Templates support
-      defaultTemplates = defaultTemplates | false;
-      var mainRegex = new RegExp("[{]KEYS[}]\\n?([^{]+)[{]VALUE[}]\\n?([^{]+)", "g");
-      var keysRegex = /(\w+)/g;
-      var match = mainRegex.exec($fileContent);
-      if (match != null && defaultTemplates) {
-        localStorageService.clearAll();
-      }
-      while (match != null) {
-        var keys = match[1] | match[4];
-        var value = match[2] | match[5];
-        var keysMatch = keysRegex.exec(keys);
-        while (keysMatch != null) {
-          var key = keysMatch[0].replace(/\n/g, "");
-          if (key != "") {
-            localStorageService.set(key, value);
-          }
-          keysMatch = keysRegex.exec(keys);
+      var url = "http://sa.laagacht.net:9992/bot/templates/process";
+
+      var config = {
+        headers: {
+          'Content-Type': 'text/plain; charset=UTF-8'
         }
-        match = mainRegex.exec($fileContent);
-      }
-      $rootScope.$broadcast('templatesLoaded');
+      };
+      ToastService.info(_('templates'), _('templates_loading'));
+      $http.post(url, $fileContent, config).then(function (response) {
+        if (response.data.length > 0) {
+          angular.forEach(response.data, function (template) {
+            var value = template.value;
+            angular.forEach(template.keys, function (key) {
+              if (angular.isDefined(key) && key != "") {
+                localStorageService.set(key, value);
+              }
+            });
+          });
+          $rootScope.$broadcast('templatesLoaded');
+        } else {
+          ToastService.error(_('templates'), _('error_templates_load_file'));
+        }
+      }, function () {
+        ToastService.error(_('templates'), _('error_templates_load_file'));
+      });
     }
 
     function addTemplate(key, value) {

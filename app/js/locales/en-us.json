@@ -819,5 +819,9 @@
 	"download_settings_modal_stickers": "Stickers",
 	"download_settings_modal_profile_photos": "Profile photos",
 	"add_template": "Add template",
-	"default_templates": "Default templates"
+	"default_templates": "Default templates",
+	"templates": "Templates",
+	"templates_loading": "Templates file is being loaded. This may take a couple of minutes",
+	"templates_loaded_finished": "Templates file has been loaded.",
+	"error_templates_load_file": "There was an error loading the file, please check that it is correctly formatted."
 }

@@ -9,7 +9,7 @@
 
 /* Controllers */
 
-angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.utils'])
+angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.utils', 'ngAnimate', 'toastr'])
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
@@ -399,7 +399,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
   })
 
-  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage) {
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage) {
     $scope.$on('$routeUpdate', updateCurDialog);
 
     var pendingParams = false;
@@ -587,6 +587,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         controller: 'LoadDefaultsTemplatesController',
         windowClass: 'md_simple_modal_window mobile_modal'
       });
+    };
+
+    $scope.triggerClick = function() {
+      $timeout(function() {
+        angular.element('#selectTemplateFile').trigger('click');
+      }, 100);
     };
 
     updateCurDialog();
@@ -2094,7 +2100,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.$on('user_update', angular.noop);
   })
 
-  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, TemplatesService) {
+  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService) {
     $scope.$watch('curDialog.peer', resetDraft);
     $scope.$on('user_update', angular.noop);
     $scope.$on('peer_draft_attachment', applyDraftAttachment);
@@ -2104,6 +2110,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.$on('ui_typing', onTyping);
     $scope.$on('templatesLoaded', function() {
       loadTemplatesFromStorage();
+      ToastService.success(_('templates'), _('templates_loaded_finished'));
+      $scope.$broadcast('templates_updated', $scope.templates);
     });
 
     $scope.onKeyUp = function () {
