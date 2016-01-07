@@ -1292,7 +1292,7 @@ MessageComposer.prototype.onTemplateSelected = function (template, isTab) {
   var templates = this.templates.filter(function (temp) { return temp.key === template});
   if (templates.length > 0) {
     var templateText = templates[0].value;
-    if (isTab) {
+    if (isTab || Config.Mobile) {
       if (this.richTextareaEl) {
         this.richTextareaEl.html(encodeEntities(templateText) + '&nbsp;');
         setRichFocus(this.richTextareaEl[0]);
