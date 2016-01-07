@@ -811,7 +811,7 @@
 
 	"country_select_modal_country_sup": "Support",
 	"download_settings_modal_title": "Automatic downloads",
-	"download_settings_modal_description": "Enable to automatically download, keep disabled for lower data consumption.",
+	"download_settings_modal_description": "Enable for automatic downloads.",
 	"download_settings_modal_description_thumbnails": "Enables automatic downloads for uncached thumbnails. To download them manually, click/tap on their placeholder",
 	"download_settings_modal_description_stickers": "Enables automatic downloads for uncached stickers. To download them manually, click/tap  their placeholder, tapping again on display will download the stickerset",
 	"download_settings_modal_description_profile_photos": "Enables automatic downloads for uncached profile pictures. To download them manually, open a users profile picture.",
