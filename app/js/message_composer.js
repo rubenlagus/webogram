@@ -699,9 +699,11 @@ function MessageComposer (textarea, options) {
   this.onInlineResultSend = options.onInlineResultSend;
   this.mentions = options.mentions;
   this.commands = options.commands;
+  this.templates = options.templates;
+  this.onTemplateSend = options.onTemplateSend;
 }
 
-MessageComposer.autoCompleteRegEx = /(\s|^)(:|@|\/)([A-Za-z0-9\-\+\*@_]*)$/;
+MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/)([A-Za-z0-9\-\+\*@_]*)$/;
 
 
 MessageComposer.prototype.setUpInput = function () {
@@ -872,7 +874,7 @@ MessageComposer.prototype.onKeyEvent = function (e) {
           currentSel = $(this.autoCompleteEl).find('li:first');
         }
         currentSel = currentSel.find('a:first');
-        var code, mention, command, inlineID;
+        var code, mention, command, inlineID, template;
         if (code = currentSel.attr('data-code')) {
           this.onEmojiSelected(code, true);
           EmojiHelper.pushPopularEmoji(code);
@@ -894,6 +896,12 @@ MessageComposer.prototype.onKeyEvent = function (e) {
           }
           self.hideSuggestions();
           // console.log(dT(), 'keydown cancel', e.keyCode);
+          return cancelEvent(e);
+        }
+        if (template = currentSelected.attr('data-template')) {
+          if (this.onTemplateSelected) {
+            this.onTemplateSelected(template, e.keyCode == 9);
+          }
           return cancelEvent(e);
         }
         checkSubmit = true;
@@ -955,8 +963,6 @@ MessageComposer.prototype.restoreSelection = function () {
 
   return result;
 }
-
-
 
 MessageComposer.prototype.checkAutocomplete = function (forceFull) {
   var pos, value;
@@ -1036,6 +1042,22 @@ MessageComposer.prototype.checkAutocomplete = function (forceFull) {
         }
         if (foundCommands.length) {
           this.showCommandsSuggestions(foundCommands);
+        } else {
+          this.hideSuggestions();
+        }
+      } else {
+        this.hideSuggestions();
+      }
+    }
+    else if (!matches[1] && matches[2] == '$') {
+      if (this.templates && this.templates.length) {
+        if (query.length) {
+          var foundTemplates = this.templates.filter(function (temp) { return temp.key.indexOf(query) == 0; });
+        } else {
+          var foundTemplates = this.templates;
+        }
+        if (foundTemplates.length) {
+          this.showTemplatesSuggestions(foundTemplates);
         } else {
           this.hideSuggestions();
         }
@@ -1156,8 +1178,6 @@ MessageComposer.prototype.onRichPasteNode = function (e) {
     }, 100);
   }
 }
-
-
 
 MessageComposer.prototype.onEmojiSelected = function (code, autocomplete) {
   if (this.richTextareaEl) {
@@ -1331,6 +1351,28 @@ MessageComposer.prototype.onCommandSelected = function (command, isTab) {
   this.onChange();
 }
 
+MessageComposer.prototype.onTemplateSelected = function (template, isTab) {
+  var templates = this.templates.filter(function (temp) { return temp.key === template});
+  if (templates.length > 0) {
+    var templateText = templates[0].value;
+    if (isTab) {
+      if (this.richTextareaEl) {
+        this.richTextareaEl.html(encodeEntities(templateText) + '&nbsp;');
+        setRichFocus(this.richTextareaEl[0]);
+      } else {
+        var textarea = this.textareaEl[0];
+        textarea.value = templateText + ' ';
+        setFieldSelection(textarea);
+      }
+    } else {
+      this.onTemplateSend(templateText);
+    }
+  }
+
+  this.hideSuggestions();
+  this.onChange();
+}
+
 MessageComposer.prototype.onChange = function (e) {
   if (this.richTextareaEl) {
     delete this.keyupStarted;
@@ -1385,8 +1427,6 @@ MessageComposer.prototype.setFocusedValue = function (parts) {
   }
 }
 
-
-
 MessageComposer.prototype.getRichHtml = function (text) {
   return $('<div>').text(text).html().replace(/\n/g, '<br/>').replace(/:([A-Za-z0-9\-\+\*_]+?):/gi, (function (all, shortcut) {
     var code = EmojiHelper.shortcuts[shortcut];
@@ -1396,7 +1436,6 @@ MessageComposer.prototype.getRichHtml = function (text) {
     return all;
   }).bind(this));
 }
-
 
 MessageComposer.prototype.focus = function () {
   if (this.richTextareaEl) {
@@ -1437,6 +1476,17 @@ MessageComposer.prototype.showEmojiSuggestions = function (codes) {
 }
 
 MessageComposer.prototype.showMentionSuggestions = function (users) {
+  var html = [];
+  var user;
+  var count = users.length;
+  var i;
+
+  for (i = 0; i < count; i++) {
+    user = users[i];
+    html.push('<li><a class="composer_mention_option" data-mention="' + user.username + '"><span class="composer_user_photo" data-user-id="' + user.id + '"></span><span class="composer_user_name">' + user.rFullName + '</span><span class="composer_user_mention">@' + user.username + '</span></a></li>');
+  }
+
+  this.renderSuggestions(html);
   var self = this;
   setZeroTimeout(function () {
     self.autoCompleteScope.$apply(function () {
@@ -1447,6 +1497,26 @@ MessageComposer.prototype.showMentionSuggestions = function (users) {
       self.renderSuggestions();
     });
   });
+}
+
+MessageComposer.prototype.showTemplatesSuggestions = function (templates) {
+  var html = [];
+  var template;
+  var count = templates.length;
+  var i;
+
+  for (i = 0; i < count; i++) {
+    template = templates[i];
+    html.push(
+      '<li>' +
+      '<a class="composer_command_option" data-template="' + encodeEntities(template.key) + '">' +
+      '<span class="composer_command_value composer_template_value">' + encodeEntities(template.key) + '</span>' +
+      '<span class="composer_command_desc">' + encodeEntities(template.value) + '</span>' +
+      '</a>' +
+      '</li>');
+  }
+
+  this.renderSuggestions(html);
 }
 
 MessageComposer.prototype.showCommandsSuggestions = function (commands) {
@@ -1515,9 +1585,6 @@ MessageComposer.prototype.resetTyping = function () {
 MessageComposer.prototype.setPlaceholder = function (newPlaceholder) {
   (this.richTextareaEl || this.textareaEl).attr('placeholder', newPlaceholder);
 }
-
-
-
 
 function Scroller(content, options) {
   options = options || {};
@@ -1606,7 +1673,6 @@ Scroller.prototype.updateHeight = function () {
   }
   return height;
 }
-
 
 Scroller.prototype.scrollTo = function (scrollTop, animation, cb) {
   if (animation > 0) {

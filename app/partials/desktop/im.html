@@ -182,7 +182,7 @@
                   </a>
                   <a class="pull-left im_panel_own_photo" my-peer-photolink="draftMessage.isBroadcast ? historyPeer.id : ownID" img-class="im_panel_own_photo" watch="true" ng-click="openSettings()" no-open="true"></a>
 
-                  <form my-send-form draft-message="draftMessage" mentions="mentions" commands="commands" class="im_send_form" ng-class="{im_send_form_empty: !draftMessage.text.length, composer_progress_enabled: draftMessage.inlineProgress}">
+                  <form my-send-form draft-message="draftMessage" mentions="mentions" commands="commands" templates="templates" class="im_send_form" ng-class="{im_send_form_empty: !draftMessage.text.length}">
 
                     <div class="im_send_form_inline_results" my-inline-results="inlineResults"></div>
 

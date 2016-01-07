@@ -2094,10 +2094,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.$on('user_update', angular.noop);
   })
 
-  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, localStorageService) {
-    $scope.templatesDic = {};
-    loadTemplatesFromStorage();
-
+  .controller('AppImSendController', function ($scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, TemplatesService) {
     $scope.$watch('curDialog.peer', resetDraft);
     $scope.$on('user_update', angular.noop);
     $scope.$on('peer_draft_attachment', applyDraftAttachment);
@@ -2126,10 +2123,14 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     };
     $scope.mentions = {};
     $scope.commands = {};
+    $scope.templatesDic = {};
+    $scope.templates = {};
+    loadTemplatesFromStorage();
     $scope.$watch('draftMessage.text', onMessageChange);
     $scope.$watch('draftMessage.files', onFilesSelected);
     $scope.$watch('draftMessage.sticker', onStickerSelected);
     $scope.$watch('draftMessage.command', onCommandSelected);
+    $scope.$watch('draftMessage.template', onTemplateSelected);
     $scope.$watch('draftMessage.inlineResultID', onInlineResultSelected);
 
     $scope.$on('history_reply_markup', function (e, peerData) {
@@ -2153,9 +2154,11 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     var forceDraft = false;
 
     function loadTemplatesFromStorage() {
-      angular.forEach(localStorageService.keys(), function(template) {
-        $scope.templatesDic[template] = localStorageService.get(template);
-      })
+      $scope.templates = TemplatesService.getAllTemplates();
+      $scope.templatesDic = $scope.templates.reduce(function(map, obj) {
+        map[obj.key] = obj.value;
+        return map;
+      }, {});
     }
 
     function sendMessage (e) {
@@ -2635,6 +2638,19 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       delete $scope.draftMessage.text;
       delete $scope.draftMessage.command;
       delete $scope.draftMessage.inlineResultID;
+      $scope.$broadcast('ui_message_send');
+      $scope.$broadcast('ui_peer_draft');
+    }
+
+    function onTemplateSelected (template) {
+      if (!template) {
+        return;
+      }
+      AppMessagesManager.sendText($scope.curDialog.peerID, template);
+      resetDraft();
+      delete $scope.draftMessage.sticker;
+      delete $scope.draftMessage.text;
+      delete $scope.draftMessage.template;
       $scope.$broadcast('ui_message_send');
       $scope.$broadcast('ui_peer_draft');
     }

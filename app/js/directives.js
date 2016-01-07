@@ -1430,13 +1430,14 @@ angular.module('myApp.directives', ['myApp.filters'])
 
   })
 
-  .directive('mySendForm', function (_, $q, $timeout, $compile, $modalStack, $http, $interpolate, Storage, AppStickersManager, AppDocsManager, ErrorService, AppInlineBotsManager, FileManager, shouldFocusOnInteraction) {
+  .directive('mySendForm', function (_, $q, $timeout, $compile, $modalStack, $http, $interpolate, Storage, AppStickersManager, AppDocsManager, ErrorService, AppInlineBotsManager, FileManager, shouldFocusOnInteraction, TemplatesService) {
     return {
       link: link,
       scope: {
         draftMessage: '=',
         mentions: '=',
-        commands: '='
+        commands: '=',
+        templates: '='
       }
     };
 
@@ -1523,6 +1524,7 @@ angular.module('myApp.directives', ['myApp.filters'])
         },
         mentions: $scope.mentions,
         commands: $scope.commands,
+        templates: $scope.templates,
         onMessageSubmit: onMessageSubmit,
         onInlineResultSend: onInlineResultSend,
         onFilePaste: onFilePaste,
@@ -1530,7 +1532,12 @@ angular.module('myApp.directives', ['myApp.filters'])
           $scope.$apply(function () {
             $scope.draftMessage.command = command;
           });
-        }
+        },
+        onTemplateSend: function (template) {
+          $scope.$apply(function () {
+            $scope.draftMessage.template = template;
+          });
+        },
       });
 
       var richTextarea = composer.richTextareaEl && composer.richTextareaEl[0];
