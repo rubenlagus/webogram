@@ -7,7 +7,7 @@
 
           <ul class="nav navbar-nav navbar-quick-nav">
             <li class="navbar-quick-right">
-              <a ng-click="updateDefaultTemplates()">Load</a>
+              <a ng-click="updateDefaultTemplates()" my-i18n="templates_load_button"></a>
             </li>
             <li>
               <a ng-click="$dismiss()" class="navbar-quick-media-back">
@@ -30,7 +30,7 @@
     <form class="modal_simple_form" ng-submit="updateDefaultTemplates()" my-vertical-position="0.3">
 
       <div class="form-group import_modal_field_wrap" ng-class="{'has-error': checked.error, 'has-feedback': checked.feedback.length > 0}">
-        <input class="form-control input-md" my-focused type="text" placeholder="Language Code"  name="username" ng-model-options="{updateOn: 'default blur', debounce: {default: 600, blur: 0}}" ng-model="defaultLanguages"/>
+        <input class="form-control input-md" my-focused type="text" placeholder="Language Code"  name="languageCode" ng-model-options="{updateOn: 'default blur', debounce: {default: 600, blur: 0}}" ng-model="defaultLanguages"/>
         <span ng-if="checked.error" class="glyphicon form-control-feedback" ng-class="{'glyphicon-remove': checked.error}"></span>
       </div>
     </form>

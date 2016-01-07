@@ -4,10 +4,10 @@
 
     <form class="modal_simple_form" ng-submit="updateDefaultTemplates()">
 
-      <h4>Choose default templates language</h4>
+      <h4 my-i18n="choose_default_templates_language"></h4>
 
       <div class="md-input-group" ng-class="{'md-input-error': checked.error}" my-labeled-input>
-        <label class="md-input-label">Language Code</label>
+        <label class="md-input-label" my-i18n="templates_language_code"></label>
         <input class="md-input" my-focused type="text" ng-model="defaultLanguages" name="LanguageCode" ng-model-options="{updateOn: 'default blur', debounce: {default: 600, blur: 0}}" />
       </div>
     </form>
@@ -17,7 +17,7 @@
   <div class="md_simple_modal_footer">
 
     <button class="btn btn-md" ng-click="$dismiss()" my-i18n="modal_cancel"></button>
-    <button class="btn btn-md btn-md-primary" ng-click="updateDefaultTemplates()">Load</button>
+    <button class="btn btn-md btn-md-primary" ng-click="updateDefaultTemplates()" my-i18n="templates_load_button"></button>
 
   </div>
 

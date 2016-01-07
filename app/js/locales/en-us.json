@@ -822,6 +822,11 @@
 	"default_templates": "Default templates",
 	"templates": "Templates",
 	"templates_loading": "Templates file is being loaded. This may take a couple of minutes",
-	"templates_loaded_finished": "Templates file has been loaded.",
-	"error_templates_load_file": "There was an error loading the file, please check that it is correctly formatted."
+	"default_templates_loading": "Loading default templates for requested language",
+	"error_default_templates_load": "Error loading default templates, please check provided language code.",
+	"templates_loaded_finished": "Templates have been loaded.",
+	"error_templates_load_file": "There was an error loading the file, please check that it is correctly formatted.",
+	"choose_default_templates_language": "Choose default templates language",
+	"templates_language_code": "Language Code",
+	"templates_load_button": "Load"
 }

@@ -4811,11 +4811,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.computeUpdates();
   })
 
-  .controller('LoadDefaultsTemplatesController', function ($scope,  $modalInstance, TemplatesService, localStorageService) {
+  .controller('LoadDefaultsTemplatesController', function ($scope,  $modalInstance, _, TemplatesService, localStorageService, ToastService) {
 
     $scope.defaultLanguages = "";
 
     $scope.updateDefaultTemplates = function () {
+      ToastService.info(_('templates'), _('default_templates_loading'));
       localStorageService.set("templatesLanguage", $scope.defaultLanguages);
       TemplatesService.updateDefaultTemplates($scope.defaultLanguages);
       $modalInstance.close();
