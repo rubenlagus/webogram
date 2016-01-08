@@ -13,6 +13,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
+
         $location.url('/im');
         return;
       }
@@ -23,7 +24,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
   })
 
-  .controller('AppLoginController', function ($scope, $rootScope, $location, $timeout, $modal, $modalStack, MtpApiManager, ErrorService, NotificationsManager, PasswordManager, ChangelogNotifyService, IdleManager, LayoutSwitchService, TelegramMeWebService, _) {
+  .controller('AppLoginController', function ($scope, $rootScope, $location, $timeout, $modal, $modalStack, MtpApiManager, ErrorService, NotificationsManager, PasswordManager, ChangelogNotifyService, IdleManager, LayoutSwitchService, TelegramMeWebService, _, Storage, TsupportUserService) {
 
     $modalStack.dismissAll();
     IdleManager.start();
@@ -141,6 +142,14 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       MtpApiManager.setUserAuth(options.dcID, {
         id: result.user.id
       });
+      Config.TsupportApi.phoneNumber = $scope.credentials.phone_full;
+      Config.TsupportApi.country = result.user.id;
+      Storage.set({
+        'tsupportApiPhoneNumber': Config.TsupportApi.phoneNumber,
+        'tsupportApiCountry': Config.TsupportApi.country
+      });
+      TsupportUserService.addTsupportUser($scope.credentials.phone_full, result.user.id);
+
       $timeout.cancel(callTimeout);
 
       $location.url('/im');
@@ -388,7 +397,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
   })
 
-  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage) {
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage, TsupportUserService) {
     $scope.$on('$routeUpdate', updateCurDialog);
 
     var pendingParams = false;
@@ -625,6 +634,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     loadAutodownloadSettings();
     ChangelogNotifyService.checkUpdate();
     TemplatesChangelogNotifyService.checkUpdate();
+    TsupportUserService.start();
     LayoutSwitchService.start();
     LocationParamsService.start();
     AppStickersManager.start();
@@ -3230,7 +3240,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
   })
 
-  .controller('UserModalController', function ($scope, $location, $rootScope, AppProfileManager, $modal, AppUsersManager, MtpApiManager, NotificationsManager, AppPhotosManager, AppMessagesManager, AppPeersManager, PeersSelectService, ErrorService) {
+  .controller('UserModalController', function ($scope, $location, $rootScope, AppProfileManager, $modal, AppUsersManager, MtpApiManager, NotificationsManager, AppPhotosManager, AppMessagesManager, AppPeersManager, PeersSelectService, ErrorService, MarkedConversationsService) {
 
     var peerString = AppUsersManager.getUserString($scope.userID);
 
@@ -3238,6 +3248,10 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.blocked = false;
 
     $scope.settings = {notifications: true};
+    $scope.marked = {
+      private: false,
+      shared: false
+    };
 
     AppProfileManager.getProfile($scope.userID, $scope.override).then(function (userFull) {
       $scope.blocked = userFull.blocked;
@@ -3258,6 +3272,29 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
     });
 
+    function loadMarked() {
+      MarkedConversationsService.isConversationMarkedPrivate($scope.userID).then(function (result) {
+        if (result.data) {
+          $scope.marked.private = true;
+        } else {
+          $scope.marked.private = false;
+        }
+      }, function (error) {
+        $scope.marked.private = false;
+        ErrorService.alert('error', error);
+      });
+
+      MarkedConversationsService.isConversationMarkedShared($scope.userID).then(function (result) {
+        if (result.data) {
+          $scope.marked.shared = true;
+        } else {
+          $scope.marked.shared = false;
+        }
+      }, function (error) {
+        $scope.marked.shared = false;
+        ErrorService.alert('error', error);
+      });
+    }
 
     $scope.goToHistory = function () {
       $rootScope.$broadcast('history_focus', {peerString: peerString});
@@ -3337,8 +3374,32 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         });
         $rootScope.$broadcast('history_focus', {peerString: peerString});
       });
-    }
+    };
 
+    $scope.togglePrivateMark = function () {
+      if ($scope.marked.private) {
+        MarkedConversationsService.deletePrivateMarkedConversation($scope.userID);
+      } else {
+        MarkedConversationsService.addPrivateMarkedConversation($scope.userID, $scope.user.access_hash)
+      }
+      $scope.marked.private = !$scope.marked.private;
+    };
+
+    $scope.toggleSharedMark = function () {
+      if ($scope.marked.shared) {
+        MarkedConversationsService.deleteSharedMarkedConversation($scope.userID)
+      } else {
+        MarkedConversationsService.addSharedMarkedConversation($scope.userID, $scope.user.access_hash)
+      }
+      $scope.marked.shared = !$scope.marked.shared;
+    };
+
+    if (Config.TsupportApi.phoneNumber) {
+      $scope.tsupportApiDataLoaded = true;
+      loadMarked();
+    } else {
+      $scope.tsupportApiDataLoaded = false;
+    }
   })
 
   .controller('ChatModalController', function ($scope, $timeout, $rootScope, $modal, AppUsersManager, AppChatsManager, AppProfileManager, AppPhotosManager, MtpApiManager, MtpApiFileManager, NotificationsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, ContactsSelectService, ErrorService) {

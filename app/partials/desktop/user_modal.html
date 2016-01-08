@@ -66,6 +66,27 @@
 
       </div>
 
+      <div class="md_modal_iconed_section_wrap md_modal_iconed_section_toggle">
+        <i class="md_modal_section_icon md_modal_section_icon_notification"></i>
+
+        <a ng-if="tsupportApiDataLoaded" class="md_modal_section_toggle_wrap tg_checkbox" ng-click="togglePrivateMark()" ng-class="marked.private ? 'tg_checkbox_on' : ''">
+          <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+          <span class="tg_checkbox_label" my-i18n="user_modal_marked_conversation_private"></span>
+        </a>
+
+        <a ng-if="tsupportApiDataLoaded" class="md_modal_section_toggle_wrap tg_checkbox" ng-click="toggleSharedMark()" ng-class="marked.shared ? 'tg_checkbox_on' : ''">
+          <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+          <span class="tg_checkbox_label" my-i18n="user_modal_marked_conversation_shared"></span>
+        </a>
+
+        <div class="md_modal_section_param_wrap" ng-if="!tsupportApiDataLoaded">
+          <div class="md_modal_section_param_value">
+            <span my-i18n="user_modal_marked_conversation_error_value"></span>
+          </div>
+          <div class="md_modal_section_param_name" my-i18n="user_modal_marked_conversation_error_name"></div>
+        </div>
+      </div>
+
       <div class="md_modal_iconed_section_wrap md_modal_iconed_section_link" ng-init="f.showMoreActions = !user.phone.length">
         <i class="md_modal_section_icon md_modal_section_icon_more"></i>
 

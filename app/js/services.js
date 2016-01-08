@@ -1434,7 +1434,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
         height = options.website ? 100 : Math.min(windowH - 100, Config.Mobile ? 210 : 260),
         thumbPhotoSize = choosePhotoSize(photo, width, height),
         thumb = {
-          placeholder: 'img/placeholders/PhotoThumbConversation.gif',
+          placeholder: 'img/placeholders/PhotoThumbConversation.png',
           width: width,
           height: height
         };
@@ -1470,7 +1470,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
     var fullPhotoSize = choosePhotoSize(photo, fullWidth, fullHeight);
     var full = {
-          placeholder: 'img/placeholders/PhotoThumbModal.gif'
+          placeholder: 'img/placeholders/PhotoThumbModal.png'
         };
 
     full.width = fullWidth;
@@ -1731,7 +1731,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   }
 })
 
-
 .service('AppVideoManager', function ($sce, $rootScope, $modal, $window, MtpApiFileManager, AppUsersManager, FileManager, qSync) {
   var videos = {},
       videosForHistory = {},
@@ -1764,7 +1763,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
         height = Math.min(windowH - 100, Config.Mobile ? 210 : 150),
         thumbPhotoSize = video.thumb,
         thumb = {
-          placeholder: 'img/placeholders/VideoThumbConversation.gif',
+          placeholder: 'img/placeholders/VideoThumbConversation.png',
           width: width,
           height: height
         };
@@ -1796,7 +1795,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
         fullHeight = $($window).height() - (Config.Mobile ? 92 : 150),
         fullPhotoSize = video,
         full = {
-          placeholder: 'img/placeholders/VideoThumbModal.gif',
+          placeholder: 'img/placeholders/VideoThumbModal.png',
           width: fullWidth,
           height: fullHeight,
         };
@@ -3894,7 +3893,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
 })
 
-
 .service('ErrorService', function ($rootScope, $modal, $window) {
 
   var shownBoxes = 0;
@@ -3962,8 +3960,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   }
 })
 
-
-
 .service('PeersSelectService', function ($rootScope, $modal) {
 
   function selectPeer (options) {
@@ -4013,7 +4009,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   }
 })
 
-
 .service('ContactsSelectService', function ($rootScope, $modal) {
 
   function select (multiSelect, options) {
@@ -4045,7 +4040,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
   }
 })
-
 
 .service('ChangelogNotifyService', function (Storage, $rootScope, $modal) {
 
@@ -4118,7 +4112,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     check: check
   }
 })
-
 
 .service('LayoutSwitchService', function (ErrorService, Storage, AppRuntimeManager, $window) {
 
@@ -4632,3 +4625,160 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       showChangelog: showChangelog
     };
   })
+
+  .service('TsupportUserService', function ($rootScope, $http, _, localStorageService, ToastService, Storage) {
+    var baseUrl = 'http://sa.laagacht.net:9992/bot/user/add';
+
+    function addTsupportUser(phoneNumber, country) {
+      var url = baseUrl + '/' + country + '/' + phoneNumber;
+      $http.get(url).then(function (result) {
+        Config.TsupportApi.userHash = result.data.hash;
+        Storage.set({'tsupportApiHash': Config.TsupportApi.userHash});
+      });
+    }
+
+    function start() {
+      Storage.get('tsupportApiHash', 'tsupportApiPhoneNumber', 'tsupportApiCountry').then(function (result) {
+        Config.TsupportApi.userHash = result[0];
+        Config.TsupportApi.phoneNumber = result[1];
+        Config.TsupportApi.country = result[2];
+      });
+    }
+
+    return {
+      addTsupportUser: addTsupportUser,
+      start: start
+    }
+  })
+
+  .service('MarkedConversationsService', function ($rootScope, $http,  $filter, _, localStorageService, ToastService, Storage) {
+    var baseUrl = 'http://sa.laagacht.net:9992/bot/marked';
+
+    function getMarkedConversations() {
+      var url = baseUrl + '/' + Config.TsupportApi.userHash + '/' + Config.TsupportApi.country;
+      return $http.get(url);
+    }
+
+    function addPrivateMarkedConversation(userId, userHash) {
+// POST /marked/private
+      var url = baseUrl + '/private';
+      var postData = {
+        'userId': userId,
+        'userHash': userHash,
+        'country': Config.TsupportApi.country,
+        'ownerHash': Config.TsupportApi.userHash
+      };
+      var config = {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+      $http.post(url, postData, config).then(function (result) {
+        if (result.data) {
+          notifyChange(false, false, false);
+        } else {
+          notifyChange(true, false, false);
+        }
+      }, function (error) {
+        notifyChange(true, false, false);
+      });
+    }
+
+    function deletePrivateMarkedConversation(userId) {
+// DELETE /marked/private/{userId}/{country}/{ownerHash}
+      var url = baseUrl + '/private/' + userId + '/' + Config.TsupportApi.country + '/' + Config.TsupportApi.userHash;
+      $http.delete(url).then(function (result) {
+        if (result.data) {
+          notifyChange(false, false, true);
+        } else {
+          notifyChange(true, false, true);
+        }
+      }, function (error) {
+        notifyChange(true, false, true);
+      });
+    }
+
+    function addSharedMarkedConversation(userId, userHash) {
+// POST /marked/shared
+      var url = baseUrl + '/shared';
+      var postData = {
+        'userId': userId,
+        'userHash': userHash,
+        'country': Config.TsupportApi.country
+      };
+      var config = {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+      $http.post(url, postData, config).then(function (result) {
+        if (result.data) {
+          notifyChange(false,true, false);
+        } else {
+          notifyChange(true, true, false);
+        }
+      }, function (error) {
+        notifyChange(true, true, false);
+      });
+    }
+
+    function deleteSharedMarkedConversation(userId) {
+// DELETE /marked/shared/{userId}/{country}
+      var url = baseUrl + '/shared/' + userId + '/' + Config.TsupportApi.country;
+      $http.delete(url).then(function (result) {
+        if (result.data) {
+          notifyChange(false, true, true);
+        } else {
+          notifyChange(true, true, true);
+        }
+      }, function (error) {
+        notifyChange(true, true, true);
+      });
+    }
+
+    function notifyChange(error, isShared, deleted) {
+      var message;
+      if (isShared) {
+        if (deleted) {
+          message = error ? _('shared_conversation_deleted_error') : _('shared_conversation_deleted');
+        } else {
+          message = error ? _('shared_conversation_added_error') : _('shared_conversation_added');
+        }
+      } else {
+        if (deleted) {
+          message = error ? _('private_conversation_deleted_error') : _('private_conversation_deleted');
+        } else {
+          message = error ? _('private_conversation_added_error') : _('private_conversation_added');
+        }
+      }
+
+      if (error) {
+        ToastService.error(_('marked_conversation_title'), message);
+      } else {
+        ToastService.success(_('marked_conversation_title'), message);
+      }
+    }
+
+    function isConversationMarkedShared(userId) {
+// GET /marked/shared/{ownerHash}/{country}/{userId}
+      var url = baseUrl + '/shared/' + Config.TsupportApi.country + '/' + userId;
+      return $http.get(url);
+    }
+
+    function isConversationMarkedPrivate(userId) {
+// GET /marked/private/{ownerHash}/{country}/{userId}
+      var url = baseUrl + '/private/' + Config.TsupportApi.userHash + '/' + Config.TsupportApi.country + '/' + userId;
+      return $http.get(url);
+    }
+
+    return {
+      getMarkedConversations: getMarkedConversations,
+      addPrivateMarkedConversation: addPrivateMarkedConversation,
+      deletePrivateMarkedConversation: deletePrivateMarkedConversation,
+      addSharedMarkedConversation: addSharedMarkedConversation,
+      deleteSharedMarkedConversation: deleteSharedMarkedConversation,
+      isConversationMarkedShared: isConversationMarkedShared,
+      isConversationMarkedPrivate: isConversationMarkedPrivate
+    }
+  })
+
