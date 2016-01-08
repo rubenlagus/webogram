@@ -26,6 +26,7 @@ Config.App = {
 };
 
 Config.DownloadSettings = {};
+Config.TsupportApi = {};
 
 Config.TemplatesLanguages = [
   {'countryCode': 'de', 'country': 'templates_language_de'},

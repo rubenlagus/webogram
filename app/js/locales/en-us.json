@@ -834,5 +834,18 @@
 	"templates_language_it": "Italian",
 	"templates_language_nl": "Dutch",
 	"templates_language_ru": "Russian",
-	"templates_language_pt": "Portuguese"
+	"templates_language_pt": "Portuguese",
+	"shared_conversation_deleted": "",
+	"shared_conversation_deleted_error": "",
+	"shared_conversation_added": "",
+	"shared_conversation_added_error": "",
+	"private_conversation_deleted": "",
+	"private_conversation_deleted_error": "",
+	"private_conversation_added": "",
+	"private_conversation_added_error": "",
+	"marked_conversation_title": "Marked conversation",
+	"user_modal_marked_conversation_private": "Mark conversation (private)",
+	"user_modal_marked_conversation_shared": "Mark conversation (shared)",
+	"user_modal_marked_conversation_error_value": "Mark conversation not available",
+	"user_modal_marked_conversation_error_name": "Please log out and log in again to enable it."
 }

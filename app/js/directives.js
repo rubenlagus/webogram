@@ -2157,14 +2157,14 @@ angular.module('myApp.directives', ['myApp.filters'])
           $scope.downloaded = true;
         }, function (e) {
           console.log('Download sticker failed', e, fullLocation);
-          imgElement.attr('src', 'img/placeholders/PhotoThumbConversation.gif');
+          imgElement.attr('src', 'img/placeholders/PhotoThumbConversation.png');
         });
       } else {
         MtpApiFileManager.downloadFile($scope.document.dc_id, fullLocation, $scope.document.size, undefined, allowDirectLoad).then(function (blob) {
           setSrc(blob);
           $scope.downloaded = true;
         }, function (e) {
-          imgElement.attr('src', 'img/placeholders/PhotoThumbConversation.gif');
+          imgElement.attr('src', 'img/placeholders/PhotoThumbConversation.png');
           console.log('Download sticker failed', e, fullLocation);
         });
       }
