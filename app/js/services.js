@@ -4476,7 +4476,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   };
 })
 
-  .service('TemplatesService', function ($rootScope, $http, _, localStorageService, ToastService) {
+  .service('TemplatesService', function ($rootScope, $http, _, localStorageService, ToastService, Storage) {
 
     function addTemplates($fileContent) {
       // Templates support
@@ -4516,9 +4516,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     function setLastTemplateVersion(languageCode) {
       var url = "http://sa.laagacht.net:9992/bot/templates/maxHash/" + languageCode;
       $http.get(url).then(function (response) {
-        localStorageService.set("lastTemplateVersion", response.data.hash);
+        Storage.set({'lastTemplateVersion': response.data.hash});
       });
-      localStorageService.set("templatesLanguage", languageCode);
+      Storage.set({'templatesLanguage': languageCode});
     }
 
     function addDefaultTemplates(templates) {
@@ -4545,6 +4545,11 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       }, function (error) {
         ToastService.error(_('templates'), _('error_default_templates_load'));
       });
+    }
+
+    function getAvailableLanguages() {
+      var url = "http://sa.laagacht.net:9992/bot/templates";
+      return $http.get(url);
     }
 
     function getDifferences(lastTemplateVersion, templatesLanguage) {
@@ -4576,35 +4581,38 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       setLastTemplateVersion: setLastTemplateVersion,
       addTemplate: addTemplate,
       removeTemplate: removeTemplate,
-      getAllTemplates: getAllTemplates
+      getAllTemplates: getAllTemplates,
+      getAvailableLanguages: getAvailableLanguages
     };
   })
 
-  .service('TemplatesChangelogNotifyService', function (TemplatesService, localStorageService, $rootScope, $modal) {
+  .service('TemplatesChangelogNotifyService', function (TemplatesService, $rootScope, $modal, Storage) {
 
     function checkUpdate() {
-      var templatesLanguage = localStorageService.get("templatesLanguage"),
-        lastTemplateVersion = localStorageService.get("lastTemplateVersion");
+      Storage.get('templatesLanguage', 'lastTemplateVersion').then(function (results) {
+        var templatesLanguage = results[0],
+          lastTemplateVersion = results[1];
 
-      if (!angular.isUndefined(lastTemplateVersion) && !angular.isUndefined(templatesLanguage)) {
-        var promise = TemplatesService.getDifferences(lastTemplateVersion, templatesLanguage);
-        promise.then(function (response) {
-          if (response.data.length > 0){
-            response.data.forEach(function (templateLog) {
-              var keys = templateLog.template.keys;
-              keys.forEach(function(key) {
-                if (templateLog.type === "DELETEDTEMPLATE") {
-                  TemplatesService.removeTemplate(key)
-                } else {
-                  TemplatesService.addTemplate(key, templateLog.template.value)
-                }
+        if (angular.isDefined(lastTemplateVersion) && angular.isDefined(templatesLanguage)) {
+          var promise = TemplatesService.getDifferences(lastTemplateVersion, templatesLanguage);
+          promise.then(function (response) {
+            if (response.data.length > 0){
+              response.data.forEach(function (templateLog) {
+                var keys = templateLog.template.keys;
+                keys.forEach(function(key) {
+                  if (templateLog.type === "DELETEDTEMPLATE") {
+                    TemplatesService.removeTemplate(key)
+                  } else {
+                    TemplatesService.addTemplate(key, templateLog.template.value)
+                  }
+                });
               });
-            });
-            showChangelog(response.data);
-          }
-          TemplatesService.setLastTemplateVersion(templatesLanguage);
-        });
-      }
+              showChangelog(response.data);
+            }
+            TemplatesService.setLastTemplateVersion(templatesLanguage);
+          });
+        }
+      });
     }
 
     function showChangelog(templateLogs) {

@@ -28,6 +28,10 @@
             <li>
               <a ng-click="showDownloadSettings()" my-i18n="download_settings_modal_title"></a>
             </li>
+            <li>
+              <a ng-if="!templatesLanguage || templatesLanguage == ''" class="md_modal_section_link" ng-click="chooseTemplatesCountry()" my-i18n="choose_default_templates_language"></a>
+              <a ng-if="templatesLanguage && templatesLanguage != ''" class="md_modal_section_link" ng-click="chooseTemplatesCountry()" ng-bind="'Templates language: ' + templatesLanguage"></a>
+            </li>
           </ul>
         </div>
 

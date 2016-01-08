@@ -27,6 +27,17 @@ Config.App = {
 
 Config.DownloadSettings = {};
 
+Config.TemplatesLanguages = [
+  {'countryCode': 'de', 'country': 'templates_language_de'},
+  {'countryCode': 'es', 'country': 'templates_language_es'},
+  {'countryCode': 'en', 'country': 'templates_language_en'},
+  {'countryCode': 'es_419', 'country': 'templates_language_es_419'},
+  {'countryCode': 'it', 'country': 'templates_language_it'},
+  {'countryCode': 'nl', 'country': 'templates_language_nl'},
+  {'countryCode': 'pt', 'country': 'templates_language_pt'},
+  {'countryCode': 'ru', 'country': 'templates_language_ru'}
+];
+
 Config.Modes = {
   test: location.search.indexOf('test=1') > 0,
   debug: location.search.indexOf('debug=1') > 0,

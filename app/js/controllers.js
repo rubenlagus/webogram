@@ -45,17 +45,6 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.callPending = {};
     $scope.about = {};
 
-    $scope.chooseCountry = function () {
-      var modal = $modal.open({
-        templateUrl: templateUrl('country_select_modal'),
-        controller: 'CountrySelectModalController',
-        windowClass: 'countries_modal_window mobile_modal',
-        backdrop: 'single'
-      });
-
-      modal.result.then(selectCountry);
-    };
-
     function initPhoneCountry () {
       var langCode = (navigator.language || '').toLowerCase(),
           countryIso2 = Config.LangCountries[langCode],
@@ -579,14 +568,6 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     $scope.addTemplate = function ($fileContent) {
       TemplatesService.addTemplates($fileContent);
-    };
-
-    $scope.addDefaultTemplate = function() {
-      $modal.open({
-        templateUrl: templateUrl('default_templates_modal'),
-        controller: 'LoadDefaultsTemplatesController',
-        windowClass: 'md_simple_modal_window mobile_modal'
-      });
     };
 
     $scope.triggerClick = function() {
@@ -3695,11 +3676,43 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
   })
 
-  .controller('SettingsModalController', function ($rootScope, $scope, $timeout, $modal, AppUsersManager, AppChatsManager, AppPhotosManager, MtpApiManager, Storage, NotificationsManager, MtpApiFileManager, PasswordManager, ApiUpdatesManager, ChangelogNotifyService, LayoutSwitchService, AppRuntimeManager, ErrorService, _) {
+  .controller('SettingsModalController', function ($rootScope, $scope, $timeout, $modal, AppUsersManager, AppChatsManager, AppPhotosManager, MtpApiManager, Storage, NotificationsManager, MtpApiFileManager, PasswordManager, ApiUpdatesManager, ChangelogNotifyService, LayoutSwitchService, AppRuntimeManager, ErrorService, _, TemplatesService, ToastService) {
 
     $scope.profile = {};
     $scope.photo = {};
     $scope.version = Config.App.version;
+
+    $scope.templatesLanguage = '';
+    $scope.selectedLanguage = undefined;
+
+    $scope.chooseTemplatesCountry = function () {
+      var modal = $modal.open({
+        templateUrl: templateUrl('country_select_modal'),
+        controller: 'CountrySelectModalController',
+        windowClass: 'countries_modal_window mobile_modal',
+        backdrop: 'single'
+      });
+
+      modal.result.then(selectTemplatesCountry);
+    };
+
+    function selectTemplatesCountry(newTemplate) {
+      ToastService.info(_('templates'), _('default_templates_loading'));
+      Storage.set({'templatesLanguage': newTemplate.code});
+      TemplatesService.updateDefaultTemplates(newTemplate.code);
+      $scope.templatesLanguage = newTemplate.name;
+    }
+
+    function loadCurrentTemplatesLangauge() {
+      Storage.get('templatesLanguage').then(function (result) {
+        var valid = Config.TemplatesLanguages.filter(function (item) {return item.countryCode === result;});
+        if (valid.length > 0) {
+          $scope.templatesLanguage = _(valid[0].country);
+        }
+      });
+    }
+
+    loadCurrentTemplatesLangauge();
 
     MtpApiManager.getUserID().then(function (id) {
       $scope.profile = AppUsersManager.getUser(id);
@@ -4698,19 +4711,44 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
   })
 
-  .controller('CountrySelectModalController', function ($scope, $modalInstance, $rootScope, _) {
+  .controller('CountrySelectModalController', function ($scope, $modalInstance, $rootScope, _, TemplatesService) {
 
     $scope.search = {};
-    $scope.slice = {limit: 20, limitDelta: 20}
+    $scope.slice = {limit: 20, limitDelta: 20};
+    $scope.validLanguages = [];
+    var searchIndex;
 
-    var searchIndex = SearchIndexManager.createIndex();
+    function loadAvailableLanguages() {
+      TemplatesService.getAvailableLanguages().then(function (result) {
+        $scope.availableLanguages = result.data;
+        searchIndex = SearchIndexManager.createIndex();
 
-    for (var i = 0; i < Config.CountryCodes.length; i++) {
-      var searchString = Config.CountryCodes[i][0];
-      searchString += ' ' + _(Config.CountryCodes[i][1] + '_raw');
-      searchString += ' ' + Config.CountryCodes[i].slice(2).join(' ');
-      SearchIndexManager.indexObject(i, searchString, searchIndex);
+        $scope.validLanguages = Config.TemplatesLanguages.filter( function (item) {
+          return $scope.availableLanguages.indexOf(item.countryCode) != -1;
+        });
+
+        for (var i = 0; i < $scope.validLanguages.length; i++) {
+          var searchString = $scope.validLanguages[i].countryCode;
+          searchString += ' ' + _($scope.validLanguages[i].country);
+          SearchIndexManager.indexObject(i, searchString, searchIndex);
+        }
+
+        for (var i = 0; i < $scope.validLanguages.length; i++) {
+          $scope.countries.push({name: _($scope.validLanguages[i].country), code: $scope.validLanguages[i].countryCode});
+        }
+        if (String.prototype.localeCompare) {
+          $scope.countries.sort(function(a, b) {
+            return a.name.localeCompare(b.name);
+          });
+        }
+      }, function (error) {
+        $scope.availableLanguages = [];
+        $scope.validLanguages = [];
+        searchIndex = SearchIndexManager.createIndex();
+      })
     }
+
+    loadAvailableLanguages();
 
     $scope.$watch('search.query', function (newValue) {
       var filtered = false,
@@ -4724,12 +4762,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       $scope.countries = [];
       $scope.slice.limit = 20;
 
-      var j;
-      for (var i = 0; i < Config.CountryCodes.length; i++) {
+      for (var i = 0; i < $scope.validLanguages.length; i++) {
         if (!filtered || results[i]) {
-          for (j = 2; j < Config.CountryCodes[i].length; j++) {
-            $scope.countries.push({name: _(Config.CountryCodes[i][1] + '_raw'), code: Config.CountryCodes[i][j]});
-          }
+          $scope.countries.push({name: _($scope.validLanguages[i].country), code: $scope.validLanguages[i].countryCode});
         }
       }
       if (String.prototype.localeCompare) {
@@ -4905,6 +4940,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       LocationParamsService.shareUrl('https://telegram.me/addstickers/' + $scope.stickerset.short_name, $scope.stickerset.title);
     };
   })
+
   .controller('TemplatesChangelogModalController', function ($scope) {
 
     var TYPEADD = "ADDEDTEMPLATE";
@@ -4942,18 +4978,6 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     };
 
     $scope.computeUpdates();
-  })
-
-  .controller('LoadDefaultsTemplatesController', function ($scope,  $modalInstance, _, TemplatesService, localStorageService, ToastService) {
-
-    $scope.defaultLanguages = "";
-
-    $scope.updateDefaultTemplates = function () {
-      ToastService.info(_('templates'), _('default_templates_loading'));
-      localStorageService.set("templatesLanguage", $scope.defaultLanguages);
-      TemplatesService.updateDefaultTemplates($scope.defaultLanguages);
-      $modalInstance.close();
-    }
   })
 
   .controller('ConfigureDownloadsModalController', function ($scope, $modalInstance, Storage) {
