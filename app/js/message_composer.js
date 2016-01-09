@@ -703,7 +703,7 @@ function MessageComposer (textarea, options) {
   this.onTemplateSend = options.onTemplateSend;
 }
 
-MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/)([A-Za-z0-9\-\+\*@_]*)$/;
+MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/|ttt)([A-Za-z0-9\-\+\*@_]*)$/;
 
 MessageComposer.prototype.updateTemplates = function (newTemplates) {
   this.templates = newTemplates;
@@ -780,7 +780,7 @@ MessageComposer.prototype.setUpAutoComplete = function () {
 
 MessageComposer.prototype.setUpRich = function () {
   this.textareaEl.hide();
-  this.richTextareaEl = $('<div class="composer_rich_textarea" contenteditable="true" dir="auto"></div>');
+  this.richTextareaEl = $('<div class="composer_rich_textarea" ng-trim="false" contenteditable="true" dir="auto"></div>');
 
   this.textareaEl[0].parentNode.insertBefore(this.richTextareaEl[0], this.textareaEl[0]);
 
@@ -1052,7 +1052,7 @@ MessageComposer.prototype.checkAutocomplete = function (forceFull) {
         this.hideSuggestions();
       }
     }
-    else if (!matches[1] && matches[2] == '$') {
+    else if (!matches[1] && (matches[2] == '$' || matches[2].match("ttt"))) { // templates
       if (this.templates && this.templates.length) {
         if (query.length) {
           var foundTemplates = this.templates.filter(function (temp) { return temp.key.indexOf(query) == 0; });
