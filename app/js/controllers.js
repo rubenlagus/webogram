@@ -2092,7 +2092,10 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
   })
 
   .controller('AppImSendController', function ($scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService) {
-    var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n(.+)$/;
+    var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n+(.+)$/;
+    var mobileAutocompleteRegex = /\s\s([^\s]+)\s\s/;
+    var innerTemplateRegex = /^(.*\s)(\w+)$/;
+    var templatesDic = {};
 
     $scope.$watch('curDialog.peer', resetDraft);
     $scope.$on('user_update', angular.noop);
@@ -2110,9 +2113,18 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.onKeyUp = function () {
       $scope.$broadcast('ui_message_before_send');
       var possibleKey = $scope.draftMessage.text;
-      if (possibleKey in $scope.templatesDic) {
-        $scope.draftMessage.text = $scope.templatesDic[possibleKey];
+      if (possibleKey in templatesDic) {
+        $scope.draftMessage.text = templatesDic[possibleKey];
         $scope.$broadcast('ui_peer_draft');
+      } else {
+        var innerTemplateFound = $scope.draftMessage.text.match(innerTemplateRegex);
+        if (innerTemplateFound) {
+          var templateKey = innerTemplateFound[2];
+          if (templateKey && templatesDic[templateKey]) {
+            $scope.draftMessage.text = innerTemplateFound[1] + templatesDic[templateKey];
+            $scope.$broadcast('ui_peer_draft');
+          }
+        }
       }
     };
 
@@ -2124,7 +2136,6 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     };
     $scope.mentions = {};
     $scope.commands = {};
-    $scope.templatesDic = {};
     $scope.templates = {};
     loadTemplatesFromStorage();
     $scope.$watch('draftMessage.text', onMessageChange);
@@ -2147,7 +2158,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     function loadTemplatesFromStorage() {
       $scope.templates = TemplatesService.getAllTemplates();
-      $scope.templatesDic = $scope.templates.reduce(function(map, obj) {
+      templatesDic = $scope.templates.reduce(function(map, obj) {
         map[obj.key] = obj.value;
         return map;
       }, {});
@@ -2195,14 +2206,14 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
         if (Config.Mobile && text.length > 2 && text[0] === '#' && text[text.length-1] === '#' ) {
           var possibleKey = text.substring(1, text.length-1);
-          if (possibleKey in $scope.templatesDic) {
-            text = $scope.templatesDic[possibleKey];
+          if (possibleKey in templatesDic) {
+            text = templatesDic[possibleKey];
             $scope.draftMessage.text = text;
             $scope.$broadcast('ui_peer_draft');
           }
         } else {
           if (angular.isString(text) && text.length > 0) {
-            sendMessageInternal(text);
+            sendMessageInternal(text.trim());
           } else {
             AppMessagesManager.readHistory($scope.curDialog.peerID);
           }
@@ -2463,6 +2474,17 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       if (newVal && newVal.length) {
         if (!$scope.historyFilter.mediaType && !$scope.historyState.skipped) {
           //AppMessagesManager.readHistory($scope.curDialog.peerID);
+        }
+
+        var matchesTemplateAutocomplete = newVal.match(mobileAutocompleteRegex);
+        if (matchesTemplateAutocomplete) {
+          var templateKey = matchesTemplateAutocomplete[1];
+          var templateValue = [templateKey];
+          if (templateValue && templateValue.length) {
+            newVal = newVal.replace(mobileAutocompleteRegex, " " + templateValue + " ").trim();
+            $scope.draftMessage.text = newVal;
+            $scope.$broadcast('ui_peer_draft');
+          }
         }
 
         var backupDraftObj = {};
