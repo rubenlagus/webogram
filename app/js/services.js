@@ -4394,6 +4394,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
         Config.TsupportApi.userHash = result[0];
         Config.TsupportApi.phoneNumber = result[1];
         Config.TsupportApi.country = result[2];
+        $rootScope.$broadcast('tsupportapi_data_loaded');
       });
     }
 

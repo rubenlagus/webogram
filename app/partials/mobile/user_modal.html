@@ -90,6 +90,20 @@
         <span class="tg_checkbox_label" my-i18n="user_modal_notifications"></span>
       </a>
     </div>
+    <div class="mobile_modal_action_wrap">
+      <div class="mobile_modal_section" ng-if="!tsupportApiDataLoaded">
+        <h4 class="mobile_modal_section_header" my-i18n="user_modal_marked_conversation_error_name"></h4>
+        <div class="mobile_modal_section_value" my-i18n="user_modal_marked_conversation_error_value"></div>
+      </div>
+      <a ng-if="tsupportApiDataLoaded" class="mobile_modal_action tg_checkbox clearfix" ng-click="togglePrivateMark()" ng-class="marked.private ? 'tg_checkbox_on' : ''">
+        <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+        <span class="tg_checkbox_label" my-i18n="user_modal_marked_conversation_private"></span>
+      </a>
+      <a ng-if="tsupportApiDataLoaded" class="mobile_modal_action tg_checkbox clearfix" ng-click="toggleSharedMark()" ng-class="marked.shared ? 'tg_checkbox_on' : ''">
+        <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+        <span class="tg_checkbox_label" my-i18n="user_modal_marked_conversation_shared"></span>
+      </a>
+    </div>
 
     <div class="mobile_modal_section" ng-if="user.phone.length > 0">
       <h4 class="mobile_modal_section_header" my-i18n="user_modal_phone"></h4>

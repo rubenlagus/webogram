@@ -437,6 +437,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       })
     });
 
+    $scope.$on('tsupportapi_data_loaded', function () {
+      $scope.isMarkedEnabled = Config.TsupportApi.phoneNumber;
+    });
 
     $scope.isLoggedIn = true;
     $scope.isEmpty = {};
@@ -3279,6 +3282,17 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       }
       $scope.marked.shared = !$scope.marked.shared;
     };
+
+    $scope.$on('tsupportapi_data_loaded', function () {
+      if (!$scope.tsupportApiDataLoaded) {
+        if (Config.TsupportApi.phoneNumber) {
+          $scope.tsupportApiDataLoaded = Config.TsupportApi.phoneNumber;
+          loadMarked();
+        } else {
+          $scope.tsupportApiDataLoaded = false;
+        }
+      }
+    });
 
     if (Config.TsupportApi.phoneNumber) {
       $scope.tsupportApiDataLoaded = true;
