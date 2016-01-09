@@ -397,7 +397,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
   })
 
-  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage, TsupportUserService) {
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage, TsupportUserService, MarkedConversationSelectService) {
     $scope.$on('$routeUpdate', updateCurDialog);
 
     var pendingParams = false;
@@ -456,6 +456,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       missedCount: 0,
       skipped: false
     };
+    $scope.isMarkedEnabled = Config.TsupportApi.phoneNumber;
 
     $scope.openSettings = function () {
       $modal.open({
@@ -485,6 +486,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         $scope.dialogSelect(AppUsersManager.getUserString(userID));
       });
     };
+
+    $scope.openMarkedConversations = function () {
+      MarkedConversationSelectService.selectMarkedConversation().then(function (userID) {
+        $scope.dialogSelect(AppUsersManager.getUserString(userID));
+      })
+    }
 
     $scope.openGroup = function () {
       ContactsSelectService.selectContacts({action: 'new_group'}).then(function (userIDs) {
@@ -541,6 +548,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.logOut = function () {
       ErrorService.confirm({type: 'LOGOUT'}).then(function () {
         MtpApiManager.logOut().then(function () {
+          Storage.remove('tsupportApiCountry');
+          Storage.remove('tsupportApiHash');
+          Storage.remove('tsupportApiPhoneNumber');
+          Storage.remove('templatesLanguage');
+          Storage.remove('lastTemplateVersion');
+          localStorageService.clearAll();
           location.hash = '/login';
           AppRuntimeManager.reload();
         });
@@ -4937,4 +4950,89 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     loadSettings();
 
   })
+
+  .controller('MarkedConversationsModalController', function ($scope, $timeout, $modal, $modalInstance, MtpApiManager, AppUsersManager, MarkedConversationsService) {
+
+    var markedConversations = [];
+    $scope.contacts = [];
+    $scope.foundPeers = [];
+    $scope.search = {};
+    $scope.slice = {limit: 20, limitDelta: 20};
+    var markedConversationsLoaded = false;
+    var markedConversationsLoading = false;
+    var jump = 0;
+
+    resetSelected();
+
+    function resetSelected () {
+      $scope.selectedContacts = {};
+      $scope.selectedCount = 0;
+    };
+
+    function updateContacts (query) {
+      if (!markedConversationsLoaded && !markedConversationsLoading) {
+        markedConversationsLoading = true;
+        loadMarkedConversations();
+      }
+
+      var curJump = ++jump;
+      var doneIDs = [];
+      var contactsList;
+      if (angular.isString(query) && query.length) {
+        contactsList = AppUsersManager.getUsers(query);
+      } else {
+        contactsList = [];
+        angular.forEach(markedConversations, function (markedConversation) {
+          contactsList.push(markedConversation.userId);
+        })
+      }
+      if (curJump != jump) return;
+      $scope.contacts = [];
+      $scope.slice.limit = 20;
+
+      angular.forEach(contactsList, function(userID) {
+        var contact = {
+          userID: userID,
+          user: AppUsersManager.getUser(userID)
+        }
+        doneIDs.push(userID);
+        $scope.contacts.push(contact);
+      });
+      $scope.contactsEmpty = query ? false : !$scope.contacts.length;
+      $scope.$broadcast('marked_conversations_change');
+
+
+    };
+
+    function loadMarkedConversations() {
+      var doneIDs = [];
+      MarkedConversationsService.getMarkedConversations().then(function (result) {
+        markedConversations = result.data;
+        AppUsersManager.fillUsers(markedConversations).then(function () {
+          angular.forEach(markedConversations, function(markedConversation) {
+            var contact = {
+              userID: markedConversation.userId,
+              user: AppUsersManager.getUser(markedConversation.userId)
+            };
+            if (!contact.user.deleted) {
+              doneIDs.push(contact.userID);
+            }
+          });
+          if (doneIDs.length != markedConversations.length) {
+            getUsers(markedConversations);
+          }
+          markedConversationsLoading = false;
+          markedConversationsLoaded = true;
+          updateContacts($scope.search.query);
+        });
+      });
+    }
+
+    $scope.$watch('search.query', updateContacts);
+
+    $scope.contactSelect = function (userID) {
+      return $modalInstance.close(userID);
+    };
+  })
+
 

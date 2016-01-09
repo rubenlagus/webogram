@@ -18,6 +18,9 @@
           <li ng-if="!isEmpty.contacts"><a ng-click="openContacts()">
             <i class="icon icon-contacts"></i><span my-i18n="im_contacts"></span>
           </a></li>
+          <li ng-if="isMarkedEnabled"><a ng-click="openMarkedConversations()">
+            <i class="icon icon-contacts"></i><span my-i18n="marked_conversation_title"></span>
+          </a></li>
           <li><a ng-click="openSettings()">
             <i class="icon icon-settings"></i><span my-i18n="im_settings"></span>
           </a></li>

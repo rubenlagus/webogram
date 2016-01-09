@@ -995,6 +995,9 @@ angular.module('myApp.directives', ['myApp.filters'])
       $scope.$on('contacts_change', function () {
         onContentLoaded(updateSizes)
       });
+      $scope.$on('marked_conversations_change', function () {
+        onContentLoaded(updateSizes)
+      });
     };
 
   })
