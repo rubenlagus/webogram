@@ -1574,7 +1574,7 @@ angular.module('myApp.directives', ['myApp.filters'])
 
       $(submitBtn).on('mousedown touchstart', onMessageSubmit);
 
-      function updateTemplates(newTemplates) {
+      function updateTemplates(event, newTemplates) {
         if (composer) {
           composer.updateTemplates(newTemplates);
         }

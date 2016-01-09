@@ -2092,6 +2092,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
   })
 
   .controller('AppImSendController', function ($scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService) {
+    var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n(.+)$/;
+
     $scope.$watch('curDialog.peer', resetDraft);
     $scope.$on('user_update', angular.noop);
     $scope.$on('peer_draft_attachment', applyDraftAttachment);
@@ -2151,6 +2153,40 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       }, {});
     }
 
+    function sendMessageInternal(text) {
+      var options = {
+        replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
+      };
+      var matches = text.match(contactTemplateRegex);
+      if (matches) {
+        var phoneNumber = matches[1];
+        var firstName = matches[2];
+        var lastName = matches[3];
+        text = matches[4];
+        var inputMediaContact = {
+          _: 'inputMediaContact',
+          phone_number: phoneNumber,
+          first_name: firstName,
+          last_name: lastName
+        };
+        AppMessagesManager.sendOther($scope.curDialog.peerID, inputMediaContact, options);
+      }
+      text = text.replace(/:([a-z0-9\-\+\*_]+?):/gi, function (all, shortcut) {
+        var emojiCode = EmojiHelper.shortcuts[shortcut];
+        if (emojiCode !== undefined) {
+          return EmojiHelper.emojis[emojiCode][0];
+        }
+        return all;
+      });
+
+      var timeout = 0;
+      do {
+        AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
+        text = text.substr(4096);
+      } while (text.length);
+      AppMessagesManager.readHistory($scope.curDialog.peerID);
+    }
+
     function sendMessage (e) {
       $scope.$broadcast('ui_message_before_send');
 
@@ -2166,23 +2202,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
           }
         } else {
           if (angular.isString(text) && text.length > 0) {
-            text = text.replace(/:([a-z0-9\-\+\*_]+?):/gi, function (all, shortcut) {
-              var emojiCode = EmojiHelper.shortcuts[shortcut];
-              if (emojiCode !== undefined) {
-                return EmojiHelper.emojis[emojiCode][0];
-              }
-              return all;
-            });
-
-            var timeout = 0;
-            var options = {
-              replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
-            };
-            do {
-              AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
-              text = text.substr(4096);
-            } while (text.length);
-            AppMessagesManager.readHistory($scope.curDialog.peerID);
+            sendMessageInternal(text);
           } else {
             AppMessagesManager.readHistory($scope.curDialog.peerID);
           }
@@ -2534,7 +2554,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       if (!template) {
         return;
       }
-      AppMessagesManager.sendText($scope.curDialog.peerID, template);
+      sendMessageInternal(template);
       resetDraft();
       delete $scope.draftMessage.sticker;
       delete $scope.draftMessage.text;

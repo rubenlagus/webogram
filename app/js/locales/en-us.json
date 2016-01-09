@@ -826,6 +826,7 @@
 	"error_templates_load_file": "There was an error loading the file, please check that it is correctly formatted.",
 	"choose_default_templates_language": "Set default templates language",
 	"default_templates_language_title": "Default templates language",
+	"templates": "Templates",
 	"templates_language": "Templates language",
 	"templates_language_de": "German",
 	"templates_language_es": "Spanish (Spain)",
