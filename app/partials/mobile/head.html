@@ -12,7 +12,6 @@
           <span class="icon-bar"></span>
         </a>
         <ul ng-switch-when="true" class="dropdown-menu">
-          <li><a ng-click="openGroup()" my-i18n="head_new_group"></a></li>
           <li><a ng-click="importContact()" my-i18n="head_new_contact"></a></li>
           <li ng-if="isLoggedIn">
             <input ng-show="false" id="selectTemplateFile" type="file" class="im_attach_input" multiple="false" title="{{'add_template' | i18n}}" on-read-file="addTemplate($fileContent)" />
