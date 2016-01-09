@@ -17,8 +17,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       userAccess = {},
       cachedPhotoLocations = {},
       contactsFillPromise,
+      getUserPromise,
       contactsList,
       contactsIndex = SearchIndexManager.createIndex(),
+      usersIndex = SearchIndexManager.createIndex(),
       myID,
       serverTimeOffset = 0;
 
@@ -30,6 +32,34 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   MtpApiManager.getUserID().then(function (id) {
     myID = id;
   });
+
+  function fillUsers(usersArray) {
+    if (getUserPromise) {
+      return getUserPromise;
+    }
+    var peers = [];
+    angular.forEach(usersArray, function (user) {
+      if (!hasUser(user.userId)) {
+        peers.push({
+          user_id: user.userId,
+          access_hash: user.userHash
+        })
+      } else {
+        SearchIndexManager.indexObject(user.userId, getUserSearchText(user.userId), usersIndex);
+      }
+    });
+    return getUserPromise = MtpApiManager.invokeApi('users.getUsers', {
+      id: peers
+    }).then(function (result) {
+      var userID;
+      saveApiUsers(result);
+
+      for (var i = 0; i < result.length; i++) {
+        userID = result[i].user_id;
+        SearchIndexManager.indexObject(userID, getUserSearchText(userID), usersIndex);
+      }
+    });
+  }
 
   function fillContacts () {
     if (contactsFillPromise) {
@@ -77,6 +107,23 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
       return contactsList;
     });
+  };
+
+  function getUsers (query) {
+    var filteredUsers = [];
+    if (angular.isString(query) && query.length) {
+      var results = SearchIndexManager.search(query, usersIndex),
+        filteredUsers = [];
+
+      var userKeys = Object.keys(results);
+      for (var i = 0; i < userKeys.length; i++) {
+        if (results[userKeys[i]]) {
+          filteredUsers.push(userKeys[i]);
+        }
+      }
+    }
+
+    return filteredUsers;
   };
 
   function resolveUsername (username) {
@@ -409,7 +456,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
   }
 
-
   $rootScope.$on('apiUpdate', function (e, update) {
     // console.log('on apiUpdate', update);
     switch (update._) {
@@ -467,6 +513,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
   return {
     getContacts: getContacts,
+    getUsers: getUsers,
     saveApiUsers: saveApiUsers,
     saveApiUser: saveApiUser,
     saveUserAccess: saveUserAccess,
@@ -486,7 +533,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     wrapForFull: wrapForFull,
     openUser: openUser,
     resolveUsername: resolveUsername,
-    openImportContact: openImportContact
+    openImportContact: openImportContact,
+    fillUsers: fillUsers
   }
 })
 
@@ -4780,5 +4828,29 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       isConversationMarkedShared: isConversationMarkedShared,
       isConversationMarkedPrivate: isConversationMarkedPrivate
     }
+  })
+
+  .service('MarkedConversationSelectService', function ($rootScope, $modal) {
+
+    function selectMarkedConversation (options) {
+      options = options || {};
+
+      var scope = $rootScope.$new();
+      scope.multiSelect = false;
+      angular.extend(scope, options);
+
+      return $modal.open({
+        templateUrl: templateUrl('marked_conversations_modal'),
+        controller: 'MarkedConversationsModalController',
+        scope: scope,
+        windowClass: 'contacts_modal_window mobile_modal',
+        backdrop: 'single'
+      }).result;
+    }
+
+
+    return {
+      selectMarkedConversation: selectMarkedConversation
+    };
   })
 
