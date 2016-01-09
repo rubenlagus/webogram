@@ -176,8 +176,6 @@
 	"relative_time_pluralize_hours_ago": "{'one': '1 hour ago', 'other': '{} hours ago'}",
 	"relative_time_just_now": "just now",
 
-	"changelog_modal_header_recent_updates_md": "Recent updates in **Telegram Web**",
-	"changelog_modal_header_new_updates_md": "**Telegram Web** has been updated!",
 	"changelog_modal_title_current_version": "current version",
 
 	"group_create_contacts_modal_title": "New group",
@@ -205,7 +203,6 @@
 	"group_invite_revoke": "Revoke",
 
 	"confirm_modal_logout": "Are you sure you want to log out?",
-	"confirm_modal_update_reload": "A new version of Telegram Web has been downloaded. Launch it?",
 	"confirm_modal_history_flush": "Are you sure? This can not be undone!",
 	"confirm_modal_terminate_sessions": "Are you sure you want to log out all devices except for this one?",
 	"confirm_modal_terminate_session": "Are you sure you want to log out this device?",
@@ -387,7 +384,6 @@
 	"error_modal_not_contact_flood": "Sorry, you can only send messages to mutual contacts at the moment. {more-info-link: More info »}",
 
 
-	"head_telegram": "Telegram",
 	"head_new_group": "New group",
 	"head_new_contact": "New contact",
 	"head_contacts": "Contacts",
@@ -429,7 +425,6 @@
 	"im_add_contact": "Add contact",
 	"im_import_phonebook": "Import phonebook",
 	"im_get_started": "Get started",
-	"im_welcome_text": "Welcome to Telegram Web. You can always set your profile photo and change your name in Settings.",
 	"im_open_settings": "Open settings",
 	"im_select_a_chat": "Please select a chat to start messaging",
 	"im_loading_history": "Loading history",
@@ -501,7 +496,6 @@
 	"login_about_desc1_md": "The Telegram web-client is a free, fast and secure way to enjoy most of **Telegram**'s features right in your **web-browser**.",
 	"login_about_desc2_md": "It is always synced with the **Telegram app** on your mobile device, which makes it a perfect tool for messaging and file sharing.",
 	"login_about_desc3_md": "Our {source-link: source code} is open, so everyone can make a contribution.",
-	"login_about_intro": "Welcome to the official Telegram web-client.",
 	"login_about_learn": "Learn more",
 	"login_password_title": "Password",
 	"login_password_label": "You have enabled Two-Step Verification, so your account is protected with an additional password.",
@@ -551,9 +545,7 @@
 	"phonebook_modal_submit_active": "Importing",
 	"phonebook_modal_submit": "Import contacts",
 
-	"inactive_tab_title": "Telegram: Zzz...",
 	"inactive_title": "Such error, many tabs",
-	"inactive_description_md": "Telegram supports only one active tab with the app.\nPlease reload this page to continue using this tab or close it.",
 	"inactive_reload_btn": "Reload App",
 
 
@@ -849,5 +841,14 @@
 	"user_modal_marked_conversation_shared": "Mark conversation (shared)",
 	"user_modal_marked_conversation_error_value": "Mark conversation not available",
 	"user_modal_marked_conversation_error_name": "Please log out and log in again to enable it.",
-	"marked_conversations_empty" : "Empty list"
+	"marked_conversations_empty" : "Empty list",
+	"changelog_modal_header_recent_updates_md": "Recent updates in **Tsupport Web**",
+	"changelog_modal_header_new_updates_md": "**Tsupport Web** has been updated!",
+	"head_telegram": "Tsupport",
+	"confirm_modal_update_reload": "A new version of Tsupport Web has been downloaded. Launch it?",
+	"im_welcome_text": "Welcome to Tsupport Web.",
+	"login_about_intro": "Welcome to the official Tsupport web-client.",
+	"inactive_tab_title": "Tsupport: Zzz...",
+	"inactive_description_md": "Tsupport supports only one active tab with the app.\nPlease reload this page to continue using this tab or close it."
+
 }
