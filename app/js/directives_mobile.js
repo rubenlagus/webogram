@@ -372,6 +372,9 @@ angular.module('myApp.directives')
       $scope.$on('contacts_change', function () {
         onContentLoaded(updateSizes)
       });
+      $scope.$on('marked_conversations_change', function () {
+        onContentLoaded(updateSizes)
+      });
       onContentLoaded(updateSizes);
     };
 

@@ -19,6 +19,7 @@
             <a my-i18n="add_template" ng-click="triggerClick()"></a>
           </li>
           <li ng-if="!isEmpty.contacts"><a ng-click="openContacts()" my-i18n="head_contacts"></a></li>
+          <li ng-if="isMarkedEnabled"><a ng-click="openMarkedConversations()" my-i18n="marked_conversation_title"></a></li>
           <li><a ng-click="openSettings()" my-i18n="head_settings"></a></li>
           <li><a ng-click="logOut()" my-i18n="head_log_out"></a></li>
         </ul>
