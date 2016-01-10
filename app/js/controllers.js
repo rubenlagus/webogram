@@ -1065,6 +1065,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.historyState.canReply = false;
     $scope.historyState.missedCount = 0;
     $scope.historyState.skipped = false;
+    $scope.historyState.extraInformation = false;
     $scope.state = {};
 
     $scope.toggleMessage = toggleMessage;
@@ -2084,7 +2085,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.$on('user_update', angular.noop);
   })
 
-  .controller('AppImSendController', function ($scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService) {
+  .controller('AppImSendController', function ($scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService, NotificationsManager) {
     var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n+(.+)$/;
     var mobileAutocompleteRegex = /\s\s([^\s]+)\s\s/;
     var innerTemplateRegex = /^(.*\s)(\w+)$/;
@@ -2135,6 +2136,11 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.$watch('draftMessage.sticker', onStickerSelected);
     $scope.$watch('draftMessage.command', onCommandSelected);
     $scope.$watch('draftMessage.template', onTemplateSelected);
+    $scope.$on('notify_settings', function (e, data) {
+      if (data.peerID == $scope.curDialog.peer) {
+        updateExtraInformation();
+      }
+    });
 
     $scope.$on('history_reply_markup', function (e, peerData) {
       if (peerData.peerID == $scope.curDialog.peerID) {
@@ -2144,6 +2150,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     $scope.replyKeyboardToggle = replyKeyboardToggle;
     $scope.toggleSlash = toggleSlash;
+    $scope.extraInformationToggle = extraInformationToggle;
 
     var replyToMarkup = false;
     var forceDraft = false;
@@ -2305,7 +2312,9 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       updateCommands();
       replyClear();
       updateReplyKeyboard();
-
+      if (!$scope.historyState.replyKeyboard) {
+        updateExtraInformation(newPeer);
+      }
       // console.log(dT(), 'reset draft', $scope.curDialog.peer, forceDraft);
       if (forceDraft) {
         if (forceDraft == $scope.curDialog.peer) {
@@ -2332,6 +2341,23 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         $scope.draftMessage.text = '';
         $scope.$broadcast('ui_peer_draft');
       }
+    }
+
+    function updateExtraInformation(newPeer) {
+      if (!$scope.curDialog || !$scope.curDialog.peerID) {
+        return;
+      }
+      if (newPeer) {
+        $scope.historyState.extraInformation = {};
+      }
+      NotificationsManager.getPeerMuted($scope.curDialog.peerID).then(function (muted) {
+        $scope.historyState.extraInformation.muted = muted;
+      });
+
+      var enabled = $scope.historyState.extraInformation &&
+        !$scope.historyState.extraInformation.hidden;
+      $scope.$broadcast('ui_extraInformation_update', {enabled: enabled});
+      $scope.$emit('ui_panel_update', {blur: enabled});
     }
 
     function applyDraftAttachment (e, attachment) {
@@ -2448,6 +2474,20 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
                     replyKeyboard._ == 'replyKeyboardMarkup';
       $scope.$broadcast('ui_keyboard_update', {enabled: enabled});
       $scope.$emit('ui_panel_update', {blur: enabled});
+    }
+
+    function extraInformationToggle($event) {
+      var extraInformation = $scope.historyState.extraInformation;
+      if (extraInformation) {
+        extraInformation.hidden = !extraInformation.hidden;
+      }
+
+      var enabled = $scope.historyState.extraInformation &&
+        !$scope.historyState.extraInformation.hidden;
+      $scope.$broadcast('ui_extraInformation_update', {enabled: enabled});
+      $scope.$emit('ui_panel_update', {blur: enabled});
+
+      return cancelEvent($event);
     }
 
     function replyKeyboardToggle ($event) {
