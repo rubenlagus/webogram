@@ -3840,10 +3840,10 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
         }).then(function () {
           var popup;
           try {
-            popup = window.open('https://web.telegram.org', '_blank');
+            popup = window.open(Config.App.defaultSecureLocation, '_blank');
           } catch (e) {}
           if (!popup) {
-            location.href = 'https://web.telegram.org';
+            location.href = Config.App.defaultSecureLocation;
           }
         }, function () {
           Storage.set({https_dismiss: tsNow()});
