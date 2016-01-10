@@ -4324,7 +4324,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
           template.value = localStorageService.get(key);
           templates.push(template);
         });
-        $rootScope.$broadcast('templates_updated', $scope.templates);
+        $rootScope.$broadcast('templates_updated', templates);
       }
 
       return templates;

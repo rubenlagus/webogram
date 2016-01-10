@@ -8,12 +8,12 @@
       <h4 ng-if="!editing" my-i18n="templates_add_modal_title"></h4>
 
       <div class="md-input-group" my-labeled-input>
-        <label class="md-input-label" my-i18n="templates_import_modal_key"></label>
+        <label class="md-input-label" my-i18n="templates_edit_modal_key"></label>
         <input class="md-input" my-focused type="text" ng-model="template.key" ng-disabled="editing"/>
       </div>
 
       <div class="md-textarea-group-long" my-labeled-input>
-        <label class="md-input-label" my-i18n="templates_import_modal_value"></label>
+        <label class="md-input-label" my-i18n="templates_edit_modal_value"></label>
         <textarea class="md-input" ng-model="template.value" rows="5"></textarea>
       </div>
     </form>
