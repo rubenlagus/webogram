@@ -22,7 +22,7 @@ Config.App = {
   id: 18967,
   hash: 'f5468cbf0007e3e5b628b4d942959af6',
   version: '0.5.2',
-  domains: ['rubenlagus.github.io'],
+  domains: ['rubenlagus.github.io', 'twebogram-telegram.rhcloud.com'],
   defaultSecureLocation: 'https://twebogram-telegram.rhcloud.com'
 };
 
