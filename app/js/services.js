@@ -4519,6 +4519,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 
   .service('TemplatesService', function ($rootScope, $http, _, localStorageService, ToastService, Storage) {
 
+    var templates = [];
+
     function addTemplates($fileContent) {
       // Templates support
       var url = "http://sa.laagacht.net:9992/bot/templates/process";
@@ -4539,7 +4541,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
               }
             });
           });
-          $rootScope.$broadcast('templatesLoaded');
+          getAllTemplates(true);
         } else {
           ToastService.error(_('templates'), _('error_templates_load_file'));
         }
@@ -4551,7 +4553,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     function addTemplate(key, value) {
       // Templates support
       localStorageService.set(key, value);
-      $rootScope.$broadcast('templatesLoaded');
+      getAllTemplates(true);
     }
 
     function setLastTemplateVersion(languageCode) {
@@ -4575,7 +4577,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
           }
         });
       });
-      $rootScope.$broadcast('templatesLoaded');
+      getAllTemplates(true);
     }
 
     function updateDefaultTemplates(languageCode) {
@@ -4602,15 +4604,24 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       localStorageService.remove(key);
     }
 
-    function getAllTemplates() {
-      var templates = [];
-
-      angular.forEach(localStorageService.keys(), function(key) {
-        var template = {};
-        template.key = key;
-        template.value = localStorageService.get(key);
-        templates.push(template);
+    function removeTemplates(keys) {
+      angular.forEach(keys, function (key) {
+        removeTemplate(key);
       });
+      getAllTemplates(true);
+    }
+
+    function getAllTemplates(force) {
+      if (!templates || !templates.length || force) {
+        templates = [];
+        angular.forEach(localStorageService.keys(), function (key) {
+          var template = {};
+          template.key = key;
+          template.value = localStorageService.get(key);
+          templates.push(template);
+        });
+        $rootScope.$broadcast('templates_updated', $scope.templates);
+      }
 
       return templates;
     }
@@ -4623,7 +4634,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       addTemplate: addTemplate,
       removeTemplate: removeTemplate,
       getAllTemplates: getAllTemplates,
-      getAvailableLanguages: getAvailableLanguages
+      getAvailableLanguages: getAvailableLanguages,
+      removeTemplates: removeTemplates
     };
   })
 
@@ -4649,6 +4661,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
                 });
               });
               showChangelog(response.data);
+              $rootScope.$broadcast('templates_updated');
             }
             TemplatesService.setLastTemplateVersion(templatesLanguage);
           });

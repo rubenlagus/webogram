@@ -2123,7 +2123,6 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     $scope.$on('templatesLoaded', function() {
       loadTemplatesFromStorage();
       ToastService.success(_('templates'), _('templates_loaded_finished'));
-      $scope.$broadcast('templates_updated', $scope.templates);
     });
 
     $scope.onKeyUp = function () {
@@ -2534,7 +2533,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         var matchesTemplateAutocomplete = newVal.match(mobileAutocompleteRegex);
         if (matchesTemplateAutocomplete) {
           var templateKey = matchesTemplateAutocomplete[1];
-          var templateValue = [templateKey];
+          var templateValue = templatesDic[templateKey];
           if (templateValue && templateValue.length) {
             newVal = newVal.replace(mobileAutocompleteRegex, " " + templateValue + " ").trim();
             $scope.draftMessage.text = newVal;
@@ -3824,6 +3823,20 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       });
 
       modal.result.then(selectTemplatesCountry);
+    };
+
+    $scope.openTemplates = function () {
+      var scope = $rootScope.$new();
+      scope.templatesFull = TemplatesService.getAllTemplates();
+
+      $modal.open({
+        templateUrl: templateUrl('templates_management_modal'),
+        controller: 'TemplatesManagementModal',
+        windowClass: 'md_simple_modal_window mobile_modal',
+        scope: scope
+      }).result.then(function (foundUserID) {
+        // TODO
+      });
     };
 
     function selectTemplatesCountry(newTemplate) {
@@ -5224,4 +5237,123 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     };
   })
 
+  .controller('TemplatesManagementModal', function ($rootScope, $scope, $modal, TemplatesService) {
+    $scope.selectedTemplates = [];
+    $scope.disabledTemplates = [];
+    $scope.selectedCount = 0;
+    $scope.templates = [];
+    angular.copy($scope.templatesFull, $scope.templates);
+    $scope.templatesEmpty = $scope.templates && $scope.templates.length;
+    $scope.search = {};
+    $scope.slice = {limit: 20, limitDelta: 20};
+    var templatesIndex = SearchIndexManager.createIndex();
 
+    function reloadIndex() {
+      if ($scope.templatesEmpty) {
+        angular.forEach($scope.templatesFull, function (template) {
+          SearchIndexManager.indexObject(template.key, template.key + " " + template.value, templatesIndex);
+        });
+      }
+    }
+
+    function resetSelected () {
+      $scope.selectedTemplates = {};
+      $scope.selectedCount = 0;
+    };
+
+    function updateTemplates (query) {
+      if (angular.isString(query) && query.length) {
+        var results = SearchIndexManager.search(query, templatesIndex);
+        $scope.templates = [];
+
+        angular.forEach($scope.templatesFull, function (template) {
+          if (results[template.key]) {
+            $scope.templates.push(template);
+          }
+        });
+      } else {
+        $scope.templates = $scope.templatesFull;
+      }
+      $scope.templatesEmpty = $scope.templates && $scope.templates.length;
+    };
+
+    $scope.$watch('search.query', updateTemplates);
+    $scope.$on('templates_updated', function (event, newTemplates) {
+      $scope.templatesFull = newTemplates;
+      reloadIndex();
+      updateTemplates($scope.search && $scope.search.query || '');
+    });
+
+    $scope.templateSelected = function (template) {
+      if ($scope.disabledTemplates[template.key]) {
+        return false;
+      }
+      if (!$scope.multiSelect && $scope.action != 'edit') {
+        var scope = $rootScope.$new();
+        scope.template = template;
+        scope.editing = true;
+
+        $modal.open({
+          templateUrl: templateUrl('edit_template_modal'),
+          controller: 'AddTemplateModalController',
+          windowClass: 'md_simple_modal_window mobile_modal',
+          scope: scope
+        }).result.then(function (newTemplate) {
+          if (newTemplate) {
+            TemplatesService.addTemplate(newTemplate.key, newTemplate.value);
+          }
+        });
+      } else {
+        if ($scope.selectedTemplates[template.key]) {
+          delete $scope.selectedTemplates[template.key];
+          $scope.selectedCount--;
+        } else {
+          $scope.selectedTemplates[template.key] = true;
+          $scope.selectedCount++;
+        }
+      }
+    };
+
+    $scope.toggleEdit = function (enabled) {
+      $scope.action = enabled ? 'edit' : '';
+      $scope.multiSelect = enabled;
+      resetSelected();
+    };
+
+    $scope.deleteSelected = function () {
+      if ($scope.selectedCount > 0) {
+        var selectedKeys = [];
+        angular.forEach($scope.selectedTemplates, function (t, key) {
+          selectedKeys.push(key);
+        });
+        if (selectedKeys.length) {
+          TemplatesService.removeTemplates(selectedKeys);
+        }
+      }
+    };
+
+    $scope.addTemplate = function () {
+      var scope = $rootScope.$new();
+      scope.editing = false;
+
+      $modal.open({
+        templateUrl: templateUrl('edit_template_modal'),
+        controller: 'AddTemplateModalController',
+        windowClass: 'md_simple_modal_window mobile_modal',
+        scope: scope
+      }).result.then(function (newTemplate) {
+        if (newTemplate) {
+          TemplatesService.addTemplate(newTemplate.key, newTemplate.value);
+        }
+      });
+    };
+
+
+    reloadIndex();
+  })
+
+  .controller('AddTemplateModalController', function ($scope, $modalInstance) {
+    $scope.saveTemplate = function () {
+      $modalInstance.close($scope.template);
+    };
+  })
