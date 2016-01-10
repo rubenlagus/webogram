@@ -721,7 +721,7 @@ function MessageComposer (textarea, options) {
   this.onTemplateSend = options.onTemplateSend;
 }
 
-MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/|ttt)([A-Za-z0-9\-\+\*@_]*)$/;
+MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/|ttt|\s)([A-Za-z0-9\-\+\*@_]*)$/;
 
 MessageComposer.prototype.updateTemplates = function (newTemplates) {
   this.templates = newTemplates;
@@ -992,7 +992,7 @@ MessageComposer.prototype.checkAutocomplete = function (forceFull) {
         this.hideSuggestions();
       }
     }
-    else if (!matches[1] && (matches[2] == '$' || matches[2].match("ttt"))) { // templates
+    else if (!matches[1] && (matches[2] == '$' || matches[2] == "ttt" || matches[2].match(/\s/))) { // templates
       if (this.templates && this.templates.length) {
         if (query.length) {
           var foundTemplates = this.templates.filter(function (temp) { return temp.key.indexOf(query) == 0; });
