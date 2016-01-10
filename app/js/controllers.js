@@ -17,6 +17,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
         $location.url('/im');
         return;
       }
+      if (location.protocol == 'http:' &&
+        !Config.Modes.http &&
+        Config.App.domains.indexOf(location.hostname) != -1) {
+        location.href = location.href.replace(/^http:/, 'https:');
+        return;
+      }
       $location.url('/login');
     });
 
@@ -32,6 +38,12 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
         $location.url('/im');
+        return;
+      }
+      if (location.protocol == 'http:' &&
+        !Config.Modes.http &&
+        Config.App.domains.indexOf(location.hostname) != -1) {
+        location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
       TelegramMeWebService.setAuthorized(false);
@@ -397,7 +409,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
     LayoutSwitchService.start();
   })
 
-  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage, TsupportUserService, MarkedConversationSelectService) {
+  .controller('AppIMController', function ($q, qSync, $scope, $location, $routeParams, $modal, $rootScope, $modalStack, $timeout, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ContactsSelectService, ChangelogNotifyService, ErrorService, AppRuntimeManager, HttpsMigrateService, LayoutSwitchService, LocationParamsService, AppStickersManager, TemplatesChangelogNotifyService, localStorageService, TemplatesService, Storage, TsupportUserService, MarkedConversationSelectService) {
     $scope.$on('$routeUpdate', updateCurDialog);
 
     var pendingParams = false;
@@ -642,6 +654,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     loadAutodownloadSettings();
     ChangelogNotifyService.checkUpdate();
+    HttpsMigrateService.start();
     TemplatesChangelogNotifyService.checkUpdate();
     TsupportUserService.start();
     LayoutSwitchService.start();
@@ -2403,9 +2416,11 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       if (newPeer) {
         $scope.historyState.extraInformation = {};
       }
-      NotificationsManager.getPeerMuted($scope.curDialog.peerID).then(function (muted) {
-        $scope.historyState.extraInformation.muted = muted;
-      });
+      if ($scope.curDialog.peerID) {
+        NotificationsManager.getPeerMuted($scope.curDialog.peerID).then(function (muted) {
+          $scope.historyState.extraInformation.muted = muted;
+        });
+      }
 
       var enabled = $scope.historyState.extraInformation &&
         !$scope.historyState.extraInformation.hidden;
