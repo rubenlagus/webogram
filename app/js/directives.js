@@ -3327,35 +3327,3 @@ angular.module('myApp.directives', ['myApp.filters'])
       link: link
     };
   })
-
-  .directive('myExtraInformation', function() {
-
-    return {
-      templateUrl: templateUrl('extra_information'),
-      scope: {
-        'extraInformation': '=myExtraInformation'
-      },
-      link: link
-    };
-
-    function link ($scope, element, attrs) {
-      var scrollable = $('.reply_markup', element);
-      var scroller = new Scroller(scrollable, {
-        classPrefix: 'reply_markup',
-        maxHeight: 170
-      });
-
-      $scope.$on('ui_extraInformation_update', function (e, data) {
-        onContentLoaded(function () {
-          scroller.updateHeight();
-          scroller.scrollTo(0);
-          $scope.$emit('ui_panel_update', {blur: data && data.enabled});
-        })
-      });
-      onContentLoaded(function () {
-        scroller.updateHeight();
-        $scope.$emit('ui_panel_update');
-      });
-    }
-
-  })
