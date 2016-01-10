@@ -472,15 +472,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
 
     // setTimeout($scope.openSettings, 1000);
 
-    $scope.openFaq = function () {
-      var url = 'https://telegram.org/faq';
-      switch (Config.I18n.locale) {
-        case 'es-es': url += '/es'; break;
-        case 'it-it': url += '/it'; break;
-        case 'de-de': url += '/de'; break;
-        case 'ko-ko': url += '/ko'; break;
-        case 'pt-br': url += '/br'; break;
-      };
+    $scope.openWiki = function () {
+      var url = 'http://telegram.wiki/';
       window.open(url, '_blank');
     };
 
