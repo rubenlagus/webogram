@@ -477,8 +477,8 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       window.open(url, '_blank');
     };
 
-    $scope.openContacts = function () {
-      ContactsSelectService.selectContact().then(function (userID) {
+    $scope.addContact = function () {
+      AppUsersManager.openImportContact().then(function (userID) {
         $scope.dialogSelect(AppUsersManager.getUserString(userID));
       });
     };
