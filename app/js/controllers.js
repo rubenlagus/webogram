@@ -3825,7 +3825,7 @@ angular.module('myApp.controllers', ['myApp.i18n', 'LocalStorageModule', 'ui.uti
       modal.result.then(selectTemplatesCountry);
     };
 
-    $scope.openTemplates = function () {
+    $scope.openTemplateManagement = function () {
       var scope = $rootScope.$new();
       scope.templatesFull = TemplatesService.getAllTemplates();
 
