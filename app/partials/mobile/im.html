@@ -152,6 +152,7 @@
                       <div class="im_send_field_wrap" ng-class="historyState.replyKeyboard._ == 'replyKeyboardMarkup' ? 'im_send_field_wrap_2ndbtn' : ''">
                         <a class="composer_command_btn" ng-show="!historyState.replyKeyboard && commands.list.length > 0 && (!draftMessage.text.length || draftMessage.text[0] == '/')" ng-mousedown="toggleSlash($event)" ng-class="draftMessage.text[0] == '/' ? 'active' : ''"><i class="icon icon-slash"></i></a>
                         <a class="composer_keyboard_btn" ng-show="historyState.replyKeyboard._ == 'replyKeyboardMarkup'" ng-mousedown="replyKeyboardToggle($event)" ng-class="!historyState.replyKeyboard.pFlags.hidden ? 'active' : ''"><i class="icon icon-keyboard"></i></a>
+                        <a class="composer_keyboard_btn" ng-show="historyState.extraInformation && !historyState.replyKeyboard" ng-mousedown="extraInformationToggle($event)" ng-class="!historyState.extraInformation.hidden ? 'active' : ''"><i class="icon icon-keyboard"></i></a>
 
                         <div class="composer_progress_icon_wrap">
                           <div class="composer_progress_icon" my-arc-progress width="22" stroke="2.5"></div>
@@ -174,6 +175,9 @@
 
                     <div class="im_send_keyboard_wrap" ng-if="historyState.replyKeyboard._ == 'replyKeyboardMarkup'" ng-show="!historyState.replyKeyboard.pFlags.hidden">
                       <div my-reply-markup="historyState.replyKeyboard"></div>
+                    </div>
+                    <div class="im_send_keyboard_wrap" ng-if="historyState.extraInformation && !historyState.replyKeyboard" ng-show="!historyState.extraInformation.hidden">
+                      <div my-extra-information="historyState.extraInformation"></div>
                     </div>
 
                   </form>
