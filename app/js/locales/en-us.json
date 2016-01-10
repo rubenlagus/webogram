@@ -851,5 +851,13 @@
 	"user_modal_marked_conversation_shared": "Mark conversation (shared)",
 	"user_modal_marked_conversation_error_value": "Mark conversation not available",
 	"user_modal_marked_conversation_error_name": "Please log out and in again to enable marking.",
-	"marked_conversations_empty" : "Marked conversations list empty"
+	"marked_conversations_empty" : "Marked conversations list empty",
+
+	"templates_management": "Templates management",
+	"templates_list_empty": "Empty list",
+	"templates_edit_modal_title": "Edit template",
+	"templates_add_modal_title": "Add template",
+	"templates_import_modal_key": "Template key",
+	"templates_import_modal_value": "Template value"
+
 }

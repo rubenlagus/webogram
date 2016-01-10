@@ -1,0 +1,28 @@
+<div class="md_simple_modal_wrap" my-modal-position>
+
+  <div class="md_simple_modal_body">
+
+    <form class="modal_simple_form" ng-submit="saveTemplate()">
+
+      <h4 ng-if="editing" my-i18n="templates_edit_modal_title"></h4>
+      <h4 ng-if="!editing" my-i18n="templates_add_modal_title"></h4>
+
+      <div class="md-input-group" my-labeled-input>
+        <label class="md-input-label" my-i18n="templates_import_modal_key"></label>
+        <input class="md-input" my-focused type="text" ng-model="template.key" ng-disabled="editing"/>
+      </div>
+
+      <div class="md-textarea-group-long" my-labeled-input>
+        <label class="md-input-label" my-i18n="templates_import_modal_value"></label>
+        <textarea class="md-input" ng-model="template.value" rows="5"></textarea>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="md_simple_modal_footer">
+    <button class="btn btn-md" ng-click="$dismiss()" my-i18n="modal_cancel"></button>
+    <button class="btn btn-md btn-md-primary" ng-class="{disabled: progress.enabled}" ng-click="saveTemplate()" ng-bind="progress.enabled ? 'contact_edit_modal_submit_active' : 'contact_edit_modal_submit'| i18n" ng-disabled="progress.enabled"></button>
+  </div>
+
+</div>
