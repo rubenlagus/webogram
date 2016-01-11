@@ -1274,7 +1274,7 @@ angular.module('myApp.services')
       if (apiMessage.message && apiMessage.message.length) {
         var myEntities = RichTextProcessor.parseEntities(apiMessage.message);
         var apiEntities = apiMessage.entities || [];
-        apiMessage.totalEntities = RichTextProcessor.mergeEntities(myEntities, apiEntities, !apiMessage.pending);
+        apiMessage.totalEntities = RichTextProcessor.mergeEntities(myEntities, apiEntities, false);
       }
     });
   }
