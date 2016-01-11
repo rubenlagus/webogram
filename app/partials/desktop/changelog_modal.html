@@ -22,7 +22,6 @@
   <div class="md_modal_body">
 
     <div class="md_modal_sections">
-
       <div class="md_modal_versioned_section_wrap" ng-if="canShowVersion('0.5.3')">
         <div class="md_modal_section_version">0.5.3</div>
         <div class="md_modal_section_description changelog_version_changes">
@@ -33,6 +32,26 @@
             <li>Click on message date to reply (or to forward from channels).</li>
             <li>Preview images before sending when pasting from clipboard.</li>
             <li>Improved formatting for copy-pasted history fragments (date, time and sender names inserted automatically).</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="md_modal_versioned_section_wrap" ng-if="canShowVersion('0.5.2T')">
+        <div class="md_modal_section_version">0.5.3T</div>
+        <div class="md_modal_section_description changelog_version_changes">
+          <ul class="list-unstyled changelog_version_changes_list">
+            <li>Mark messages as read sending empty messages.</li>
+            <li>Load default templates from Settings menu.</li>
+            <li>Manage (add, remove, update) templates from settings menu.</li>
+            <li>Mark conversations, only for you or for all the members of your team</li>
+            <li>Enable/Disable autodownload of media (disabled by default)</li>
+            <li>Support for redirect templates</li>
+            <li>New black theme</li>
+            <li>Reduced icons and images size</li>
+            <li>Write <em>ttt</em>, <em>$</em> or <em>space</em> at the begging of the message to show templates suggestions</li>
+            <li>Click tab key after a template key to replace it with the value</li>
+            <li>Write <em>&lt;space&gt;&lt;space&gt;key&lt;space&gt;&lt;space&gt;</em> in mobile version to replace it with the template value</li>
+            <li><strong>Check out the full changelog <a href="https://github.com/rubenlagus/webogram/releases/tag/v0.5.3T" target="_blank">changelog</a></strong></li>
           </ul>
         </div>
       </div>
