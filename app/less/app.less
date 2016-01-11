@@ -1529,6 +1529,11 @@ img.im_message_video_thumb {
   overflow: hidden;
   border-radius: 2px;
 }
+a.im_message_photo_thumb, a.im_message_photo_thumb img[src*="placeholders"], div[ng-switch-when="sticker"] {
+  width: 260px !important;
+  height: 260px;
+  margin-top: -4px;
+}
 .im_message_video,
 a.im_message_photo_thumb {
   margin-top: 5px;
