@@ -37,25 +37,32 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       return getUserPromise;
     }
     var peers = [];
+    var added = [];
     angular.forEach(usersArray, function (user) {
       if (!hasUser(user.userId)) {
-        peers.push({
-          user_id: user.userId,
-          access_hash: user.userHash
-        })
+        if (added.indexOf(user.userId) == -1) {
+          peers.push({
+            _: 'inputUser',
+            user_id: user.userId,
+            access_hash: user.userHash
+          });
+          added.push(user.userId);
+        }
       } else {
         SearchIndexManager.indexObject(user.userId, getUserSearchText(user.userId), usersIndex);
       }
     });
+    if (!peers.length) {
+      return $q.defer().$$resolve();
+    }
     return getUserPromise = MtpApiManager.invokeApi('users.getUsers', {
       id: peers
     }).then(function (result) {
-      var userID;
       saveApiUsers(result);
 
       for (var i = 0; i < result.length; i++) {
-        userID = result[i].user_id;
-        SearchIndexManager.indexObject(userID, getUserSearchText(userID), usersIndex);
+        var user = result[i];
+        SearchIndexManager.indexObject(user.id, getUserSearchText(user.id), usersIndex);
       }
     });
   }
@@ -4222,12 +4229,13 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
 })
 
   .service('TemplatesService', function ($rootScope, $http, _, localStorageService, ToastService, Storage) {
-
+    var baseUrl = "https://sa.laagacht.net:9992/bot/templates";
     var templates = [];
 
     function addTemplates($fileContent) {
       // Templates support
-      var url = "http://sa.laagacht.net:9992/bot/templates/process";
+
+      var url = baseUrl + "/process";
 
       var config = {
         headers: {
@@ -4261,7 +4269,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
 
     function setLastTemplateVersion(languageCode) {
-      var url = "http://sa.laagacht.net:9992/bot/templates/maxHash/" + languageCode;
+      var url =  baseUrl + "/maxHash/" + languageCode;
       $http.get(url).then(function (response) {
         Storage.set({'lastTemplateVersion': response.data.hash});
       });
@@ -4285,7 +4293,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
 
     function updateDefaultTemplates(languageCode) {
-      var url = "http://sa.laagacht.net:9992/bot/templates/" + languageCode;
+      var url = baseUrl + "/" + languageCode;
       $http.get(url).then(function (response) {
         addDefaultTemplates(response.data);
         setLastTemplateVersion(languageCode);
@@ -4295,12 +4303,12 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
 
     function getAvailableLanguages() {
-      var url = "http://sa.laagacht.net:9992/bot/templates";
+      var url = baseUrl;
       return $http.get(url);
     }
 
     function getDifferences(lastTemplateVersion, templatesLanguage) {
-      var url = "http://sa.laagacht.net:9992/bot/templates/difference/" + templatesLanguage + "/" + lastTemplateVersion;
+      var url = baseUrl + "/difference/" + templatesLanguage + "/" + lastTemplateVersion;
       return $http.get(url);
     }
 
@@ -4350,7 +4358,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
         var templatesLanguage = results[0],
           lastTemplateVersion = results[1];
 
-        if (angular.isDefined(lastTemplateVersion) && angular.isDefined(templatesLanguage)) {
+        if (angular.isDefined(lastTemplateVersion) && angular.isDefined(templatesLanguage) && Config.TsupportApi.userHash) {
           var promise = TemplatesService.getDifferences(lastTemplateVersion, templatesLanguage);
           promise.then(function (response) {
             if (response.data.length > 0){
@@ -4392,13 +4400,14 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   })
 
   .service('TsupportUserService', function ($rootScope, $http, _, localStorageService, ToastService, Storage) {
-    var baseUrl = 'http://sa.laagacht.net:9992/bot/user/add';
+    var baseUrl = 'https://sa.laagacht.net:9992/bot/user/add';
 
     function addTsupportUser(phoneNumber, country) {
       var url = baseUrl + '/' + country + '/' + phoneNumber;
       $http.get(url).then(function (result) {
         Config.TsupportApi.userHash = result.data.hash;
         Storage.set({'tsupportApiHash': Config.TsupportApi.userHash});
+        $rootScope.$broadcast('tsupportapi_data_loaded');
       });
     }
 
@@ -4418,7 +4427,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   })
 
   .service('MarkedConversationsService', function ($rootScope, $http,  $filter, _, localStorageService, ToastService, Storage) {
-    var baseUrl = 'http://sa.laagacht.net:9992/bot/marked';
+    var baseUrl = 'https://sa.laagacht.net:9992/bot/marked';
 
     function getMarkedConversations() {
       var url = baseUrl + '/' + Config.TsupportApi.userHash + '/' + Config.TsupportApi.country;

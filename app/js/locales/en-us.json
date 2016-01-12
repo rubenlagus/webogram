@@ -218,7 +218,6 @@
 	"confirm_modal_share_file_peer": "Share with {peer}?",
 	"confirm_modal_invite_peer": "Invite to {peer}?",
 	"confirm_modal_apply_lang_with_reload_md": "Reload the App to apply language?",
-	"confirm_modal_migrate_to_https_md": "Telegram Web now supports additional SSL encryption. Would you like to switch to HTTPS?\nThe HTTP version will be disabled soon.",
 	"confirm_modal_resize_desktop_md": "Would you like to switch to desktop version?",
 	"confirm_modal_resize_mobile_md": "Would you like to switch to mobile version?",
 	"confirm_modal_recovery_email_empty_md": "Warning! Are you sure you don't want to add a password recovery e-mail?\n\nIf you forget your password, you will lose access to your Telegram account",
@@ -810,6 +809,8 @@
 	"login_about_intro": "Welcome to the official Tsupport web-client.",
 	"inactive_tab_title": "Tsupport: Zzz...",
 	"inactive_description_md": "Tsupport supports only one active tab with the app.\nPlease reload this page to continue using this tab or close it.",
+	"confirm_modal_migrate_to_https_md": "Tsupport Web now supports additional SSL encryption. Would you like to switch to HTTPS?",
+
 
 	"country_select_modal_country_sup": "Support",
 	"download_settings_modal_title": "Automatic downloads",
@@ -826,8 +827,8 @@
 	"error_default_templates_load": "Error loading default templates, check the provided language code.",
 	"templates_loaded_finished": "Templates have been loaded.",
 	"error_templates_load_file": "Error loading templates file, check the formatting.",
-	"choose_default_templates_language": "Set default templates language",
-	"default_templates_language_title": "Default templates language",
+	"choose_default_templates_language": "Templates language",
+	"default_templates_language_title": "Templates language",
 	"templates": "Templates",
 	"templates_language": "Templates:",
 	"templates_language_de": "German",
@@ -858,5 +859,5 @@
 	"templates_add_modal_title": "Add template",
 	"templates_edit_modal_key": "Template key",
 	"templates_edit_modal_value": "Template value",
-	"tsupport_wiki": "Tsupport Wiki"
+	"tsupport_wiki": "Wiki"
 }

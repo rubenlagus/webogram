@@ -12,16 +12,12 @@
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a ng-click="showSessions()" my-i18n="settings_modal_active_sessions"></a>
-            </li>
-
-            <li>
               <a ng-click="showDownloadSettings()" my-i18n="download_settings_modal_title"></a>
             </li>
             <li>
               <a ng-click="openTemplateManagement()" my-i18n="templates_management"></a>
             </li>
-            <li>
+            <li ng-if="tsupportApiDataLoaded">
               <a ng-if="!templatesLanguage || templatesLanguage == ''" class="md_modal_section_link" ng-click="chooseTemplatesCountry()" my-i18n="choose_default_templates_language"></a>
               <a ng-if="templatesLanguage && templatesLanguage != ''" class="md_modal_section_link" ng-click="chooseTemplatesCountry()" ng-bind="'Templates language: ' + templatesLanguage"></a>
             </li>
@@ -93,16 +89,6 @@
         <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
         <span class="tg_checkbox_label" my-i18n="settings_modal_send_on_enter"></span>
       </a>
-    </div>
-
-
-    <div class="mobile_modal_action_wrap" ng-controller="AppLangSelectController">
-      <div class="mobile_modal_select_wrap pull-right">
-        <select class="form-control" ng-change="localeSelect()" ng-model="form.locale">
-          <option ng-repeat="locale in ::supportedLocales" value="{{locale}}" ng-bind="langNames[locale]" ng-selected="locale == curLocale"></option>
-        </select>
-      </div>
-      <span class="mobile_modal_action" my-i18n="settings_modal_language"></span>
     </div>
 
     <div class="mobile_modal_section" ng-if="profile.phone">
