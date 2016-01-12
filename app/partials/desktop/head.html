@@ -15,7 +15,7 @@
           <li><a ng-click="addContact()">
             <i class="icon icon-contacts"></i><span my-i18n="contacts_modal_new_contact"></span>
           </a></li>
-          <li ng-if="isMarkedEnabled"><a ng-click="openMarkedConversations()">
+          <li ng-if="tsupportApiDataLoaded"><a ng-click="openMarkedConversations()">
             <i class="icon icon-marked-conversations"></i><span my-i18n="marked_conversation_title"></span>
           </a></li>
           <li><a ng-click="openSettings()">
@@ -27,7 +27,7 @@
           <li><a href="" ng-click="openChangelog()">
             <i class="icon icon-about"></i><span my-i18n="head_about"></span>
           </a></li>
-          <li ng-if="isLoggedIn">
+          <li ng-if="isLoggedIn && tsupportApiDataLoaded">
             <input ng-show="false" id="selectTemplateFile" type="file" class="im_attach_input" multiple="false" title="{{'add_template' | i18n}}" on-read-file="addTemplate($fileContent)" />
             <a ng-click="triggerClick()">
               <i class="icon icon-add-template"></i>

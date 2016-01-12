@@ -12,14 +12,13 @@
           <span class="icon-bar"></span>
         </a>
         <ul ng-switch-when="true" class="dropdown-menu">
-          <li><a ng-click="importContact()" my-i18n="head_new_contact"></a></li>
-          <li ng-if="isLoggedIn">
+          <li ng-if="isLoggedIn && tsupportApiDataLoaded">
             <input ng-show="false" id="selectTemplateFile" type="file" class="im_attach_input" multiple="false" title="{{'add_template' | i18n}}" on-read-file="addTemplate($fileContent)" />
             <a my-i18n="add_template" ng-click="triggerClick()"></a>
           </li>
           <li><a ng-click="openWiki()" my-i18n="tsupport_wiki"></a></li>
           <li><a ng-click="addContact()" my-i18n="contacts_modal_new_contact"></a></li>
-          <li ng-if="isMarkedEnabled"><a ng-click="openMarkedConversations()" my-i18n="marked_conversation_title"></a></li>
+          <li ng-if="tsupportApiDataLoaded"><a ng-click="openMarkedConversations()" my-i18n="marked_conversation_title"></a></li>
           <li><a ng-click="openSettings()" my-i18n="head_settings"></a></li>
           <li><a ng-click="logOut()" my-i18n="head_log_out"></a></li>
         </ul>

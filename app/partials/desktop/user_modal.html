@@ -98,30 +98,6 @@
           <a class="md_modal_section_link" ng-click="sendCommand('help')" my-i18n="user_modal_bot_help"></a>
         </div>
 
-        <div class="md_modal_section_link_wrap" ng-if="user.phone.length > 0 &amp;&amp; !user.pFlags.contact &amp;&amp; !user.pFlags.self">
-          <a class="md_modal_section_link" ng-click="importContact()" my-i18n="user_modal_add_contact"></a>
-        </div>
-
-        <div class="md_modal_section_link_wrap" ng-if="user.phone.length > 0">
-          <a class="md_modal_section_link" ng-click="shareContact()" my-i18n="user_modal_share_contact"></a>
-        </div>
-
-        <div class="md_modal_section_link_wrap" ng-if="f.showMoreActions &amp;&amp; user.pFlags.contact">
-          <a class="md_modal_section_link" ng-click="deleteContact()" my-i18n="user_modal_delete_contact"></a>
-        </div>
-
-
-        <div class="md_modal_section_link_wrap" ng-if="f.showMoreActions &amp;&amp; !user.pFlags.self">
-          <a class="md_modal_section_link" ng-click="toggleBlock(!blocked)" ng-switch="blocked">
-            <my-i18n ng-switch-when="true" msgid="user_modal_unblock_user"></my-i18n>
-            <my-i18n ng-switch-default msgid="user_modal_block_user"></my-i18n>
-          </a>
-        </div>
-
-        <div class="md_modal_section_link_wrap" ng-if="f.showMoreActions">
-          <a class="md_modal_section_link" ng-click="flushHistory()" my-i18n="user_modal_delete_chat"></a>
-        </div>
-
         <div class="md_modal_section_link_wrap" ng-if="!f.showMoreActions">
           <a class="md_modal_section_link" ng-click="f.showMoreActions = true" my-i18n="modal_more"></a>
         </div>

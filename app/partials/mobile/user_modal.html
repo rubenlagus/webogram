@@ -3,29 +3,6 @@
   <div class="tg_page_head tg_modal_head">
     <div class="navbar navbar-static-top navbar-inverse">
       <div class="container">
-
-        <div class="navbar-toggle-wrap dropdown" dropdown>
-          <a class="dropdown-toggle navbar-toggle" dropdown-toggle>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <ul class="dropdown-menu">
-            <li ng-if="user.pFlags.contact">
-              <a ng-click="importContact(true)" my-i18n="user_modal_edit_contact"></a>
-            </li>
-            <li ng-if="user.pFlags.contact">
-              <a ng-click="deleteContact()" my-i18n="user_modal_delete_contact"></a>
-            </li>
-            <li ng-if="user.phone.length > 0 &amp;&amp; !user.pFlags.contact &amp;&amp; !user.pFlags.self">
-              <a ng-click="importContact()" my-i18n="user_modal_add_contact"></a>
-            </li>
-            <li>
-              <a ng-click="flushHistory()" my-i18n="user_modal_delete_chat"></a>
-            </li>
-          </ul>
-        </div>
-
         <div class="navbar-header">
 
           <ul class="nav navbar-nav navbar-quick-nav">
