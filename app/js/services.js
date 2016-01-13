@@ -4527,6 +4527,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
   .service('TemplatesService', function ($rootScope, $http, _, localStorageService, ToastService, Storage) {
     var baseUrl = "https://sa.laagacht.net:9992/bot/templates";
     var templates = [];
+    var loading = false;
+    var loaded = false;
 
     function addTemplates($fileContent) {
       // Templates support
@@ -4558,10 +4560,12 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       });
     }
 
-    function addTemplate(key, value) {
+    function addTemplate(key, value, forceReload) {
       // Templates support
       localStorageService.set(key, value);
-      getAllTemplates(true);
+      if(forceReload) {
+        getAllTemplates(true);
+      }
     }
 
     function setLastTemplateVersion(languageCode) {
@@ -4620,7 +4624,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
     }
 
     function getAllTemplates(force) {
-      if (!templates || !templates.length || force) {
+      if ((!loaded && !loading) || force) {
+        loading = true;
         templates = [];
         angular.forEach(localStorageService.keys(), function (key) {
           var template = {};
@@ -4628,7 +4633,11 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
           template.value = localStorageService.get(key);
           templates.push(template);
         });
-        $rootScope.$broadcast('templates_updated', templates);
+        if (templates.length) {
+          $rootScope.$broadcast('templates_updated', templates);
+        }
+        loaded = true;
+        loading = false;
       }
 
       return templates;
@@ -4669,7 +4678,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
                 });
               });
               showChangelog(response.data);
-              $rootScope.$broadcast('templates_updated');
+              TemplatesService.getAllTemplates(true);
             }
             TemplatesService.setLastTemplateVersion(templatesLanguage);
           });
