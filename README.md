@@ -31,7 +31,7 @@ Here are some screenshots of the interface:
 
 | Description        | URL           | Type  |
 | ------------- |-------------| -----:|
-| Online Web-version (hosted on GitHub pages)      | http://rubenlagus.github.io/webogram | hosted
+| Online Web-version (hosted on GitHub pages)      | https://rubenlagus.github.io/webogram | hosted
 
 **Hosted version**: the app is downloaded via HTTPS as a usual website. Will be available offline due to application cache.
 
