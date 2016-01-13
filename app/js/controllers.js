@@ -5168,7 +5168,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
           scope: scope
         }).result.then(function (newTemplate) {
           if (newTemplate) {
-            TemplatesService.addTemplate(newTemplate.key, newTemplate.value);
+            TemplatesService.addTemplate(newTemplate.key, newTemplate.value, true);
           }
         });
       } else {
@@ -5211,7 +5211,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         scope: scope
       }).result.then(function (newTemplate) {
         if (newTemplate) {
-          TemplatesService.addTemplate(newTemplate.key, newTemplate.value);
+          TemplatesService.addTemplate(newTemplate.key, newTemplate.value, true);
         }
       });
     };
