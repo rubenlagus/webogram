@@ -30,7 +30,7 @@ html {
   margin: 0;
 }
 .tg_page_head .navbar-inverse {
-  background: #5682a3;
+  background: #000000;
   border: 0;
   -webkit-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.11);
   -moz-box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.11);
@@ -57,20 +57,20 @@ html {
 .tg_page_head .navbar-inverse .navbar-nav > li > a {
   padding-top: 13px;
   padding-bottom: 13px;
-  color: #b9cfe3;
+  color: #cccccc;
   font-size: 13px;
 }
 .tg_page_head .navbar-inverse .navbar-nav > li > a:hover {
   color: #fff;
 }
 .tg_page_head .navbar-inverse .navbar-toggle {
-  border-color: #497495;
+  border-color: #6d6d6d;
   outline: 0;
   border: 0;
 }
 .tg_page_head .navbar-inverse .navbar-collapse,
 .tg_page_head .navbar-inverse .navbar-form {
-  border-color: #497495;
+  border-color: #6d6d6d;
 }
 .tg_page_head .navbar-inverse .navbar-toggle:active,
 .tg_page_head .navbar-inverse .navbar-toggle:focus {
@@ -81,7 +81,7 @@ html {
   outline: none;
 }
 .ios_standalone .modal.mobile_modal {
-  border-top: 20px solid #497495;
+  border-top: 20px solid #6d6d6d;
 }
 .im_history_panel_edit_link {
   margin-right: 0;
@@ -111,7 +111,7 @@ html {
   padding: 16px 17px;
 }
 .navbar-toggle-wrap .navbar-toggle .icon-bar {
-  background-color: #d7e5f0;
+  background-color: #e3e3e3;
   width: 5px;
   height: 5px;
   border-radius: 3px;
@@ -217,7 +217,7 @@ html {
 .tg_page_head .navbar-inverse .navbar-quick-nav > li > a {
   padding-left: 16px;
   padding: 6px 10px 2px 28px;
-  color: #b9cfe3;
+  color: #cccccc;
   font-size: 13px;
   height: 46px;
   /*&:active,*/
@@ -239,7 +239,7 @@ html {
   overflow: hidden;
 }
 .navbar-quick-back-title {
-  max-width: 160px;
+  max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -283,7 +283,7 @@ html {
 .tg_page_head .navbar-inverse .navbar-offline > li > a {
   padding-top: 13px;
   padding-bottom: 12px;
-  color: #fff;
+  color: fff;
   font-size: 15px;
 }
 .tg_page_head .navbar_offline > .container .navbar-brand {
@@ -338,7 +338,7 @@ html {
 .tg_page_head .navbar-inverse .navbar-quick-nav > .navbar-quick-right > a,
 .tg_page_head .navbar-inverse .navbar-quick-nav > .navbar-quick-left > a {
   font-size: 15px;
-  color: #fff;
+  color: #A870BB;
   padding: 14px 15px;
 }
 .mobile_scrollable_wrap {
@@ -355,7 +355,7 @@ html {
 }
 .login_head_wrap {
   height: 75px;
-  background: #537c9a;
+  background: #757575;
 }
 .login_form_wrap {
   border-radius: 0;
@@ -399,7 +399,7 @@ html {
 }
 .im_history_select_active .im_message_outer_wrap:hover,
 .im_message_selected {
-  background: #e1e9f0;
+  background: #e8e8e8;
 }
 .im_message_body {
   padding: 7px 10px;
@@ -407,7 +407,7 @@ html {
   background: #f1f1f1;
 }
 .im_message_out .im_message_body {
-  background: #e4ecf2;
+  background: #CCCCCC;
 }
 .im_message_body_media,
 .im_message_out .im_message_body_media {
@@ -418,7 +418,7 @@ html {
 .im_message_selected .im_message_body,
 .im_message_selected .im_message_document,
 .im_message_selected .im_message_audio {
-  background: #497495;
+  background: #6d6d6d;
   color: #fff;
 }
 .im_message_selected .im_message_body_media {
@@ -448,7 +448,7 @@ html {
 }
 .im_message_out .im_message_body_media .im_message_document,
 .im_message_out .im_message_body_media .im_message_audio {
-  background: #e4ecf2;
+  background: #ebebeb;
 }
 .im_message_webpage,
 .im_message_webpage_site,
@@ -472,7 +472,7 @@ html {
   position: absolute;
 }
 .im_message_out .im_message_document .icon-document {
-  background-color: #e4ecf2;
+  background-color: #ebebeb;
 }
 .im_message_document_thumb_wrap {
   background-color: transparent;
@@ -645,10 +645,10 @@ img.im_message_video_thumb,
   padding: 0;
 }
 .im_message_out .im_message_fwd_date {
-  color: #93a2ae;
+  color: #a0a0a0;
 }
 .im_message_out .icon-document {
-  background-color: #dae6f0;
+  background-color: #e4e4e4;
   background-position: -2px -542px;
 }
 .im_message_out .im_message_document_size,
@@ -667,7 +667,7 @@ img.im_message_video_thumb,
 .im_history_select_active .im_message_outer_wrap:hover .audio_player_duration,
 .im_history_select_active .im_message_outer_wrap:hover .audio_player_size,
 .im_history_select_active .im_message_outer_wrap:hover .im_message_fwd_date {
-  color: #68839c;
+  color: #7f7f7f;
 }
 .im_message_from_photo,
 .im_message_fwd_photo {
@@ -683,24 +683,31 @@ a.im_message_from_photo {
   position: absolute;
   margin-left: -45px;
 }
-.im_message_author {
+.im_message_author,
+.im_message_author_via {
   display: none;
 }
-.im_history_messages_group a.im_message_author {
+.im_history_messages_group a.im_message_author,
+.im_history_messages_group .im_message_author_via {
   display: inline;
   font-size: 13px;
   font-weight: normal;
 }
 .im_grouped_short a.im_message_from_photo,
 .im_grouped_short a.im_message_author,
+.im_grouped_short a.im_message_author_via,
 .im_grouped a.im_message_from_photo,
 .im_grouped a.im_message_author,
-.im_grouped_fwd a.im_message_author,
+.im_grouped a.im_message_author_via,
 .im_grouped_fwd a.im_message_from_photo,
-.im_grouped_fwd_short a.im_message_author,
+.im_grouped_fwd a.im_message_author,
+.im_grouped_fwd a.im_message_author_via,
 .im_grouped_fwd_short a.im_message_from_photo,
-.im_message_out a.im_message_author,
+.im_grouped_fwd_short a.im_message_author,
+.im_grouped_fwd_short a.im_message_author_via,
 .im_message_out a.im_message_from_photo,
+.im_message_out a.im_message_author,
+.im_message_out a.im_message_author_via,
 .im_message_body_media a.im_message_author {
   display: none;
 }
@@ -722,10 +729,10 @@ a.im_message_from_photo {
   background: none;
 }
 .im_message_unread .icon-message-status {
-  background: #43A4DB;
+  background: #939393;
 }
 .im_message_pending .icon-message-status {
-  background: #9fd2ee;
+  background: #c9c9c9;
 }
 .im_dialogs_search_field,
 .contacts_modal_search_field {
@@ -751,13 +758,13 @@ a.im_message_from_photo {
   padding: 13px 0;
 }
 .im_edit_forward_btn {
-  color: #497495 !important;
+  color: #6d6d6d !important;
 }
 .im_edit_delete_btn {
   color: #c3584d !important;
 }
 .im_start_btn {
-  color: #497495 !important;
+  color: #6d6d6d !important;
 }
 .im_edit_delete_btn strong,
 .im_edit_forward_btn strong {
@@ -841,7 +848,7 @@ a.im_dialog_selected .im_dialog_date {
 .active .im_dialog_unread,
 a.im_dialog:hover .im_dialog_unread,
 a.im_dialog_selected .im_dialog_unread {
-  background: #7cacc7;
+  background: #A870BB;
 }
 .im_dialog_message_text,
 a.im_dialog:hover .im_dialog_message_text,
@@ -862,7 +869,7 @@ a.im_dialog_selected .im_dialog_message_text {
   margin-top: 5px;
 }
 .im_message_out .im_message_fwd_title {
-  color: #798791;
+  color: #858585;
 }
 .im_message_selected .im_message_body a,
 .im_message_selected .im_message_fwd_title,
@@ -1159,7 +1166,7 @@ a.mobile_modal_action .tg_checkbox_label {
   box-shadow: none;
   outline: 0;
   background: #fff;
-  border-color: #d9dbde;
+  border-color: #dbdbdb;
   content: none;
 }
 .composer_emoji_tooltip {

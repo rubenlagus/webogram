@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Time: Mon Jan 04 2016 22:51:09 GMT+0100 (CET)
+# Time: Wed Jan 13 2016 19:50:14 GMT+0100 (CET)
 
 
 CACHE:
@@ -49,8 +49,8 @@ img/placeholders/GroupAvatar1@2x.png
 img/placeholders/GroupAvatar2@2x.png
 img/placeholders/GroupAvatar3@2x.png
 img/placeholders/GroupAvatar4@2x.png
-img/placeholders/PhotoThumbConversation.gif
-img/placeholders/PhotoThumbModal.gif
+img/placeholders/PhotoThumbConversation.png
+img/placeholders/PhotoThumbModal.png
 img/placeholders/UserAvatar1@2x.png
 img/placeholders/UserAvatar2@2x.png
 img/placeholders/UserAvatar3@2x.png
@@ -59,18 +59,12 @@ img/placeholders/UserAvatar5@2x.png
 img/placeholders/UserAvatar6@2x.png
 img/placeholders/UserAvatar7@2x.png
 img/placeholders/UserAvatar8@2x.png
-img/placeholders/VideoThumbConversation.gif
-img/placeholders/VideoThumbModal.gif
+img/placeholders/VideoThumbConversation.png
+img/placeholders/VideoThumbModal.png
 js/lib/bin_utils.js
 js/lib/crypto_worker.js
 js/lib/polyfill.js
-js/locales/de-de.json
 js/locales/en-us.json
-js/locales/es-es.json
-js/locales/it-it.json
-js/locales/nl-nl.json
-js/locales/pt-br.json
-js/locales/ru-ru.json
 vendor/closure/long.js
 vendor/cryptoJS/crypto.js
 vendor/jsbn/jsbn_combined.js
