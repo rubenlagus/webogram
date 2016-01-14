@@ -2141,7 +2141,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         var innerTemplateFound = $scope.draftMessage.text.match(innerTemplateRegex);
         if (innerTemplateFound) {
           var templateKey = innerTemplateFound[2];
-          if (templateKey && templatesDic[templateKey]) {
+          if (templateKey && templatesDic[templateKey.toLowerCase()]) {
             $scope.draftMessage.text = innerTemplateFound[1] + templatesDic[templateKey];
             $scope.$broadcast('ui_peer_draft');
           }
