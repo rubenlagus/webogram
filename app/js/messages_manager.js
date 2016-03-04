@@ -909,6 +909,7 @@ angular.module('myApp.services')
       saveMessages(searchResult.messages);
 
       var foundCount = searchResult.count || searchResult.messages.length;
+      var foundPeerIds = {};
 
       foundMsgs = [];
       angular.forEach(searchResult.messages, function (message) {
@@ -919,7 +920,9 @@ angular.module('myApp.services')
             migrateChecks(peerID, -chat.migrated_to.channel_id);
           }
         }
+        if (!foundPeerIds[peerID] || query.indexOf("#") == -1)
         foundMsgs.push(message.mid);
+        foundPeerIds[peerID] = true;
       });
 
       if (useSearchCache) {
@@ -3075,6 +3078,7 @@ angular.module('myApp.services')
     wrapForDialog: wrapForDialog,
     wrapForHistory: wrapForHistory,
     wrapReplyMarkup: wrapReplyMarkup,
-    regroupWrappedHistory: regroupWrappedHistory
+    regroupWrappedHistory: regroupWrappedHistory,
+    getDialogByPeerId: getDialogByPeerID
   }
 });

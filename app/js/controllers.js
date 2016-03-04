@@ -663,7 +663,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
   })
 
   .controller('AppImDialogsController', function ($scope, $location, $q, $timeout, $routeParams, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppProfileManager, AppPeersManager, PhonebookContactsService, ErrorService, AppRuntimeManager) {
-
+    var numberOfSearch = 0;
     $scope.dialogs = [];
     $scope.contacts = [];
     $scope.foundPeers = [];
@@ -855,14 +855,20 @@ angular.module('myApp.controllers', ['myApp.i18n'])
               return $q.reject();
             }
             var dialogs = [];
+            numberOfSearch++;
             angular.forEach(result.history, function (messageID) {
               var message = AppMessagesManager.getMessage(messageID),
-                  peerID = AppMessagesManager.getMessagePeer(message);
+                  peerID = AppMessagesManager.getMessagePeer(message),
+                  dialogsByPeer = AppMessagesManager.getDialogByPeerId(peerID),
+                  dialog;
+
+              dialog = dialogsByPeer.length > 0 ? dialogsByPeer[0] : undefined;
+
 
               dialogs.push({
                 peerID: peerID,
                 top_message: messageID,
-                unread_count: -1
+                unread_count: dialog && angular.isDefined(dialog.unread_count) ? dialog.unread_count : -1
               });
             });
 
@@ -899,10 +905,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
           $scope.dialogs = [];
           $scope.contacts = [];
           $scope.foundPeers = [];
+          $scope.foundPeersId = {};
+          numberOfSearch = 0;
         }
         $scope.foundMessages = [];
 
-        var dialogsList = searchMessages ? $scope.foundMessages : $scope.dialogs;
+        var dialogsList = searchMessages ? $scope.foundMessages : $scope.dialogs,
+            isHashtagSearh = $scope.search.query && $scope.search.query.indexOf("#") != -1;
 
         if (dialogsResult.dialogs.length) {
           angular.forEach(dialogsResult.dialogs, function (dialog) {
@@ -911,14 +920,20 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 !AppChatsManager.hasRights(-dialog.peerID, 'send')) {
               return;
             }
+            if ($scope.foundPeersId && $scope.foundPeersId[dialog.peerID] && isHashtagSearh) {
+              return;
+            }
             var wrapDialog = searchMessages ? undefined : dialog;
             var wrappedDialog = AppMessagesManager.wrapForDialog(dialog.top_message, wrapDialog);
             if (searchMessages) {
-              wrappedDialog.unreadCount = -1;
+              wrappedDialog.unreadCount = angular.isDefined(dialog.unread_count) && isHashtagSearh? dialog.unread_count : -1;
             } else {
               peersInDialogs[dialog.peerID] = true;
             }
             dialogsList.push(wrappedDialog);
+            if (dialog.peerID) {
+              $scope.foundPeersId[dialog.peerID] = true;
+            }
           });
 
           if (searchMessages) {
@@ -952,6 +967,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         return;
       }
 
+      if ($scope.search.query && numberOfSearch > 20) {
+        return;
+      }
+
       if (!hasMore &&
           !searchMessages &&
           !$scope.noUsers &&
@@ -962,7 +981,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
       getDialogs().then(function (dialogsResult) {
         if (dialogsResult.dialogs.length) {
-          var dialogsList = searchMessages ? $scope.foundMessages : $scope.dialogs;
+          var dialogsList = searchMessages ? $scope.foundMessages : $scope.dialogs,
+              isHashtagSearh = $scope.search.query && $scope.search.query.indexOf("#") != -1;
 
           angular.forEach(dialogsResult.dialogs, function (dialog) {
             if ($scope.canSend &&
@@ -970,14 +990,20 @@ angular.module('myApp.controllers', ['myApp.i18n'])
                 !AppChatsManager.hasRights(-dialog.peerID, 'send')) {
               return;
             }
+            if ($scope.foundPeersId && $scope.foundPeersId[dialog.peerID] && isHashtagSearh) {
+              return;
+            }
             var wrapDialog = searchMessages ? undefined : dialog;
             var wrappedDialog = AppMessagesManager.wrapForDialog(dialog.top_message, wrapDialog);
             if (searchMessages) {
-              wrappedDialog.unreadCount = -1;
+              wrappedDialog.unreadCount = angular.isDefined(dialog.unread_count) && !isHashtagSearh ? dialog.unread_count : -1;
             } else {
               peersInDialogs[dialog.peerID] = true;
             }
             dialogsList.push(wrappedDialog);
+            if (dialog.peerID) {
+              $scope.foundPeersId[dialog.peerID] = true;
+            }
           });
 
           if (searchMessages) {

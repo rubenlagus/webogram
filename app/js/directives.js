@@ -36,9 +36,14 @@ angular.module('myApp.directives', ['myApp.filters'])
   })
 
   .directive('myDialog', function() {
+    function link ($scope, element, attrs) {
+      $scope.forceShowUnreadCount = angular.isDefined(attrs.messageSearch);
+    }
+
     return {
       restrict: 'AE',
-      templateUrl: templateUrl('dialog')
+      templateUrl: templateUrl('dialog'),
+      link: link
     };
   })
 
