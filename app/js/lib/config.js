@@ -21,7 +21,7 @@ Config = window.Config || {};
 Config.App = {
   id: 18967,
   hash: 'f5468cbf0007e3e5b628b4d942959af6',
-  version: '0.5.2T',
+  version: '0.5.3A',
   domains: ['rubenlagus.github.io', 'twebogram-telegram.rhcloud.com'],
   defaultSecureLocation: 'https://rubenlagus.github.io/webogram'
 };
