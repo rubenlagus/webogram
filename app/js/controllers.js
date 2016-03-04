@@ -10,16 +10,16 @@
 /* Controllers */
 
 angular.module('myApp.controllers', ['myApp.i18n'])
+
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
-
         $location.url('/im');
         return;
       }
       if (location.protocol == 'http:' &&
-        !Config.Modes.http &&
-        Config.App.domains.indexOf(location.hostname) != -1) {
+          !Config.Modes.http &&
+          Config.App.domains.indexOf(location.hostname) != -1) {
         location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
@@ -41,8 +41,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         return;
       }
       if (location.protocol == 'http:' &&
-        !Config.Modes.http &&
-        Config.App.domains.indexOf(location.hostname) != -1) {
+          !Config.Modes.http &&
+          Config.App.domains.indexOf(location.hostname) != -1) {
         location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
@@ -2179,7 +2179,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.$on('user_update', angular.noop);
   })
 
-  .controller('AppImSendController', function ($scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService, NotificationsManager) {
+  .controller('AppImSendController', function ($q, $scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService, NotificationsManager) {
     var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n+(.+)$/;
     var mobileAutocompleteRegex = /\s\s([^\s]+)\s\s/;
     var innerTemplateRegex = /^(.*\s)(\w+)$/;
