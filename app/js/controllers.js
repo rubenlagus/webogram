@@ -1060,7 +1060,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
   })
 
-  .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService) {
+  .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, $filter, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, clipboard) {
 
     $scope.$watchCollection('curDialog', applyDialogSelect);
 
@@ -1083,10 +1083,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.toggleMessage = toggleMessage;
     $scope.selectedDelete = selectedDelete;
     $scope.selectedForward = selectedForward;
+    $scope.selectedCopy = selectedCopy;
     $scope.selectedReply = selectedReply;
     $scope.selectedCancel = selectedCancel;
     $scope.selectedFlush = selectedFlush;
     $scope.selectInlineBot = selectInlineBot;
+    $scope.onContextMenu = onContextMenu;
 
     $scope.startBot = startBot;
     $scope.cancelBot = cancelBot;
@@ -1129,6 +1131,70 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         lessJump = 0,
         lessActive = false,
         lessPending = false;
+
+    function selectedCopy() {
+      if ($scope.historyState.selectActions) {
+        if ($scope.selectedCount > 0) {
+          var selected = [];
+          angular.forEach($scope.peerHistories, function (peerHistory) {
+            var thisPeerSelected = peerHistory.messages.filter(function (item) {
+              return $scope.selectedMsgs[item.mid];
+            });
+            if (thisPeerSelected.length) {
+              selected = selected.concat(thisPeerSelected);
+            }
+          });
+          if (selected.length) {
+            copyToClipboard($filter('orderBy')(selected, "date"))
+          }
+        }
+      }
+    }
+
+    function onContextMenu(message) {
+      var options = [];
+      var copy = [
+        _("copy"),
+        function () {
+          if ($scope.historyState.selectActions) {
+            if ($scope.selectedCount > 0) {
+              var selected = [];
+              angular.forEach($scope.peerHistories, function (peerHistory) {
+                var thisPeerSelected = peerHistory.messages.filter(function (item) {
+                  return $scope.selectedMsgs[item.mid];
+                });
+                if (thisPeerSelected.length) {
+                  selected = selected.concat(thisPeerSelected);
+                }
+              });
+              if (selected.length) {
+                copyToClipboard($filter('orderBy')(selected, "date"))
+              }
+            }
+          } else {
+            copyToClipboard([message]);
+          }
+        },
+        function() {
+          return ($scope.historyState.selectActions && $scope.selectedCount > 0) || !$scope.historyState.selectActions;
+        }
+      ];
+
+      options.push(copy);
+      return options;
+    }
+
+    function copyToClipboard(messages) {
+      var textToCopy = "";
+      angular.forEach(messages, function (message) {
+        var date = $filter('date')(new Date(message.date*1000), 'medium', 'UTC');
+        var user = AppUsersManager.getUserSearchText(message.from_id);
+        textToCopy += user.trim() + ", [" + date + "]\n" + message.message + "\n\n\n";
+      });
+
+      clipboard.copyText(textToCopy);
+      selectedCancel();
+    }
 
     function applyDialogSelect (newDialog, oldDialog) {
       peerID = $rootScope.selectedPeerID = newDialog.peerID;

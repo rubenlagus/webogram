@@ -20,6 +20,8 @@ angular.module('myApp', [
   'ngTouch',
   'ui.bootstrap',
   'ui.utils',
+  'ui.bootstrap.contextMenu',
+  'angular-clipboard',
   'ngAnimate',
   'toastr',
   'LocalStorageModule',
