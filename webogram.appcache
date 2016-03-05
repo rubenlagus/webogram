@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Time: Thu Jan 14 2016 00:53:15 GMT+0100 (CET)
+# Time: Sun Mar 06 2016 00:56:30 GMT+0100 (CET)
 
 
 CACHE:
@@ -11,6 +11,7 @@ css/mobile.css
 img/Manytabs.png
 img/Manytabs_2x.png
 img/Telegram.png
+img/Telegram.svg
 img/Telegram72.png
 img/Telegram72_2x.png
 img/Telegram_2x.png
@@ -44,6 +45,9 @@ img/icons/PhotoIcons.png
 img/icons/PhotoIcons_2x.png
 img/icons/ProfileIcons.png
 img/icons/ProfileIcons_2x.png
+js/lib/bin_utils.js
+js/lib/crypto_worker.js
+js/lib/polyfill.js
 img/placeholders/DialogListAvatarSystem@2x.png
 img/placeholders/GroupAvatar1@2x.png
 img/placeholders/GroupAvatar2@2x.png
@@ -61,9 +65,6 @@ img/placeholders/UserAvatar7@2x.png
 img/placeholders/UserAvatar8@2x.png
 img/placeholders/VideoThumbConversation.png
 img/placeholders/VideoThumbModal.png
-js/lib/bin_utils.js
-js/lib/crypto_worker.js
-js/lib/polyfill.js
 js/locales/en-us.json
 vendor/closure/long.js
 vendor/cryptoJS/crypto.js

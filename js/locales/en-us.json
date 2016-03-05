@@ -516,8 +516,8 @@
 
 	"message_forwarded_message": "Forwarded message",
 	"message_via_bot": "via {bot}",
-	"message_forwarded_message_mobile": "Forwarded from {from}, {date}",
-	"message_forwarded_via_message_mobile": "Forwarded from {from} via {bot}, {date}",
+	"message_forwarded_message_mobile": "Forwarded from {from}",
+	"message_forwarded_via_message_mobile": "Forwarded from {from} via {bot}",
 
 	"message_attach_audio_message": "Voice message",
 	"message_attach_audio_play": "Play",
@@ -809,7 +809,7 @@
 	"login_about_intro": "Welcome to the official Tsupport web-client.",
 	"inactive_tab_title": "Tsupport: Zzz...",
 	"inactive_description_md": "Tsupport supports only one active tab with the app.\nPlease reload this page to continue using this tab or close it.",
-	"confirm_modal_migrate_to_https_md": "Tsupport Web now supports additional SSL encryption. Would you like to switch to HTTPS?",
+	"confirm_modal_migrate_to_https_md": "Tsupport Web now supports additional SSL encryption. Would you like to switch to HTTPS?\nThe HTTP version will be disabled soon.",
 
 
 	"country_select_modal_country_sup": "Support",
@@ -830,7 +830,7 @@
 	"choose_default_templates_language": "Templates language",
 	"default_templates_language_title": "Templates language",
 	"templates": "Templates",
-	"templates_language": "Templates:",
+	"templates_language": "Templates",
 	"templates_language_de": "German",
 	"templates_language_es": "Spanish (Spain)",
 	"templates_language_en": "English",
@@ -859,5 +859,7 @@
 	"templates_add_modal_title": "Add template",
 	"templates_edit_modal_key": "Template key",
 	"templates_edit_modal_value": "Template value",
-	"tsupport_wiki": "Wiki"
+	"tsupport_wiki": "Wiki",
+	"copy": "Copy",
+	"im_copy" : "Copy {count}"
 }

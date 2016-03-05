@@ -173,6 +173,9 @@ html {
 .tg_modal_head .navbar-search-wrap {
   display: block;
 }
+.navbar_peer_not_selected .tg_head_peer_menu_wrap {
+  display: none;
+}
 .tg_page_head .navbar-quick-nav {
   display: block;
   float: none;
@@ -613,6 +616,9 @@ img.im_message_video_thumb,
   font-weight: normal;
   font-size: 13px;
 }
+.im_message_reply_body {
+  font-size: 12px;
+}
 .im_message_fwd_header {
   font-size: 12px;
 }
@@ -683,12 +689,23 @@ a.im_message_from_photo {
   position: absolute;
   margin-left: -45px;
 }
-.im_message_author,
-.im_message_author_via {
+a.im_message_author_via {
+  color: #323232;
+  display: block;
+  font-size: 13px;
+  font-weight: normal;
+  margin-bottom: 3px;
+}
+.im_message_out a.im_message_author_via {
+  margin-left: 0;
+}
+a.im_message_author_via .im_message_fwd_author {
+  color: inherit;
+}
+.im_message_author {
   display: none;
 }
-.im_history_messages_group a.im_message_author,
-.im_history_messages_group .im_message_author_via {
+.im_history_messages_group a.im_message_author {
   display: inline;
   font-size: 13px;
   font-weight: normal;
@@ -707,7 +724,6 @@ a.im_message_from_photo {
 .im_grouped_fwd_short a.im_message_author_via,
 .im_message_out a.im_message_from_photo,
 .im_message_out a.im_message_author,
-.im_message_out a.im_message_author_via,
 .im_message_body_media a.im_message_author {
   display: none;
 }
@@ -746,6 +762,17 @@ a.im_message_from_photo {
 }
 .im_edit_delete_btn,
 .im_edit_forward_btn,
+.im_edit_copy_btn {
+  border-radius: 2px;
+  font-weight: normal;
+  line-height: 18px;
+  background: none !important;
+  border: 0 !important;
+  width: 32%;
+  margin: 0;
+  font-size: 15px;
+  padding: 13px 0;
+}
 .im_start_btn {
   border-radius: 2px;
   font-weight: normal;
@@ -757,6 +784,9 @@ a.im_message_from_photo {
   font-size: 15px;
   padding: 13px 0;
 }
+.im_edit_copy_btn {
+  color: #6d6d6d !important;
+}
 .im_edit_forward_btn {
   color: #6d6d6d !important;
 }
@@ -767,7 +797,8 @@ a.im_message_from_photo {
   color: #6d6d6d !important;
 }
 .im_edit_delete_btn strong,
-.im_edit_forward_btn strong {
+.im_edit_forward_btn strong,
+.im_edit_copy_btn strong {
   font-weight: normal;
 }
 .im_edit_panel_wrap {
@@ -1325,6 +1356,9 @@ img.composer_user_photo {
 h4.media_modal_title_wrap {
   color: inherit;
   margin: 8px 0 11px 0;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 .media_modal_info_wrap {
   line-height: 16px;
@@ -1427,6 +1461,17 @@ a.media_modal_date:hover {
 .im_send_field_wrap_2ndbtn .composer_textarea {
   padding-right: 35px;
 }
+.im_inline_placeholder_wrap {
+  font-size: 15px;
+  line-height: 17px;
+  padding: 6px 7px;
+  top: 0;
+}
+.im_send_dropbox_wrap {
+  padding: 5px 10px;
+  font-size: 15px;
+  line-height: 22px;
+}
 .im_send_field_panel {
   position: relative;
 }
@@ -1440,4 +1485,8 @@ a.media_modal_date:hover {
 }
 .im_send_keyboard_wrap {
   padding: 0 5px;
+}
+.composer_progress_icon_wrap {
+  right: 6px;
+  top: 4px;
 }

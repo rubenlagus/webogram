@@ -686,7 +686,6 @@ a.footer_link.active:active {
   line-height: 18px;
   width: 100%;
   height: 39px;
-  padding: 13px 0 8px;
   overflow: hidden;
   -webkit-user-select: none;
 }
@@ -695,11 +694,14 @@ a.footer_link.active:active {
   color: #999;
   max-width: 556px;
   margin: 0 auto;
-  padding: 0 81px 0 85px;
+  padding: 13px 81px 8px 85px;
 }
 .im_history_typing a.im_history_typing_author {
   color: #999;
   font-weight: bold;
+}
+.im_history_loading_less {
+  margin-top: 5px;
 }
 /* Contacts modal */
 .contacts_modal_window .modal-dialog {
@@ -1110,6 +1112,11 @@ a.im_panel_peer_photo .peer_initials {
   .composer_textarea {
     min-height: 25px;
     padding-right: 25px;
+  }
+  .composer_progress_icon_wrap {
+    top: 0;
+    right: 0;
+    margin-top: 0;
   }
   .composer_emoji_insert_btn {
     top: 0;
@@ -1554,18 +1561,14 @@ a.im_panel_peer_photo .peer_initials {
   margin-top: 4px;
   margin-bottom: 4px;
 }
-.im_grouped_short .im_message_author_via,
+.im_grouped_short .im_message_author_wrap,
 .im_grouped_short .im_message_from_photo,
-.im_grouped_short .im_message_author,
-.im_grouped .im_message_author_via,
+.im_grouped .im_message_author_wrap,
 .im_grouped .im_message_from_photo,
-.im_grouped .im_message_author,
-.im_grouped_fwd .im_message_author_via,
+.im_grouped_fwd .im_message_author_wrap,
 .im_grouped_fwd .im_message_from_photo,
-.im_grouped_fwd .im_message_author,
-.im_grouped_fwd_short .im_message_author_via,
-.im_grouped_fwd_short .im_message_from_photo,
-.im_grouped_fwd_short .im_message_author {
+.im_grouped_fwd_short .im_message_author_wrap,
+.im_grouped_fwd_short .im_message_from_photo {
   display: none;
 }
 .im_grouped_short .im_message_body,
@@ -1578,10 +1581,10 @@ a.im_panel_peer_photo .peer_initials {
 .im_grouped_fwd_short .im_message_fwd_from {
   display: none;
 }
-.im_grouped_short .im_message_fwd .im_message_date,
-.im_grouped .im_message_fwd .im_message_date,
-.im_grouped_fwd .im_message_fwd .im_message_date,
-.im_grouped_fwd_short .im_message_fwd .im_message_date {
+.im_grouped_short .im_message_fwd .im_message_meta,
+.im_grouped .im_message_fwd .im_message_meta,
+.im_grouped_fwd .im_message_fwd .im_message_meta,
+.im_grouped_fwd_short .im_message_fwd .im_message_meta {
   display: none;
 }
 .im_grouped_fwd_short .im_message_fwd {
