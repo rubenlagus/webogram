@@ -10,16 +10,16 @@
 /* Controllers */
 
 angular.module('myApp.controllers', ['myApp.i18n'])
-
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
+
         $location.url('/im');
         return;
       }
       if (location.protocol == 'http:' &&
-          !Config.Modes.http &&
-          Config.App.domains.indexOf(location.hostname) != -1) {
+        !Config.Modes.http &&
+        Config.App.domains.indexOf(location.hostname) != -1) {
         location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
@@ -41,8 +41,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         return;
       }
       if (location.protocol == 'http:' &&
-          !Config.Modes.http &&
-          Config.App.domains.indexOf(location.hostname) != -1) {
+        !Config.Modes.http &&
+        Config.App.domains.indexOf(location.hostname) != -1) {
         location.href = location.href.replace(/^http:/, 'https:');
         return;
       }
@@ -2787,32 +2787,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       if (!qID) {
         return;
       }
-      var options = {
-        replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
-      };
-      AppInlineBotsManager.sendInlineResult($scope.curDialog.peerID, qID, options);
-      fwdsSend();
-      resetDraft();
-      delete $scope.draftMessage.sticker;
-      delete $scope.draftMessage.text;
-      delete $scope.draftMessage.command;
-      delete $scope.draftMessage.inlineResultID;
-      $scope.$broadcast('ui_message_send');
-      $scope.$broadcast('ui_peer_draft');
-    }
-
-    function onTemplateSelected (template) {
-      if (!template) {
-        return;
-      }
-      sendMessageInternal(template);
-      resetDraft();
-      delete $scope.draftMessage.sticker;
-      delete $scope.draftMessage.text;
-      delete $scope.draftMessage.template;
-      $scope.$broadcast('ui_message_send');
-      $scope.$broadcast('ui_peer_draft');
-    }
+    };
   })
 
   .controller('AppFooterController', function ($scope, LayoutSwitchService) {
