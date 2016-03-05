@@ -703,7 +703,7 @@ function MessageComposer (textarea, options) {
   this.onTemplateSend = options.onTemplateSend;
 }
 
-MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/|ttt|\s)([A-Za-z0-9\-\+\*@_]*)$/;
+MessageComposer.autoCompleteRegEx = /(\s|^)(\$|:|@|\/|ttt|Ttt|\s)([A-Za-z0-9\-\+\*@_]*)$/;
 
 MessageComposer.prototype.updateTemplates = function (newTemplates) {
   this.templates = newTemplates;
@@ -749,7 +749,7 @@ MessageComposer.prototype.setUpAutoComplete = function () {
   var self = this;
   this.autoCompleteEl.on('mousedown', function (e) {
     e = e.originalEvent || e;
-    var target = $(e.target), mention, code, command, inlineID;
+    var target = $(e.target), mention, code, command, inlineID, template;
     if (target[0].tagName != 'A') {
       target = $(target[0].parentNode);
     }
@@ -771,6 +771,12 @@ MessageComposer.prototype.setUpAutoComplete = function () {
     if (inlineID = target.attr('data-inlineid')) {
       if (self.onInlineResultSend) {
         self.onInlineResultSend(inlineID);
+      }
+      self.hideSuggestions();
+    }
+    if (template = target.attr('data-template')) {
+      if (self.onTemplateSelected) {
+        self.onTemplateSelected(template);
       }
       self.hideSuggestions();
     }
@@ -901,9 +907,9 @@ MessageComposer.prototype.onKeyEvent = function (e) {
           // console.log(dT(), 'keydown cancel', e.keyCode);
           return cancelEvent(e);
         }
-        if (template = currentSelected.attr('data-template')) {
-          if (this.onTemplateSelected) {
-            this.onTemplateSelected(template, e.keyCode == 9);
+        if (template = currentSel.attr('data-template')) {
+          if (self.onTemplateSelected) {
+            self.onTemplateSelected(template, e.keyCode == 9);
           }
           return cancelEvent(e);
         }
@@ -1052,7 +1058,7 @@ MessageComposer.prototype.checkAutocomplete = function (forceFull) {
         this.hideSuggestions();
       }
     }
-    else if (!matches[1] && (matches[2] == '$' || matches[2] == "ttt" || matches[2].match(/\s/))) { // templates
+    else if (!matches[1] && (matches[2] == '$' || matches[2] == "ttt" || matches[2] == "Ttt" || matches[2].match(/\s/))) { // templates
       if (this.templates && this.templates.length) {
         if (query.length) {
           var foundTemplates = this.templates.filter(function (temp) { return temp.key.indexOf(query) == 0; });
@@ -1479,17 +1485,6 @@ MessageComposer.prototype.showEmojiSuggestions = function (codes) {
 }
 
 MessageComposer.prototype.showMentionSuggestions = function (users) {
-  var html = [];
-  var user;
-  var count = users.length;
-  var i;
-
-  for (i = 0; i < count; i++) {
-    user = users[i];
-    html.push('<li><a class="composer_mention_option" data-mention="' + user.username + '"><span class="composer_user_photo" data-user-id="' + user.id + '"></span><span class="composer_user_name">' + user.rFullName + '</span><span class="composer_user_mention">@' + user.username + '</span></a></li>');
-  }
-
-  this.renderSuggestions(html);
   var self = this;
   setZeroTimeout(function () {
     self.autoCompleteScope.$apply(function () {
@@ -1503,23 +1498,16 @@ MessageComposer.prototype.showMentionSuggestions = function (users) {
 }
 
 MessageComposer.prototype.showTemplatesSuggestions = function (templates) {
-  var html = [];
-  var template;
-  var count = templates.length;
-  var i;
-
-  for (i = 0; i < count; i++) {
-    template = templates[i];
-    html.push(
-      '<li>' +
-      '<a class="composer_command_option" data-template="' + encodeEntities(template.key) + '">' +
-      '<span class="composer_command_value composer_template_value">' + encodeEntities(template.key) + '</span>' +
-      '<span class="composer_command_desc">' + encodeEntities(template.value) + '</span>' +
-      '</a>' +
-      '</li>');
-  }
-
-  this.renderSuggestions(html);
+  var self = this;
+  setZeroTimeout(function () {
+    self.autoCompleteScope.$apply(function () {
+      self.autoCompleteScope.type = 'templates';
+      self.autoCompleteScope.templates = templates;
+    });
+    onContentLoaded(function () {
+      self.renderSuggestions();
+    });
+  });
 }
 
 MessageComposer.prototype.showCommandsSuggestions = function (commands) {

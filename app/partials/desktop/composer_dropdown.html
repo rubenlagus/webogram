@@ -20,6 +20,15 @@
     </li>
   </ul>
 
+  <ul ng-switch-when="templates" class="composer_dropdown">
+    <li ng-repeat="template in templates track by template.key">
+      <a class="composer_command_option" data-template="{{template.key}}">
+        <span class="composer_command_value composer_template_value" ng-bind="template.key"></span>
+        <span class="composer_command_desc" ng-bind="template.value"></span>
+      </a>
+    </li>
+  </ul>
+
   <ul ng-switch-when="emoji" my-emoji-suggestions="emojiCodes" class="composer_dropdown"></ul>
 
   <div ng-switch-when="inline" my-inline-results="botResults"></div>

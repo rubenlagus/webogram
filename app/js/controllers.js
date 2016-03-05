@@ -2783,6 +2783,19 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       $scope.$broadcast('ui_peer_draft');
     }
 
+    function onTemplateSelected (template) {
+      if (!template) {
+        return;
+      }
+      sendMessageInternal(template);
+      resetDraft();
+      delete $scope.draftMessage.sticker;
+      delete $scope.draftMessage.text;
+      delete $scope.draftMessage.template;
+      $scope.$broadcast('ui_message_send');
+      $scope.$broadcast('ui_peer_draft');
+    }
+
     function onInlineResultSelected (qID) {
       if (!qID) {
         return;
