@@ -655,8 +655,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     loadAutodownloadSettings();
     ChangelogNotifyService.checkUpdate();
     HttpsMigrateService.start();
-    TemplatesChangelogNotifyService.checkUpdate();
     TsupportUserService.start();
+    TemplatesChangelogNotifyService.checkUpdate();
     LayoutSwitchService.start();
     LocationParamsService.start();
     AppStickersManager.start();

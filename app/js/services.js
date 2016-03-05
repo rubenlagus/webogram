@@ -54,7 +54,9 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils', 'LocalStorageMo
       }
     });
     if (!peers.length) {
-      return $q.defer().$$resolve();
+      var deferred = $q.defer();
+      deferred.resolve();
+      return deferred.promise;
     }
     return getUserPromise = MtpApiManager.invokeApi('users.getUsers', {
       id: peers
