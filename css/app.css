@@ -1367,7 +1367,7 @@ a.tg_radio_on:hover i.icon-radio{background-color:#7e7e7e}
 .icon-tg-logo{width:30px;height:30px;display:inline-block;vertical-align:top;margin-right:18px;background-image:url(../img/icons/General.png);background-repeat:no-repeat;background-position:-5px -10px}
 .icon-next-submit,.icon-tg-title{display:inline-block;vertical-align:middle;background-repeat:no-repeat}
 .is_2x .icon-tg-logo{background-image:url(../img/icons/General_2x.png);background-size:40px 948px}
-.icon-tg-title{width:62px;height:14px;background-image:url(../img/Telegram.png);background-position:0 0;margin-top:1px}
+.icon-tg-title{width:62px;height:14px;background-image:url(../img/Telegram.svg);background-position:0 0;margin-top:1px}
 .login_head_submit_progress,.login_head_submit_wrap{float:right}
 .login_head_submit_wrap{font-weight:700}
 .login_head_submit_btn,.login_head_submit_progress{font-size:13px;line-height:20px;padding:27px 15px 28px;display:inline-block;color:#fff}
