@@ -1,12 +1,12 @@
 {
   "name": "Telegram",
-  "description": "Telegram Web App.\nMore info & source code here: https://github.com/zhukov/webogram",
+  "description": "Telegram Web App.\nMore info & source code here: https://github.com/rubenlagus/webogram",
   "version": "0.5.3",
   "type": "privileged",
   "launch_path": "/index.html",
   "developer": {
-    "name": "Igor Zhukov",
-    "url": "https://github.com/zhukov"
+    "name": "Ruben Bermudez",
+    "url": "https://github.com/rubenlagus"
   },
   "installs_allowed_from": [
     "*"
