@@ -1,8 +1,6 @@
 ## [TWebogram](http://rubenlagus.github.io/webogram) – UNOFFICIAL Telegram Support Web App
 
-TWebogram offers great [apps for mobile communication](https://www.telegram.org). It is based on the [MTProto protocol](https://core.telegram.org/mtproto) and has an [Open API](http://core.telegram.org/api). I personally like Telegram for its speed and cloud-support (that makes a web app possible, unlike in the case of WA and others).
-
-MTProto data can be carried over HTTP, but no official web-version for Telegram exists for the time being. So this project is my take at creating one.
+TWebogram is a Telegram client made specially for the [Telegram Support Force](https://core.telegram.org/tsi). Please don't use it if you're not part of it (it won't work anyway).
 
 Based on [Webogram](https://github.com/zhukov/webogram), thanks to [@zhukov](https://github.com/zhukov).
 
