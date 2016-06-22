@@ -1,5 +1,5 @@
 /*!
- * Webogram v0.5.3 - messaging web application for MTProto
+ * Webogram v0.5.4 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
  * Copyright (C) 2014 Igor Zhukov <igor.beatle@gmail.com>
  * https://github.com/zhukov/webogram/blob/master/LICENSE
@@ -585,7 +585,7 @@ EmojiTooltip.prototype.activateStickerCategory = function () {
   var viewportWidth = categoriesEl.clientWidth;
 
   // console.log('current cat el', categoryEl, left, width, viewportWidth);
-  $(categoriesEl).animate({scrollLeft: left - (viewportWidth - width) / 2}, 200);
+  $(categoriesEl).stop(true).animate({scrollLeft: left - (viewportWidth - width) / 2}, 200);
 }
 
 
@@ -749,10 +749,15 @@ MessageComposer.prototype.setUpAutoComplete = function () {
   var self = this;
   this.autoCompleteEl.on('mousedown', function (e) {
     e = e.originalEvent || e;
-    var target = $(e.target), mention, code, command, inlineID, template;
-    if (target[0].tagName != 'A') {
-      target = $(target[0].parentNode);
+    var target = e.target;
+    var mention, code, command, inlineID, template;
+    while (target && target.tagName != 'A') {
+      target = target.parentNode;
     }
+    if (!target) {
+      return cancelEvent(e);
+    }
+    target = $(target);
     if (code = target.attr('data-code')) {
       if (self.onEmojiSelected) {
         self.onEmojiSelected(code, true);
@@ -993,7 +998,6 @@ MessageComposer.prototype.checkAutocomplete = function (forceFull) {
   if (value &&
       this.curInlineResults &&
       this.curInlineResults.text == value) {
-    console.trace(dT(), value, this.curInlineResults);
     this.showInlineSuggestions(this.curInlineResults);
     return;
   };
@@ -1385,7 +1389,8 @@ MessageComposer.prototype.onTemplateSelected = function (template, isTab) {
 MessageComposer.prototype.onChange = function (e) {
   if (this.richTextareaEl) {
     delete this.keyupStarted;
-    this.textareaEl.val(getRichValue(this.richTextareaEl[0])).trigger('change');
+    var richValue = getRichValue(this.richTextareaEl[0]);
+    this.textareaEl.val(richValue).trigger('change');
   }
   this.updateInlinePlaceholder();
 }
@@ -1437,13 +1442,18 @@ MessageComposer.prototype.setFocusedValue = function (parts) {
 }
 
 MessageComposer.prototype.getRichHtml = function (text) {
-  return $('<div>').text(text).html().replace(/\n/g, '<br/>').replace(/:([A-Za-z0-9\-\+\*_]+?):/gi, (function (all, shortcut) {
+  var html = $('<div>').text(text).html();
+  html = html.replace(/\n/g, '<br/>');
+  html = html.replace(/:([A-Za-z0-9\-\+\*_]+?):/gi, (function (all, shortcut) {
     var code = EmojiHelper.shortcuts[shortcut];
     if (code !== undefined) {
       return this.getEmojiHtml(code);
     }
     return all;
   }).bind(this));
+  html = html.replace(/  /g, " \u00A0").replace(/^ | $/g, "\u00A0");
+
+  return html;
 }
 
 MessageComposer.prototype.focus = function () {
@@ -1530,7 +1540,8 @@ MessageComposer.prototype.showInlineSuggestions = function (botResults) {
   }
   var self = this;
   if (self.autoCompleteScope.type == 'inline' &&
-      self.autoCompleteScope.botResults == botResults) {
+      self.autoCompleteScope.botResults == botResults &&
+      self.autocompleteShown) {
     return;
   }
   setZeroTimeout(function () {

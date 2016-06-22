@@ -1,5 +1,5 @@
 /*!
- * Webogram v0.5.3 - messaging web application for MTProto
+ * Webogram v0.5.4 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
  * Copyright (C) 2014 Igor Zhukov <igor.beatle@gmail.com>
  * https://github.com/zhukov/webogram/blob/master/LICENSE
@@ -9,7 +9,7 @@
 
 angular.module('myApp.services')
 
-.service('AppMessagesManager', function ($q, $rootScope, $location, $filter, $timeout, $sce, ApiUpdatesManager, AppUsersManager, AppChatsManager, AppPeersManager, AppPhotosManager, AppVideoManager, AppDocsManager, AppStickersManager, AppAudioManager, AppWebPagesManager, MtpApiManager, MtpApiFileManager, RichTextProcessor, NotificationsManager, Storage, AppProfileManager, TelegramMeWebService, ErrorService, StatusManager, _) {
+.service('AppMessagesManager', function ($q, $rootScope, $location, $filter, $timeout, $sce, ApiUpdatesManager, AppUsersManager, AppChatsManager, AppPeersManager, AppPhotosManager, AppDocsManager, AppStickersManager, AppWebPagesManager, MtpApiManager, MtpApiFileManager, RichTextProcessor, NotificationsManager, Storage, AppProfileManager, TelegramMeWebService, ErrorService, StatusManager, _) {
 
   var messagesStorage = {};
   var messagesForHistory = {};
@@ -260,7 +260,9 @@ angular.module('myApp.services')
             dialog.top_message > maxSeenID
           ) {
             var notifyPeer = message.flags & 16 ? message.from_id : peerID;
-            if (message.pFlags.unread && !message.pFlags.out) {
+            if (message.pFlags.unread &&
+                !message.pFlags.out &&
+                !message.pFlags.silent) {
               NotificationsManager.getPeerMuted(notifyPeer).then(function (muted) {
                 if (!muted) {
                   notifyAboutMessage(message);
@@ -719,6 +721,10 @@ angular.module('myApp.services')
         !message.action) {
       return false;
     }
+    if (message.reply_markup &&
+        message.reply_markup._ == 'replyInlineMarkup') {
+      return false;
+    }
     var messageReplyMarkup = message.reply_markup;
     var lastReplyMarkup = historyStorage.reply_markup;
     if (messageReplyMarkup) {
@@ -797,6 +803,7 @@ angular.module('myApp.services')
 
       if (historyStorage !== undefined && historyStorage.history.length) {
         var neededContents = {},
+            neededDocType,
             neededLimit = limit || 20,
             i, message;
 
@@ -805,26 +812,35 @@ angular.module('myApp.services')
             neededContents['messageMediaPhoto'] = true;
             break;
 
-          case 'inputMessagesFilterVideo':
-            neededContents['messageMediaVideo'] = true;
-            break;
-
           case 'inputMessagesFilterPhotoVideo':
             neededContents['messageMediaPhoto'] = true;
-            neededContents['messageMediaVideo'] = true;
+            neededContents['messageMediaDocument'] = true;
+            neededDocType = 'video';
+            break;
+
+          case 'inputMessagesFilterVideo':
+            neededContents['messageMediaDocument'] = true;
+            neededDocType = 'video';
             break;
 
           case 'inputMessagesFilterDocument':
             neededContents['messageMediaDocument'] = true;
+            neededDocType = false;
             break;
 
-          case 'inputMessagesFilterAudio':
-            neededContents['messageMediaAudio'] = true;
+          case 'inputMessagesFilterVoice':
+            neededContents['messageMediaDocument'] = true;
+            neededDocType = 'voice';
             break;
         }
         for (i = 0; i < historyStorage.history.length; i++) {
           message = messagesStorage[historyStorage.history[i]];
           if (message.media && neededContents[message.media._]) {
+            if (neededDocType !== undefined &&
+                message.media._ == 'messageMediaDocument' &&
+                message.media.document.type != neededDocType) {
+              continue;
+            }
             foundMsgs.push(message.mid);
             if (foundMsgs.length >= neededLimit) {
               break;
@@ -1141,7 +1157,7 @@ angular.module('myApp.services')
     });
   }
 
-  function saveMessages (apiMessages) {
+  function saveMessages (apiMessages, edited) {
     angular.forEach(apiMessages, function (apiMessage) {
       if (apiMessage.pFlags === undefined) {
         apiMessage.pFlags = {};
@@ -1163,13 +1179,10 @@ angular.module('myApp.services')
 
       var mid = getFullMessageID(apiMessage.id, channelID);
       apiMessage.mid = mid;
-      messagesStorage[mid] = apiMessage;
 
       if (channelID && !apiMessage.pFlags.out) {
         var dialog = getDialogByPeerID(toPeerID)[0];
         apiMessage.pFlags.unread = dialog ? mid > dialog.read_inbox_max_id : true;
-      } else {
-        apiMessage.pFlags.unread = apiMessage.flags & 1 ? true : false;
       }
 
       if (apiMessage.reply_to_msg_id) {
@@ -1177,14 +1190,16 @@ angular.module('myApp.services')
       }
 
       apiMessage.date -= serverTimeOffset;
-      if (apiMessage.fwd_date) {
-        apiMessage.fwd_date -= serverTimeOffset;
+
+      var fwdHeader = apiMessage.fwd_from;
+      if (fwdHeader) {
+        apiMessage.fwdFromID = fwdHeader.from_id ? fwdHeader.from_id : -fwdHeader.channel_id;
+        fwdHeader.date -= serverTimeOffset;
       }
+
       apiMessage.toID = toPeerID;
       apiMessage.fromID = apiMessage.from_id || toPeerID;
-      if (apiMessage.fwd_from_id) {
-        apiMessage.fwdFromID = AppPeersManager.getPeerID(apiMessage.fwd_from_id);
-      }
+
       if (apiMessage.via_bot_id > 0) {
         apiMessage.viaBotID = apiMessage.via_bot_id;
       }
@@ -1202,14 +1217,8 @@ angular.module('myApp.services')
           case 'messageMediaPhoto':
             AppPhotosManager.savePhoto(apiMessage.media.photo, mediaContext);
             break;
-          case 'messageMediaVideo':
-            AppVideoManager.saveVideo(apiMessage.media.video, mediaContext);
-            break;
           case 'messageMediaDocument':
             AppDocsManager.saveDoc(apiMessage.media.document, mediaContext);
-            break;
-          case 'messageMediaAudio':
-            AppAudioManager.saveAudio(apiMessage.media.audio);
             break;
           case 'messageMediaWebPage':
             AppWebPagesManager.saveWebPage(apiMessage.media.webpage, apiMessage.mid, mediaContext);
@@ -1242,7 +1251,11 @@ angular.module('myApp.services')
             if (apiMessage.action.users.length == 1) {
               apiMessage.action.user_id = apiMessage.action.users[0];
               if (apiMessage.fromID == apiMessage.action.user_id) {
-                apiMessage.action._ = 'messageActionChatReturn';
+                if (isChannel) {
+                  apiMessage.action._ = 'messageActionChatJoined';
+                } else {
+                  apiMessage.action._ = 'messageActionChatReturn';
+                }
               }
             }
             else if (apiMessage.action.users.length > 1) {
@@ -1278,6 +1291,10 @@ angular.module('myApp.services')
         var myEntities = RichTextProcessor.parseEntities(apiMessage.message);
         var apiEntities = apiMessage.entities || [];
         apiMessage.totalEntities = RichTextProcessor.mergeEntities(myEntities, apiEntities, false);
+      }
+
+      if (!edited) {
+        messagesStorage[mid] = apiMessage;
       }
     });
   }
@@ -1337,6 +1354,7 @@ angular.module('myApp.services')
       random_id: randomIDS,
       reply_to_msg_id: replyToMsgID,
       via_bot_id: options.viaBotID,
+      reply_markup: options.reply_markup,
       entities: entities,
       views: asChannel && 1,
       pending: true
@@ -1558,14 +1576,6 @@ angular.module('myApp.services')
               inputMedia = {_: 'inputMediaUploadedPhoto', file: inputFile};
               break;
 
-            case 'video':
-              inputMedia = {_: 'inputMediaUploadedVideo', file: inputFile, duration: 0, w: 0, h: 0, mime_type: file.type};
-              break;
-
-            case 'audio':
-              inputMedia = {_: 'inputMediaUploadedAudio', file: inputFile, duration: 0, mime_type: file.type};
-              break;
-
             case 'document':
             default:
               inputMedia = {_: 'inputMediaUploadedDocument', file: inputFile, mime_type: file.type, caption: '', attributes: [
@@ -1652,10 +1662,6 @@ angular.module('myApp.services')
     var fromID = AppUsersManager.getSelf().id;
     var media;
     switch (inputMedia._) {
-      case 'inputMediaContact':
-        media = angular.extend({}, inputMedia, {_: 'messageMediaContact'});
-        break;
-
       case 'inputMediaPhoto':
         media = {
           _: 'messageMediaPhoto',
@@ -1673,6 +1679,42 @@ angular.module('myApp.services')
           _: 'messageMediaDocument',
           'document': doc,
           caption: inputMedia.caption || ''
+        };
+        break;
+
+      case 'inputMediaContact':
+        media = {
+          _: 'messageMediaContact',
+          phone_number: inputMedia.phone_number,
+          first_name: inputMedia.first_name,
+          last_name: inputMedia.last_name,
+          user_id: 0
+        };
+        break;
+
+      case 'inputMediaGeoPoint':
+        media = {
+          _: 'messageMediaGeo',
+          geo: {
+            _: 'geoPoint',
+            'lat': inputMedia.geo_point['lat'],
+            'long': inputMedia.geo_point['long']
+          }
+        };
+        break;
+
+      case 'inputMediaVenue':
+        media = {
+          _: 'messageMediaVenue',
+          geo: {
+            _: 'geoPoint',
+            'lat': inputMedia.geo_point['lat'],
+            'long': inputMedia.geo_point['long']
+          },
+          title: inputMedia.title,
+          address: inputMedia.address,
+          provider: inputMedia.provider,
+          venue_id: inputMedia.venue_id
         };
         break;
 
@@ -1713,6 +1755,7 @@ angular.module('myApp.services')
       random_id: randomIDS,
       reply_to_msg_id: replyToMsgID,
       via_bot_id: options.viaBotID,
+      reply_markup: options.reply_markup,
       views: asChannel && 1,
       pending: true
     };
@@ -2092,16 +2135,8 @@ angular.module('myApp.services')
           message.media.photo = AppPhotosManager.wrapForHistory(message.media.photo.id);
           break;
 
-        case 'messageMediaVideo':
-          message.media.video = AppVideoManager.wrapForHistory(message.media.video.id);
-          break;
-
         case 'messageMediaDocument':
           message.media.document = AppDocsManager.wrapForHistory(message.media.document.id);
-          break;
-
-        case 'messageMediaAudio':
-          message.media.audio = AppAudioManager.wrapForHistory(message.media.audio.id);
           break;
 
         case 'messageMediaGeo':
@@ -2186,20 +2221,23 @@ angular.module('myApp.services')
     if (replyMarkup.wrapped) {
       return replyMarkup;
     }
+    var isInline = replyMarkup._ == 'replyInlineMarkup';
     var count = replyMarkup.rows && replyMarkup.rows.length || 0;
-    if (count > 0 && count <= 4 && !replyMarkup.pFlags.resize) {
+    if (!isInline &&
+        count > 0 &&
+        count <= 4 &&
+        !(replyMarkup.pFlags && replyMarkup.pFlags.resize)) {
       replyMarkup.splitCount = count;
     }
     replyMarkup.wrapped = true;
     angular.forEach(replyMarkup.rows, function (markupRow) {
       angular.forEach(markupRow.buttons, function (markupButton) {
         markupButton.rText = RichTextProcessor.wrapRichText(markupButton.text, {noLinks: true, noLinebreaks: true});
+        if (markupButton._ == 'keyboardButtonUrl') {
+          markupButton.pUrl = RichTextProcessor.wrapUrl(markupButton.url, true);
+        }
       })
-    })
-
-    if (nextRandomInt(1)) {
-      replyMarkup.rows = replyMarkup.rows.slice(0, 2);
-    }
+    });
     return replyMarkup;
   }
 
@@ -2394,10 +2432,6 @@ angular.module('myApp.services')
             sticker = true;
           }
           break;
-
-        case 'messageMediaVideo':
-          thumbPhotoSize = message.media.video.thumb;
-          break;
       }
     }
 
@@ -2452,11 +2486,8 @@ angular.module('myApp.services')
         case 'messageMediaPhoto':
           notificationMessage = _('conversation_media_photo_raw');
           break;
-        case 'messageMediaVideo':
-          notificationMessage = _('conversation_media_video_raw');
-          break;
         case 'messageMediaDocument':
-          switch (message.media.document.isSpecial) {
+          switch (message.media.document.type) {
             case 'gif':
               notificationMessage = _('conversation_media_gif_raw');
               break;
@@ -2467,27 +2498,19 @@ angular.module('myApp.services')
                 notificationMessage = RichTextProcessor.wrapPlainText(stickerEmoji) + ' ' + notificationMessage;
               }
               break;
+            case 'video':
+              notificationMessage = _('conversation_media_video_raw');
+              break;
+            case 'voice':
             case 'audio':
               notificationMessage = _('conversation_media_audio_raw');
               break;
             default:
-              notificationMessage = message.media.document.file_name || _('conversation_media_attachment_raw');
+              notificationMessage = message.media.document.file_name || _('conversation_media_document_raw');
               break;
+          }
+          break;
 
-          }
-          if (message.media.document.sticker) {
-            notificationMessage = _('conversation_media_sticker');
-            var stickerEmoji = message.media.document.stickerEmojiRaw;
-            if (stickerEmoji !== undefined) {
-              notificationMessage = RichTextProcessor.wrapPlainText(stickerEmoji) + ' (' + notificationMessage + ')';
-            }
-          } else {
-            notificationMessage = message.media.document.file_name || _('conversation_media_document_raw');
-          }
-          break;
-        case 'messageMediaAudio':
-          notificationMessage = _('conversation_media_audio_raw');
-          break;
         case 'messageMediaGeo':
         case 'messageMediaVenue':
           notificationMessage = _('conversation_media_location_raw');
@@ -2519,6 +2542,9 @@ angular.module('myApp.services')
           break;
         case 'messageActionChatReturn':
           notificationMessage = _('conversation_returned_to_group_raw');
+          break;
+        case 'messageActionChatJoined':
+          notificationMessage = _('conversation_joined_group_raw');
           break;
         case 'messageActionChatDeleteUser':
           notificationMessage = _('conversation_kicked_user_message_raw');
@@ -2668,12 +2694,11 @@ angular.module('myApp.services')
       case 'updateNewChannelMessage':
         var message = update.message,
             peerID = getMessagePeer(message),
-            historyStorage = historiesStorage[peerID],
-            messageForMe = true;
+            historyStorage = historiesStorage[peerID];
 
         if (update._ == 'updateNewChannelMessage') {
           if (!AppChatsManager.isMegagroup(-peerID) &&
-              !(message.flags & 16 || message.flags & 2 || (message.flags & 256) == 0)) {
+              !(message.pFlags.out || message.pFlags.mention || message.pFlags.post)) {
             // we don't support not important messages in channels yet
             break;
           }
@@ -2761,7 +2786,9 @@ angular.module('myApp.services')
           newDialogsHandlePromise = $timeout(handleNewDialogs, 0);
         }
 
-        if (inboxUnread && ($rootScope.selectedPeerID != peerID || $rootScope.idle.isIDLE)) {
+        if (inboxUnread &&
+            ($rootScope.selectedPeerID != peerID || $rootScope.idle.isIDLE) &&
+            !message.pFlags.silent) {
 
           var notifyPeer = message.flags & 16 ? message.from_id : peerID;
           var notifyPeerToHandle = notificationsToHandle[notifyPeer];
@@ -2789,6 +2816,34 @@ angular.module('myApp.services')
         }
 
         incrementMaxSeenID(message.id);
+        break;
+
+      case 'updateEditMessage':
+      case 'updateEditChannelMessage':
+        var message = update.message;
+        var peerID = getMessagePeer(message);
+        var channelID = message.to_id._ == 'peerChannel' ? -peerID : 0;
+        var mid = getFullMessageID(message.id, channelID);
+        if (messagesStorage[mid] === undefined) {
+          break;
+        }
+
+        // console.trace(dT(), 'edit message', message);
+        saveMessages([message], true);
+        safeReplaceObject(messagesStorage[mid], message);
+
+        var wasForHistory = messagesForHistory[mid];
+        if (wasForHistory !== undefined) {
+          delete messagesForHistory[mid];
+          var newForHistory = wrapForHistory(mid);
+          safeReplaceObject(wasForHistory, newForHistory);
+          messagesForHistory[mid] = wasForHistory;
+        }
+        $rootScope.$broadcast('message_edit', {
+          peerID: peerID,
+          id: message.id,
+          mid: mid
+        });
         break;
 
       case 'updateReadHistoryInbox':
@@ -3059,6 +3114,7 @@ angular.module('myApp.services')
     getHistory: getHistory,
     getSearch: getSearch,
     getMessage: getMessage,
+    getMessageLocalID: getMessageLocalID,
     getReplyKeyboard: getReplyKeyboard,
     readHistory: readHistory,
     readMessages: readMessages,
@@ -3073,6 +3129,7 @@ angular.module('myApp.services')
     openChatInviteLink: openChatInviteLink,
     convertMigratedPeer: convertMigratedPeer,
     getMessagePeer: getMessagePeer,
+    getFullMessageID: getFullMessageID,
     getMessageThumb: getMessageThumb,
     clearDialogCache: clearDialogCache,
     wrapForDialog: wrapForDialog,

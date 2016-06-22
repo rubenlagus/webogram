@@ -1,5 +1,5 @@
 /*!
- * Webogram v0.5.3 - messaging web application for MTProto
+ * Webogram v0.5.4 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
  * Copyright (C) 2014 Igor Zhukov <igor.beatle@gmail.com>
  * https://github.com/zhukov/webogram/blob/master/LICENSE
@@ -13,7 +13,6 @@ angular.module('myApp.controllers', ['myApp.i18n'])
   .controller('AppWelcomeController', function($scope, $location, MtpApiManager, ErrorService, ChangelogNotifyService, LayoutSwitchService) {
     MtpApiManager.getUserID().then(function (id) {
       if (id) {
-
         $location.url('/im');
         return;
       }
@@ -55,7 +54,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     $scope.credentials = {phone_country: '', phone_country_name: '', phone_number: '', phone_full: ''};
     $scope.progress = {};
-    $scope.callPending = {};
+    $scope.nextPending = {};
     $scope.about = {};
 
     function initPhoneCountry () {
@@ -147,7 +146,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     initPhoneCountry();
 
 
-    var callTimeout;
+    var nextTimeout;
     var updatePasswordTimeout = false;
 
     function saveAuth (result) {
@@ -162,31 +161,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       });
       TsupportUserService.addTsupportUser($scope.credentials.phone_full, result.user.id);
 
-      $timeout.cancel(callTimeout);
+      $timeout.cancel(nextTimeout);
 
       $location.url('/im');
     };
 
-    function callCheck () {
-      $timeout.cancel(callTimeout);
-      if ($scope.credentials.viaApp) {
-        return;
-      }
-      if (!(--$scope.callPending.remaining)) {
-        $scope.callPending.success = false;
-        MtpApiManager.invokeApi('auth.sendCall', {
-          phone_number: $scope.credentials.phone_full,
-          phone_code_hash: $scope.credentials.phone_code_hash
-        }, options).then(function () {
-          $scope.callPending.success = true;
-        });
-      } else {
-        callTimeout = $timeout(callCheck, 1000);
-      }
-    }
-
     $scope.sendCode = function () {
-      $timeout.cancel(callTimeout);
+      $timeout.cancel(nextTimeout);
 
       ErrorService.confirm({
         type: 'LOGIN_PHONE_CORRECT',
@@ -201,26 +182,18 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
         var authKeyStarted = tsNow();
         MtpApiManager.invokeApi('auth.sendCode', {
+          flags: 0,
           phone_number: $scope.credentials.phone_full,
-          sms_type: 5,
           api_id: Config.App.id,
           api_hash: Config.App.hash,
           lang_code: navigator.language || 'en'
         }, options).then(function (sentCode) {
           $scope.progress.enabled = false;
 
-          $scope.credentials.phone_code_hash = sentCode.phone_code_hash;
-          $scope.credentials.phone_occupied = sentCode.phone_registered;
-          $scope.credentials.viaApp = sentCode._ == 'auth.sentAppCode';
-          $scope.callPending.remaining = sentCode.send_call_timeout || 60;
           $scope.error = {};
           $scope.about = {};
-
-          callCheck();
-
-          onContentLoaded(function () {
-            $scope.$broadcast('ui_height');
-          });
+          $scope.credentials.phone_code_hash = sentCode.phone_code_hash;
+          applySentCode(sentCode);
 
         }, function (error) {
           $scope.progress.enabled = false;
@@ -243,27 +216,70 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       });
     }
 
-    $scope.sendSms = function () {
-      if (!$scope.credentials.viaApp) {
+    function applySentCode(sentCode) {
+      $scope.credentials.type = sentCode.type;
+      $scope.nextPending.type = sentCode.next_type || false;
+      $scope.nextPending.remaining = sentCode.timeout || false;
+
+      nextTimeoutCheck();
+
+      onContentLoaded(function () {
+        $scope.$broadcast('ui_height');
+      });
+    }
+
+    $scope.sendNext = function () {
+      if (!$scope.nextPending.type ||
+          $scope.nextPending.remaining > 0) {
         return;
       }
-      delete $scope.credentials.viaApp;
-      MtpApiManager.invokeApi('auth.sendSms', {
+      MtpApiManager.invokeApi('auth.resendCode', {
         phone_number: $scope.credentials.phone_full,
         phone_code_hash: $scope.credentials.phone_code_hash
-      }, options).then(callCheck);
+      }, options).then(applySentCode);
+    }
+
+    function nextTimeoutCheck () {
+      $timeout.cancel(nextTimeout);
+      if (!$scope.nextPending.type ||
+          $scope.nextPending.remaining === false) {
+        return;
+      }
+      if (!(--$scope.nextPending.remaining)) {
+        $scope.nextPending.success = false;
+        $scope.sendNext();
+      } else {
+        nextTimeout = $timeout(nextTimeoutCheck, 1000);
+      }
     }
 
     $scope.editPhone = function () {
-      $timeout.cancel(callTimeout);
+      $timeout.cancel(nextTimeout);
+
+      if ($scope.credentials.phone_full &&
+          $scope.credentials.phone_code_hash) {
+        MtpApiManager.invokeApi('auth.cancelCode', {
+          phone_number: $scope.credentials.phone_full,
+          phone_code_hash: $scope.credentials.phone_code_hash
+        }, options);
+      }
 
       delete $scope.credentials.phone_code_hash;
       delete $scope.credentials.phone_unoccupied;
       delete $scope.credentials.phone_code_valid;
-      delete $scope.credentials.viaApp;
-      delete $scope.callPending.remaining;
-      delete $scope.callPending.success;
+      delete $scope.nextPending.remaining;
+      delete $scope.nextPending.success;
     }
+
+    $scope.$watch('credentials.phone_code', function (newVal) {
+      if (newVal &&
+          newVal.match(/^\d+$/) &&
+          $scope.credentials.type &&
+          $scope.credentials.type.length &&
+          newVal.length == $scope.credentials.type.length) {
+        $scope.logIn();
+      }
+    });
 
     $scope.logIn = function (forceSignUp) {
       var method = 'auth.signIn', params = {
@@ -1085,8 +1101,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     }
 
   })
-
-  .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, $filter, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, clipboard) {
+  .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, toaster, $filter, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, GeoLocationManager, clipboard) {
 
     $scope.$watchCollection('curDialog', applyDialogSelect);
 
@@ -1147,7 +1162,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
           photos: 'inputMessagesFilterPhotos',
           video: 'inputMessagesFilterVideo',
           documents: 'inputMessagesFilterDocument',
-          audio: 'inputMessagesFilterAudio'
+          audio: 'inputMessagesFilterVoice'
         },
         unfocusMessagePromise,
         jump = 0,
@@ -1686,7 +1701,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             if ($scope.historyState.canReply) {
               selectedReply(messageID);
             } else {
-              selectedForward(messageID);
+              quickForward(messageID);
             }
             return false;
           }
@@ -1825,6 +1840,31 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       }
     }
 
+    function quickForward(msgID) {
+      PeersSelectService.selectPeers({
+        canSend: true,
+        confirm_type: 'FORWARD_PEER'
+      }).then(function (peerStrings) {
+        angular.forEach(peerStrings, function (peerString) {
+          var peerID = AppPeersManager.getPeerID(peerString);
+          AppMessagesManager.forwardMessages(peerID, [msgID]);
+        });
+        var toastData = toaster.pop({
+          type: 'info',
+          body: _('confirm_modal_forward_to_peer_success'),
+          bodyOutputType: 'trustedHtml',
+          clickHandler: function () {
+            $rootScope.$broadcast('history_focus', {
+              peerString: peerStrings[0]
+            });
+            toaster.clear(toastData);
+          },
+          showCloseButton: false
+        });
+
+      });
+    }
+
     function selectedForward (selectedMessageID) {
       var selectedMessageIDs = [];
       if (selectedMessageID) {
@@ -1909,9 +1949,46 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       if (!replyKeyboard) {
         return;
       }
-      AppMessagesManager.sendText(peerID, button.text, {
+      var sendOptions = {
         replyToMsgID: peerID < 0 && replyKeyboard.mid
-      });
+      };
+      AppMessagesManager.readHistory($scope.curDialog.peerID);
+      switch (button._) {
+        case 'keyboardButtonRequestPhone':
+          ErrorService.confirm({type: 'BOT_ACCESS_PHONE'}).then(function () {
+            var user = AppUsersManager.getSelf();
+            AppMessagesManager.sendOther(peerID, {
+              _: 'inputMediaContact',
+              phone_number: user.phone,
+              first_name: user.first_name,
+              last_name: user.last_name
+            }, sendOptions);
+          });
+          break;
+
+        case 'keyboardButtonRequestGeoLocation':
+          ErrorService.confirm({type: 'BOT_ACCESS_GEO'}).then(function () {
+            return GeoLocationManager.getPosition().then(function (coords) {
+              AppMessagesManager.sendOther(peerID, {
+                _: 'inputMediaGeoPoint',
+                geo_point: {
+                  _: 'inputGeoPoint',
+                  'lat': coords['lat'],
+                  'long': coords['long']
+                }
+              }, sendOptions);
+            }, function (error) {
+              ErrorService.alert(
+                _('error_modal_bad_request_title_raw'),
+                _('error_modal_gelocation_na_raw')
+              );
+            });
+          });
+          break;
+
+        default:
+          AppMessagesManager.sendText(peerID, button.text, sendOptions);
+      }
     });
 
     $scope.$on('history_reload', function (e, updPeerID) {
@@ -2206,599 +2283,656 @@ angular.module('myApp.controllers', ['myApp.i18n'])
   })
 
   .controller('AppImSendController', function ($q, $scope, $rootScope, $timeout, _, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, RichTextProcessor, TemplatesService, ToastService, NotificationsManager) {
-    var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n+(.+)$/;
-    var mobileAutocompleteRegex = /\s\s([^\s]+)\s\s/;
-    var innerTemplateRegex = /^(.*\s)(\w+)$/;
-    var templatesDic = {};
+      var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n+(.+)$/;
+      var mobileAutocompleteRegex = /\s\s([^\s]+)\s\s/;
+      var innerTemplateRegex = /^(.*\s)(\w+)$/;
+      var templatesDic = {};
 
-    $scope.$watch('curDialog.peer', resetDraft);
-    $scope.$on('user_update', angular.noop);
-    $scope.$on('peer_draft_attachment', applyDraftAttachment);
-    $scope.$on('reply_selected', function (e, messageID) {
-      replySelect(messageID);
-    });
-    $scope.$on('ui_typing', onTyping);
-    $scope.$on('templates_updated', function() {
-      loadTemplatesFromStorage();
-      ToastService.success(_('templates'), _('templates_loaded_finished'));
-    });
-
-    $scope.onKeyUp = function () {
-      $scope.$broadcast('ui_message_before_send');
-      var possibleKey = $scope.draftMessage.text;
-      if (possibleKey in templatesDic) {
-        $scope.draftMessage.text = templatesDic[possibleKey];
-        $scope.$broadcast('ui_peer_draft');
-      } else {
-        var innerTemplateFound = $scope.draftMessage.text.match(innerTemplateRegex);
-        if (innerTemplateFound) {
-          var templateKey = innerTemplateFound[2];
-          if (templateKey && templatesDic[templateKey.toLowerCase()]) {
-            $scope.draftMessage.text = innerTemplateFound[1] + templatesDic[templateKey];
-            $scope.$broadcast('ui_peer_draft');
-          }
-        }
-      }
-    };
-
-    $scope.draftMessage = {
-      text: '',
-      send: sendMessage,
-      replyClear: replyClear,
-      fwdsClear: fwdsClear
-    };
-    $scope.mentions = {};
-    $scope.commands = {};
-    $scope.templates = {};
-    loadTemplatesFromStorage();
-    $scope.$watch('draftMessage.text', onMessageChange);
-    $scope.$watch('draftMessage.files', onFilesSelected);
-    $scope.$watch('draftMessage.sticker', onStickerSelected);
-    $scope.$watch('draftMessage.command', onCommandSelected);
-    $scope.$watch('draftMessage.template', onTemplateSelected);
-    $scope.$on('notify_settings', function (e, data) {
-      if (data.peerID == $scope.curDialog.peer) {
-        updateExtraInformation();
-      }
-    });
-    $scope.$watch('draftMessage.inlineResultID', onInlineResultSelected);
-
-    $scope.$on('history_reply_markup', function (e, peerData) {
-      if (peerData.peerID == $scope.curDialog.peerID) {
-        updateReplyKeyboard();
-      }
-    });
-
-    $scope.$on('inline_bot_select', function (e, botID) {
-      var bot = AppUsersManager.getUser(botID);
-      $scope.draftMessage.text = '@' + bot.username + ' ';;
-      $scope.$broadcast('ui_peer_draft', {focus: true});
-    });
-
-    $scope.$on('inline_bots_popular', updateMentions);
-
-    $scope.replyKeyboardToggle = replyKeyboardToggle;
-    $scope.toggleSlash = toggleSlash;
-
-    var replyToMarkup = false;
-    var forceDraft = false;
-
-    function loadTemplatesFromStorage() {
-      $scope.templates = TemplatesService.getAllTemplates();
-      templatesDic = $scope.templates.reduce(function(map, obj) {
-        map[obj.key] = obj.value;
-        return map;
-      }, {});
-    }
-
-    function sendMessageInternal(text) {
-      var options = {
-        replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
-      };
-      var matches = text.match(contactTemplateRegex);
-      if (matches) {
-        var phoneNumber = matches[1];
-        var firstName = matches[2];
-        var lastName = matches[3];
-        text = matches[4];
-        var inputMediaContact = {
-          _: 'inputMediaContact',
-          phone_number: phoneNumber,
-          first_name: firstName,
-          last_name: lastName
-        };
-        AppMessagesManager.sendOther($scope.curDialog.peerID, inputMediaContact, options);
-      }
-      text = text.replace(/:([a-z0-9\-\+\*_]+?):/gi, function (all, shortcut) {
-        var emojiCode = EmojiHelper.shortcuts[shortcut];
-        if (emojiCode !== undefined) {
-          return EmojiHelper.emojis[emojiCode][0];
-        }
-        return all;
+      $scope.$watch('curDialog.peer', resetDraft);
+      $scope.$on('user_update', angular.noop);
+      $scope.$on('peer_draft_attachment', applyDraftAttachment);
+      $scope.$on('reply_selected', function (e, messageID) {
+          replySelect(messageID);
+      });
+      $scope.$on('ui_typing', onTyping);
+      $scope.$on('templates_updated', function () {
+          loadTemplatesFromStorage();
+          ToastService.success(_('templates'), _('templates_loaded_finished'));
       });
 
-      var timeout = 0;
-      do {
-        AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
-        text = text.substr(4096);
-      } while (text.length);
-      AppMessagesManager.readHistory($scope.curDialog.peerID);
-    }
-
-    function sendMessage (e) {
-      $scope.$broadcast('ui_message_before_send');
-
-      $timeout(function () {
-        var text = $scope.draftMessage.text;
-
-        if (Config.Mobile && text.length > 2 && text[0] === '#' && text[text.length-1] === '#' ) {
-          var possibleKey = text.substring(1, text.length-1);
+      $scope.onKeyUp = function () {
+          $scope.$broadcast('ui_message_before_send');
+          var possibleKey = $scope.draftMessage.text;
           if (possibleKey in templatesDic) {
-            text = templatesDic[possibleKey];
-            $scope.draftMessage.text = text;
-            $scope.$broadcast('ui_peer_draft');
-          }
-        } else {
-          if (angular.isString(text) && text.length > 0) {
-            sendMessageInternal(text.trim());
+              $scope.draftMessage.text = templatesDic[possibleKey];
+              $scope.$broadcast('ui_peer_draft');
           } else {
-            AppMessagesManager.readHistory($scope.curDialog.peerID);
+              var innerTemplateFound = $scope.draftMessage.text.match(innerTemplateRegex);
+              if (innerTemplateFound) {
+                  var templateKey = innerTemplateFound[2];
+                  if (templateKey && templatesDic[templateKey.toLowerCase()]) {
+                      $scope.draftMessage.text = innerTemplateFound[1] + templatesDic[templateKey];
+                      $scope.$broadcast('ui_peer_draft');
+                  }
+              }
+          }
+      };
+
+      $scope.draftMessage = {
+          text: '',
+          send: sendMessage,
+          replyClear: replyClear,
+          fwdsClear: fwdsClear
+      };
+      $scope.mentions = {};
+      $scope.commands = {};
+      $scope.templates = {};
+      loadTemplatesFromStorage();
+      $scope.$watch('draftMessage.text', onMessageChange);
+      $scope.$watch('draftMessage.files', onFilesSelected);
+      $scope.$watch('draftMessage.sticker', onStickerSelected);
+      $scope.$watch('draftMessage.command', onCommandSelected);
+      $scope.$watch('draftMessage.template', onTemplateSelected);
+      $scope.$on('notify_settings', function (e, data) {
+          if (data.peerID == $scope.curDialog.peer) {
+              updateExtraInformation();
+          }
+      });
+      $scope.$watch('draftMessage.inlineResultID', onInlineResultSelected);
+
+      $scope.$on('history_reply_markup', function (e, peerData) {
+          if (peerData.peerID == $scope.curDialog.peerID) {
+              updateReplyKeyboard();
+          }
+      });
+
+      $scope.$on('inline_bot_select', function (e, botID) {
+          var bot = AppUsersManager.getUser(botID);
+          $scope.draftMessage.text = '@' + bot.username + ' ';
+          ;
+          $scope.$broadcast('ui_peer_draft', {focus: true});
+      });
+
+      $scope.$on('inline_bots_popular', updateMentions);
+
+      $scope.replyKeyboardToggle = replyKeyboardToggle;
+      $scope.toggleSlash = toggleSlash;
+
+      var replyToMarkup = false;
+      var forceDraft = false;
+
+      function loadTemplatesFromStorage() {
+          $scope.templates = TemplatesService.getAllTemplates();
+          templatesDic = $scope.templates.reduce(function (map, obj) {
+              map[obj.key] = obj.value;
+              return map;
+          }, {});
+      }
+
+      function sendMessageInternal(text) {
+          var options = {
+              replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
+          };
+          var matches = text.match(contactTemplateRegex);
+          if (matches) {
+              var phoneNumber = matches[1];
+              var firstName = matches[2];
+              var lastName = matches[3];
+              text = matches[4];
+              var inputMediaContact = {
+                  _: 'inputMediaContact',
+                  phone_number: phoneNumber,
+                  first_name: firstName,
+                  last_name: lastName
+              };
+              AppMessagesManager.sendOther($scope.curDialog.peerID, inputMediaContact, options);
+          }
+          text = RichTextProcessor.parseEmojis(text);
+
+          var timeout = 0;
+          do {
+              AppMessagesManager.sendText($scope.curDialog.peerID, text.substr(0, 4096), options);
+              text = text.substr(4096);
+          } while (text.length);
+          AppMessagesManager.readHistory($scope.curDialog.peerID);
+      }
+
+      function sendMessage(e) {
+          $scope.$broadcast('ui_message_before_send');
+
+          $timeout(function () {
+              var text = $scope.draftMessage.text;
+
+              if (Config.Mobile && text.length > 2 && text[0] === '#' && text[text.length - 1] === '#') {
+                  var possibleKey = text.substring(1, text.length - 1);
+                  if (possibleKey in templatesDic) {
+                      text = templatesDic[possibleKey];
+                      $scope.draftMessage.text = text;
+                      $scope.$broadcast('ui_peer_draft');
+                  }
+              } else {
+                  if (angular.isString(text) && text.length > 0) {
+                      sendMessageInternal(text.trim());
+                  } else {
+                      AppMessagesManager.readHistory($scope.curDialog.peerID);
+                  }
+                  fwdsSend();
+
+                  if (forceDraft == $scope.curDialog.peer) {
+                      forceDraft = false;
+                  }
+
+                  resetDraft();
+                  $scope.$broadcast('ui_message_send');
+              }
+          });
+
+          return cancelEvent(e);
+      }
+
+      function updateMentions() {
+          var peerID = $scope.curDialog.peerID;
+
+          if (!peerID) {
+              safeReplaceObject($scope.mentions, {});
+              $scope.$broadcast('mentions_update');
+              return;
+          }
+
+          var mentionUsers = [];
+          var mentionIndex = SearchIndexManager.createIndex();
+
+          var inlineBotsPromise = AppInlineBotsManager.getPopularBots().then(function (inlineBots) {
+              var ids = [];
+              angular.forEach(inlineBots, function (bot) {
+                  ids.push(bot.id);
+              });
+              return ids;
+          });
+          var chatParticipantsPromise;
+          if (peerID < 0) {
+              chatParticipantsPromise = AppProfileManager.getChatFull(-peerID).then(function (chatFull) {
+                  var participantsVector = (chatFull.participants || {}).participants || [];
+                  var ids = [];
+                  angular.forEach(participantsVector, function (participant) {
+                      ids.push(participant.user_id);
+                  });
+                  return ids;
+              });
+          } else {
+              chatParticipantsPromise = $q.when([]);
+          }
+
+          $q.all({pop: inlineBotsPromise, chat: chatParticipantsPromise}).then(function (result) {
+              var done = {};
+              var ids = result.pop.concat(result.chat);
+              angular.forEach(ids, function (userID) {
+                  if (done[userID]) {
+                      return;
+                  }
+                  done[userID] = true;
+                  var user = AppUsersManager.getUser(userID);
+                  if (user.username) {
+                      mentionUsers.push(user);
+                      SearchIndexManager.indexObject(user.id, AppUsersManager.getUserSearchText(user.id), mentionIndex);
+                  }
+              });
+
+              safeReplaceObject($scope.mentions, {
+                  users: mentionUsers,
+                  index: mentionIndex
+              });
+              $scope.$broadcast('mentions_update');
+
+          });
+      }
+
+      function updateCommands() {
+          var peerID = $scope.curDialog.peerID;
+          if (!peerID) {
+              safeReplaceObject($scope.commands, {});
+              $scope.$broadcast('mentions_update');
+              return;
+          }
+
+          AppProfileManager.getPeerBots(peerID).then(function (peerBots) {
+              if (!peerBots.length) {
+                  safeReplaceObject($scope.commands, {});
+                  $scope.$broadcast('mentions_update');
+                  return;
+              }
+
+              var needMentions = peerID < 0;
+              var commandsList = [];
+              var commandsIndex = SearchIndexManager.createIndex();
+
+              angular.forEach(peerBots, function (peerBot) {
+                  var mention = '';
+                  if (needMentions) {
+                      var bot = AppUsersManager.getUser(peerBot.id);
+                      if (bot && bot.username) {
+                          mention += '@' + bot.username;
+                      }
+                  }
+                  var botSearchText = AppUsersManager.getUserSearchText(peerBot.id);
+                  angular.forEach(peerBot.commands, function (description, command) {
+                      var value = '/' + command + mention;
+                      commandsList.push({
+                          botID: peerBot.id,
+                          value: value,
+                          rDescription: RichTextProcessor.wrapRichText(description, {noLinks: true, noLineBreaks: true})
+                      });
+                      SearchIndexManager.indexObject(value, botSearchText + ' ' + command + ' ' + description, commandsIndex);
+                  })
+              });
+
+              safeReplaceObject($scope.commands, {
+                  list: commandsList,
+                  index: commandsIndex
+              });
+              $scope.$broadcast('mentions_update');
+          });
+      }
+
+      function resetDraft(newPeer) {
+          updateMentions();
+          updateCommands();
+          replyClear();
+          updateReplyKeyboard();
+
+          delete $scope.draftMessage.inlineProgress;
+          $scope.$broadcast('inline_results', false);
+
+          // console.log(dT(), 'reset draft', $scope.curDialog.peer, forceDraft);
+          if (forceDraft) {
+              if (forceDraft == $scope.curDialog.peer) {
+                  $scope.draftMessage.isBroadcast = AppPeersManager.isChannel($scope.curDialog.peerID) && !AppPeersManager.isMegagroup($scope.curDialog.peerID);
+                  $scope.$broadcast('ui_peer_draft');
+                  return;
+              } else {
+                  forceDraft = false;
+              }
+          }
+
+          fwdsClear();
+
+          if (newPeer) {
+              Storage.get('draft' + $scope.curDialog.peerID).then(function (draftText) {
+                  // console.log('Restore draft', 'draft' + $scope.curDialog.peerID, draftText);
+                  $scope.draftMessage.text = draftText || '';
+                  $scope.draftMessage.isBroadcast = AppPeersManager.isChannel($scope.curDialog.peerID) && !AppPeersManager.isMegagroup($scope.curDialog.peerID);
+                  // console.log('send broadcast', $scope.draftMessage);
+                  $scope.$broadcast('ui_peer_draft');
+              });
+          } else {
+              // console.log('Reset peer');
+              $scope.draftMessage.text = '';
+              $scope.$broadcast('ui_peer_draft');
+          }
+      }
+
+      function applyDraftAttachment(e, attachment) {
+          // console.log('apply draft attach', attachment);
+          if (!attachment || !attachment._) {
+              return;
+          }
+
+          if (attachment._ == 'share_url') {
+              var url = attachment.url;
+              var text = attachment.text || ' ';
+              forceDraft = $scope.curDialog.peer;
+
+              $timeout(function () {
+                  $scope.draftMessage.text = url + "\n" + text;
+                  $scope.$broadcast('ui_peer_draft', {
+                      customSelection: [
+                          url + "\n",
+                          text,
+                          ''
+                      ]
+                  });
+              }, 1000);
+          }
+          else if (attachment._ == 'fwd_messages') {
+              forceDraft = $scope.curDialog.peer;
+              $scope.draftMessage.fwdMessages = attachment.id;
+              $scope.$broadcast('ui_peer_reply');
+              var peerID = AppPeersManager.getPeerID($scope.curDialog.peer);
+              Storage.get('draft' + peerID).then(function (draftText) {
+                  $scope.draftMessage.text = draftText || '';
+                  $scope.$broadcast('ui_peer_draft');
+              });
+          }
+          else if (attachment._ == 'inline_query') {
+              var mention = attachment.mention;
+              var query = attachment.query;
+              forceDraft = $scope.curDialog.peer;
+
+              $timeout(function () {
+                  $scope.draftMessage.text = mention + ' ' + query;
+                  $scope.$broadcast('ui_peer_draft', {
+                      customSelection: [
+                          mention + " " + query,
+                          '',
+                          ''
+                      ]
+                  });
+              }, 1000);
+          }
+      }
+
+      function replySelect(messageID) {
+          $scope.draftMessage.replyToMessage = AppMessagesManager.wrapForDialog(messageID);
+          $scope.$broadcast('ui_peer_reply');
+          replyToMarkup = false;
+      }
+
+      function replyClear() {
+          var message = $scope.draftMessage.replyToMessage;
+          if (message &&
+              $scope.historyState.replyKeyboard &&
+              $scope.historyState.replyKeyboard.mid == message.mid && !$scope.historyState.replyKeyboard.pFlags.hidden) {
+              $scope.historyState.replyKeyboard.pFlags.hidden = true;
+              $scope.$broadcast('ui_keyboard_update');
+          }
+          delete $scope.draftMessage.replyToMessage;
+          $scope.$broadcast('ui_peer_reply');
+      }
+
+      function fwdsClear() {
+          if ($scope.draftMessage.fwdMessages &&
+              $scope.draftMessage.fwdMessages.length) {
+              delete $scope.draftMessage.fwdMessages;
+              $scope.$broadcast('ui_peer_reply');
+
+              if (forceDraft == $scope.curDialog.peer) {
+                  forceDraft = false;
+              }
+          }
+      }
+
+      function fwdsSend() {
+          if ($scope.draftMessage.fwdMessages &&
+              $scope.draftMessage.fwdMessages.length) {
+              var ids = $scope.draftMessage.fwdMessages.slice();
+              fwdsClear();
+              setZeroTimeout(function () {
+                  AppMessagesManager.forwardMessages($scope.curDialog.peerID, ids);
+              });
+          }
+      }
+
+      function toggleSlash($event) {
+          if ($scope.draftMessage.text &&
+              $scope.draftMessage.text.charAt(0) == '/') {
+              $scope.draftMessage.text = '';
+          } else {
+              $scope.draftMessage.text = '/';
+          }
+          $scope.$broadcast('ui_peer_draft', {focus: true});
+          return cancelEvent($event);
+      }
+
+      function updateReplyKeyboard() {
+          var peerID = $scope.curDialog.peerID;
+          var replyKeyboard = AppMessagesManager.getReplyKeyboard(peerID);
+          if (replyKeyboard) {
+              replyKeyboard = AppMessagesManager.wrapReplyMarkup(replyKeyboard);
+          }
+          // console.log('update reply markup', peerID, replyKeyboard);
+          $scope.historyState.replyKeyboard = replyKeyboard;
+
+          var addReplyMessage =
+              replyKeyboard && !replyKeyboard.pFlags.hidden &&
+              (replyKeyboard._ == 'replyKeyboardForceReply' ||
+              (replyKeyboard._ == 'replyKeyboardMarkup' && peerID < 0));
+
+          if (addReplyMessage) {
+              replySelect(replyKeyboard.mid);
+              replyToMarkup = true;
+          }
+          else if (replyToMarkup) {
+              replyClear();
+          }
+          var enabled = replyKeyboard && !replyKeyboard.pFlags.hidden &&
+              replyKeyboard._ == 'replyKeyboardMarkup';
+          $scope.$broadcast('ui_keyboard_update', {enabled: enabled});
+          $scope.$emit('ui_panel_update', {blur: enabled});
+      }
+
+      function replyKeyboardToggle($event) {
+          var replyKeyboard = $scope.historyState.replyKeyboard;
+          if (replyKeyboard) {
+              replyKeyboard.pFlags.hidden = !replyKeyboard.pFlags.hidden;
+              updateReplyKeyboard();
+          }
+          return cancelEvent($event);
+      }
+
+      function onMessageChange(newVal) {
+          // console.log('ctrl text changed', newVal);
+          // console.trace('ctrl text changed', newVal);
+
+          if (newVal && newVal.length) {
+              if (!$scope.historyFilter.mediaType && !$scope.historyState.skipped) {
+                  //AppMessagesManager.readHistory($scope.curDialog.peerID);
+              }
+
+              var matchesTemplateAutocomplete = newVal.match(mobileAutocompleteRegex);
+              if (matchesTemplateAutocomplete) {
+                  var templateKey = matchesTemplateAutocomplete[1];
+                  var templateValue = templatesDic[templateKey];
+                  if (templateValue && templateValue.length) {
+                      newVal = newVal.replace(mobileAutocompleteRegex, " " + templateValue + " ").trim();
+                      $scope.draftMessage.text = newVal;
+                      $scope.$broadcast('ui_peer_draft');
+                  }
+              }
+
+              var backupDraftObj = {};
+              backupDraftObj['draft' + $scope.curDialog.peerID] = newVal;
+              Storage.set(backupDraftObj);
+              // console.log(dT(), 'draft save', backupDraftObj);
+          } else {
+              Storage.remove('draft' + $scope.curDialog.peerID);
+              // console.log(dT(), 'draft delete', 'draft' + $scope.curDialog.peerID);
+          }
+          checkInlinePattern(newVal);
+      }
+
+      var inlineUsernameRegex = /^@([a-zA-Z\d_]{1,32})( | )([\s\S]*)$/;
+      var getInlineResultsTO = false;
+      var lastInlineBot = false;
+      var jump = 0;
+
+      function checkInlinePattern(message) {
+          if (getInlineResultsTO) {
+              $timeout.cancel(getInlineResultsTO);
+          }
+          var curJump = ++jump;
+          if (!message || !message.length) {
+              delete $scope.draftMessage.inlineProgress;
+              $scope.$broadcast('inline_results', false);
+              return;
+          }
+          var matches = message.match(inlineUsernameRegex);
+          if (!matches) {
+              delete $scope.draftMessage.inlineProgress;
+              $scope.$broadcast('inline_results', false);
+              return;
+          }
+          var username = matches[1];
+          var inlineBotPromise;
+          $scope.draftMessage.inlineProgress = true;
+          if (lastInlineBot && lastInlineBot.username == username) {
+              inlineBotPromise = $q.when(lastInlineBot);
+          } else {
+              inlineBotPromise = AppInlineBotsManager.resolveInlineMention(username);
+          }
+          inlineBotPromise.then(function (inlineBot) {
+              if (curJump != jump) {
+                  return;
+              }
+              lastInlineBot = inlineBot;
+              $scope.$broadcast('inline_placeholder', {
+                  prefix: '@' + username + matches[2],
+                  placeholder: inlineBot.placeholder
+              });
+              if (getInlineResultsTO) {
+                  $timeout.cancel(getInlineResultsTO);
+              }
+              getInlineResultsTO = $timeout(function () {
+                  var query = RichTextProcessor.parseEmojis(matches[3]);
+                  AppInlineBotsManager.getInlineResults($scope.curDialog.peerID, inlineBot.id, query, inlineBot.geo, '').then(function (botResults) {
+                      getInlineResultsTO = false;
+                      if (curJump != jump) {
+                          return;
+                      }
+                      botResults.text = message;
+                      $scope.$broadcast('inline_results', botResults);
+                      delete $scope.draftMessage.inlineProgress;
+                  }, function () {
+                      $scope.$broadcast('inline_results', false);
+                      delete $scope.draftMessage.inlineProgress;
+                  });
+              }, 500);
+          }, function (error) {
+              $scope.$broadcast('inline_results', false);
+              delete $scope.draftMessage.inlineProgress;
+          });
+      }
+
+      function onTyping() {
+          if (AppPeersManager.isChannel($scope.curDialog.peerID) && !AppPeersManager.isMegagroup($scope.curDialog.peerID)) {
+              return false;
+          }
+          MtpApiManager.invokeApi('messages.setTyping', {
+              peer: AppPeersManager.getInputPeerByID($scope.curDialog.peerID),
+              action: {_: 'sendMessageTypingAction'}
+          });
+      }
+
+      function onFilesSelected(newVal) {
+          if (!angular.isArray(newVal) || !newVal.length) {
+              return;
+          }
+          var options = {
+              replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid,
+              isMedia: $scope.draftMessage.isMedia
+          };
+
+          delete $scope.draftMessage.replyToMessage;
+
+          if (newVal[0].lastModified) {
+              newVal.sort(function (file1, file2) {
+                  return file1.lastModified - file2.lastModified;
+              });
+          }
+
+          for (var i = 0; i < newVal.length; i++) {
+              AppMessagesManager.sendFile($scope.curDialog.peerID, newVal[i], options);
+              $scope.$broadcast('ui_message_send');
           }
           fwdsSend();
-
-          if (forceDraft == $scope.curDialog.peer) {
-            forceDraft = false;
-          }
-
-          resetDraft();
-          $scope.$broadcast('ui_message_send');
-        }
-      });
-
-      return cancelEvent(e);
-    }
-
-    function updateMentions () {
-      var peerID = $scope.curDialog.peerID;
-
-      if (!peerID) {
-        safeReplaceObject($scope.mentions, {});
-        $scope.$broadcast('mentions_update');
-        return;
       }
 
-      var mentionUsers = [];
-      var mentionIndex = SearchIndexManager.createIndex();
-
-      var inlineBotsPromise = AppInlineBotsManager.getPopularBots().then(function (inlineBots) {
-        var ids = [];
-        angular.forEach(inlineBots, function (bot) {
-          ids.push(bot.id);
-        });
-        return ids;
-      });
-      var chatParticipantsPromise;
-      if (peerID < 0) {
-        chatParticipantsPromise = AppProfileManager.getChatFull(-peerID).then(function (chatFull) {
-          var participantsVector = (chatFull.participants || {}).participants || [];
-          var ids = [];
-          angular.forEach(participantsVector, function (participant) {
-            ids.push(participant.user_id);
-          });
-          return ids;
-        });
-      } else {
-        chatParticipantsPromise = $q.when([]);
-      }
-
-      $q.all({pop: inlineBotsPromise, chat: chatParticipantsPromise}).then(function (result) {
-        var done = {};
-        var ids = result.pop.concat(result.chat);
-        angular.forEach(ids, function (userID) {
-          if (done[userID]) {
-            return;
-          }
-          done[userID] = true;
-          var user = AppUsersManager.getUser(userID);
-          if (user.username) {
-            mentionUsers.push(user);
-            SearchIndexManager.indexObject(user.id, AppUsersManager.getUserSearchText(user.id), mentionIndex);
-          }
-        });
-
-        safeReplaceObject($scope.mentions, {
-          users: mentionUsers,
-          index: mentionIndex
-        });
-        $scope.$broadcast('mentions_update');
-
-      });
-    }
-
-    function updateCommands () {
-      var peerID = $scope.curDialog.peerID;
-      if (!peerID) {
-        safeReplaceObject($scope.commands, {});
-        $scope.$broadcast('mentions_update');
-        return;
-      }
-
-      AppProfileManager.getPeerBots(peerID).then(function (peerBots) {
-        if (!peerBots.length) {
-          safeReplaceObject($scope.commands, {});
-          $scope.$broadcast('mentions_update');
-          return;
-        }
-
-        var needMentions = peerID < 0;
-        var commandsList = [];
-        var commandsIndex = SearchIndexManager.createIndex();
-
-        angular.forEach(peerBots, function (peerBot) {
-          var mention = '';
-          if (needMentions) {
-            var bot = AppUsersManager.getUser(peerBot.id);
-            if (bot && bot.username) {
-              mention += '@' + bot.username;
-            }
-          }
-          var botSearchText = AppUsersManager.getUserSearchText(peerBot.id);
-          angular.forEach(peerBot.commands, function (description, command) {
-            var value = '/' + command + mention;
-            commandsList.push({
-              botID: peerBot.id,
-              value: value,
-              rDescription: RichTextProcessor.wrapRichText(description, {noLinks: true, noLineBreaks: true})
-            });
-            SearchIndexManager.indexObject(value, botSearchText + ' ' + command + ' ' + description, commandsIndex);
-          })
-        });
-
-        safeReplaceObject($scope.commands, {
-          list: commandsList,
-          index: commandsIndex
-        });
-        $scope.$broadcast('mentions_update');
-      });
-    }
-
-    function resetDraft (newPeer) {
-      updateMentions();
-      updateCommands();
-      replyClear();
-      updateReplyKeyboard();
-
-      delete $scope.draftMessage.inlineProgress;
-      $scope.$broadcast('inline_results', false);
-
-      // console.log(dT(), 'reset draft', $scope.curDialog.peer, forceDraft);
-      if (forceDraft) {
-        if (forceDraft == $scope.curDialog.peer) {
-          $scope.draftMessage.isBroadcast = AppPeersManager.isChannel($scope.curDialog.peerID) && !AppPeersManager.isMegagroup($scope.curDialog.peerID);
-          $scope.$broadcast('ui_peer_draft');
-          return;
-        } else {
-          forceDraft = false;
-        }
-      }
-
-      fwdsClear();
-
-      if (newPeer) {
-        Storage.get('draft' + $scope.curDialog.peerID).then(function (draftText) {
-          // console.log('Restore draft', 'draft' + $scope.curDialog.peerID, draftText);
-          $scope.draftMessage.text = draftText || '';
-          $scope.draftMessage.isBroadcast = AppPeersManager.isChannel($scope.curDialog.peerID) && !AppPeersManager.isMegagroup($scope.curDialog.peerID);
-          // console.log('send broadcast', $scope.draftMessage);
-          $scope.$broadcast('ui_peer_draft');
-        });
-      } else {
-        // console.log('Reset peer');
-        $scope.draftMessage.text = '';
-        $scope.$broadcast('ui_peer_draft');
-      }
-    }
-
-    function applyDraftAttachment (e, attachment) {
-      // console.log('apply draft attach', attachment);
-      if (!attachment || !attachment._) {
-        return;
-      }
-
-      if (attachment._ == 'share_url') {
-        var url = attachment.url;
-        var text = attachment.text || ' ';
-        forceDraft = $scope.curDialog.peer;
-
-        $timeout(function () {
-          $scope.draftMessage.text = url + "\n" + text;
-          $scope.$broadcast('ui_peer_draft', {
-            customSelection: [
-              url + "\n",
-              text,
-              ''
-            ]
-          });
-        }, 1000);
-      }
-      else if (attachment._ == 'fwd_messages') {
-        forceDraft = $scope.curDialog.peer;
-        $scope.draftMessage.fwdMessages = attachment.id;
-        $scope.$broadcast('ui_peer_reply');
-        var peerID = AppPeersManager.getPeerID($scope.curDialog.peer);
-        Storage.get('draft' + peerID).then(function (draftText) {
-          $scope.draftMessage.text = draftText || '';
-          $scope.$broadcast('ui_peer_draft');
-        });
-      }
-    }
-
-    function replySelect(messageID) {
-      $scope.draftMessage.replyToMessage = AppMessagesManager.wrapForDialog(messageID);
-      $scope.$broadcast('ui_peer_reply');
-      replyToMarkup = false;
-    }
-
-    function replyClear() {
-      var message = $scope.draftMessage.replyToMessage;
-      if (message &&
-          $scope.historyState.replyKeyboard &&
-          $scope.historyState.replyKeyboard.mid == message.mid &&
-          !$scope.historyState.replyKeyboard.pFlags.hidden) {
-        $scope.historyState.replyKeyboard.pFlags.hidden = true;
-        $scope.$broadcast('ui_keyboard_update');
-      }
-      delete $scope.draftMessage.replyToMessage;
-      $scope.$broadcast('ui_peer_reply');
-    }
-
-    function fwdsClear () {
-      if ($scope.draftMessage.fwdMessages &&
-          $scope.draftMessage.fwdMessages.length) {
-        delete $scope.draftMessage.fwdMessages;
-        $scope.$broadcast('ui_peer_reply');
-
-        if (forceDraft == $scope.curDialog.peer) {
-          forceDraft = false;
-        }
-      }
-    }
-
-    function fwdsSend () {
-      if ($scope.draftMessage.fwdMessages &&
-          $scope.draftMessage.fwdMessages.length) {
-        var ids = $scope.draftMessage.fwdMessages.slice();
-        fwdsClear();
-        setZeroTimeout(function () {
-          AppMessagesManager.forwardMessages($scope.curDialog.peerID, ids);
-        });
-      }
-    }
-
-    function toggleSlash ($event) {
-      if ($scope.draftMessage.text &&
-          $scope.draftMessage.text.charAt(0) == '/') {
-        $scope.draftMessage.text = '';
-      } else {
-        $scope.draftMessage.text = '/';
-      }
-      $scope.$broadcast('ui_peer_draft', {focus: true});
-      return cancelEvent($event);
-    }
-
-    function updateReplyKeyboard () {
-      var peerID = $scope.curDialog.peerID;
-      var replyKeyboard = AppMessagesManager.getReplyKeyboard(peerID);
-      if (replyKeyboard) {
-        replyKeyboard = AppMessagesManager.wrapReplyMarkup(replyKeyboard);
-      }
-      // console.log('update reply markup', peerID, replyKeyboard);
-      $scope.historyState.replyKeyboard = replyKeyboard;
-
-      var addReplyMessage =
-          replyKeyboard &&
-          !replyKeyboard.pFlags.hidden &&
-          (replyKeyboard._ == 'replyKeyboardForceReply' ||
-          (replyKeyboard._ == 'replyKeyboardMarkup' && peerID < 0));
-
-      if (addReplyMessage) {
-        replySelect(replyKeyboard.mid);
-        replyToMarkup = true;
-      }
-      else if (replyToMarkup) {
-        replyClear();
-      }
-      var enabled = replyKeyboard &&
-                    !replyKeyboard.pFlags.hidden &&
-                    replyKeyboard._ == 'replyKeyboardMarkup';
-      $scope.$broadcast('ui_keyboard_update', {enabled: enabled});
-      $scope.$emit('ui_panel_update', {blur: enabled});
-    }
-
-    function replyKeyboardToggle ($event) {
-      var replyKeyboard = $scope.historyState.replyKeyboard;
-      if (replyKeyboard) {
-        replyKeyboard.pFlags.hidden = !replyKeyboard.pFlags.hidden;
-        updateReplyKeyboard();
-      }
-      return cancelEvent($event);
-    }
-
-    function onMessageChange(newVal) {
-      // console.log('ctrl text changed', newVal);
-      // console.trace('ctrl text changed', newVal);
-
-      if (newVal && newVal.length) {
-        if (!$scope.historyFilter.mediaType && !$scope.historyState.skipped) {
-          //AppMessagesManager.readHistory($scope.curDialog.peerID);
-        }
-
-        var matchesTemplateAutocomplete = newVal.match(mobileAutocompleteRegex);
-        if (matchesTemplateAutocomplete) {
-          var templateKey = matchesTemplateAutocomplete[1];
-          var templateValue = templatesDic[templateKey];
-          if (templateValue && templateValue.length) {
-            newVal = newVal.replace(mobileAutocompleteRegex, " " + templateValue + " ").trim();
-            $scope.draftMessage.text = newVal;
-            $scope.$broadcast('ui_peer_draft');
-          }
-        }
-
-        var backupDraftObj = {};
-        backupDraftObj['draft' + $scope.curDialog.peerID] = newVal;
-        Storage.set(backupDraftObj);
-        // console.log(dT(), 'draft save', backupDraftObj);
-      } else {
-        Storage.remove('draft' + $scope.curDialog.peerID);
-        // console.log(dT(), 'draft delete', 'draft' + $scope.curDialog.peerID);
-      }
-      checkInlinePattern(newVal);
-    }
-
-    var inlineUsernameRegex = /^@([a-zA-Z\d_]{1,32})( | )([\s\S]*)$/;
-    var getInlineResultsTO = false;
-    var jump = 0;
-
-    function checkInlinePattern (message) {
-      if (getInlineResultsTO) {
-        $timeout.cancel(getInlineResultsTO);
-      }
-      var curJump = ++jump;
-      if (!message || !message.length) {
-        delete $scope.draftMessage.inlineProgress;
-        $scope.$broadcast('inline_results', false);
-        return;
-      }
-      var matches = message.match(inlineUsernameRegex);
-      if (!matches) {
-        delete $scope.draftMessage.inlineProgress;
-        $scope.$broadcast('inline_results', false);
-        return;
-      }
-      var username = matches[1];
-      $scope.draftMessage.inlineProgress = true;
-      AppPeersManager.resolveInlineMention(username).then(function (inlineBot) {
-        if (curJump != jump) {
-          return;
-        }
-        $scope.$broadcast('inline_placeholder', {
-          prefix: '@' + username + matches[2],
-          placeholder: inlineBot.placeholder
-        });
-        if (getInlineResultsTO) {
-          $timeout.cancel(getInlineResultsTO);
-        }
-        getInlineResultsTO = $timeout(function () {
-          AppInlineBotsManager.getInlineResults(inlineBot.id, matches[3], '').then(function (botResults) {
-            getInlineResultsTO = false;
-            if (curJump != jump) {
+      function onStickerSelected(newVal) {
+          if (!newVal) {
               return;
-            }
-            botResults.text = message;
-            $scope.$broadcast('inline_results', botResults);
-            delete $scope.draftMessage.inlineProgress;
-          }, function () {
-            $scope.$broadcast('inline_results', false);
-            delete $scope.draftMessage.inlineProgress;
-          });
-        }, 500);
-      }, function () {
-        $scope.$broadcast('inline_results', false);
-        delete $scope.draftMessage.inlineProgress;
-      });
-    }
-
-    function onTyping () {
-      if (AppPeersManager.isChannel($scope.curDialog.peerID) &&
-          !AppPeersManager.isMegagroup($scope.curDialog.peerID)) {
-        return false;
-      }
-      MtpApiManager.invokeApi('messages.setTyping', {
-        peer: AppPeersManager.getInputPeerByID($scope.curDialog.peerID),
-        action: {_: 'sendMessageTypingAction'}
-      });
-    }
-
-    function onFilesSelected (newVal) {
-      if (!angular.isArray(newVal) || !newVal.length) {
-        return;
-      }
-      var options = {
-        replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid,
-        isMedia: $scope.draftMessage.isMedia
-      };
-
-      delete $scope.draftMessage.replyToMessage;
-
-      if (newVal[0].lastModified) {
-        newVal.sort(function (file1, file2) {
-          return file1.lastModified - file2.lastModified;
-        });
-      }
-
-      for (var i = 0; i < newVal.length; i++) {
-        AppMessagesManager.sendFile($scope.curDialog.peerID, newVal[i], options);
-        $scope.$broadcast('ui_message_send');
-      }
-      fwdsSend();
-    }
-
-    function onStickerSelected (newVal) {
-      if (!newVal) {
-        return;
-      }
-
-      var doc = AppDocsManager.getDoc(newVal);
-      if (doc.id && doc.access_hash) {
-        var inputMedia = {
-          _: 'inputMediaDocument',
-          id: {
-            _: 'inputDocument',
-            id: doc.id,
-            access_hash: doc.access_hash
           }
-        }
-        var options = {
-          replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
-        };
-        AppMessagesManager.sendOther($scope.curDialog.peerID, inputMedia, options);
-        $scope.$broadcast('ui_message_send');
 
-        fwdsSend();
+          var doc = AppDocsManager.getDoc(newVal);
+          if (doc.id && doc.access_hash) {
+              var inputMedia = {
+                  _: 'inputMediaDocument',
+                  id: {
+                      _: 'inputDocument',
+                      id: doc.id,
+                      access_hash: doc.access_hash
+                  }
+              }
+              var options = {
+                  replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
+              };
+              AppMessagesManager.sendOther($scope.curDialog.peerID, inputMedia, options);
+              $scope.$broadcast('ui_message_send');
+
+              fwdsSend();
+          }
+          delete $scope.draftMessage.sticker;
       }
-      delete $scope.draftMessage.sticker;
-    }
 
-    function onCommandSelected (command) {
-      if (!command) {
-        return;
+      function onCommandSelected(command) {
+          if (!command) {
+              return;
+          }
+          AppMessagesManager.sendText($scope.curDialog.peerID, command);
+          resetDraft();
+          delete $scope.draftMessage.sticker;
+          delete $scope.draftMessage.text;
+          delete $scope.draftMessage.command;
+          delete $scope.draftMessage.inlineResultID;
+          $scope.$broadcast('ui_message_send');
+          $scope.$broadcast('ui_peer_draft');
       }
-      AppMessagesManager.sendText($scope.curDialog.peerID, command);
-      resetDraft();
-      delete $scope.draftMessage.sticker;
-      delete $scope.draftMessage.text;
-      delete $scope.draftMessage.command;
-      delete $scope.draftMessage.inlineResultID;
-      $scope.$broadcast('ui_message_send');
-      $scope.$broadcast('ui_peer_draft');
-    }
 
-    function onTemplateSelected (template) {
-      if (!template) {
-        return;
+      function onInlineResultSelected (qID) {
+          if (!qID) {
+              return;
+          }
+
+          if (qID.substr(0, 11) == '_switch_pm_') {
+              var botID = lastInlineBot.id;
+              var startParam = qID.substr(11);
+              return AppInlineBotsManager.switchToPM($scope.curDialog.peerID, botID, startParam);
+          }
+
+          var options = {
+              replyToMsgID: $scope.draftMessage.replyToMessage && $scope.draftMessage.replyToMessage.mid
+          };
+          AppInlineBotsManager.sendInlineResult($scope.curDialog.peerID, qID, options);
+          fwdsSend();
+          resetDraft();
+          delete $scope.draftMessage.sticker;
+          delete $scope.draftMessage.text;
+          delete $scope.draftMessage.command;
+          delete $scope.draftMessage.inlineResultID;
+          $scope.$broadcast('ui_message_send');
+          $scope.$broadcast('ui_peer_draft');
       }
-      sendMessageInternal(template);
-      resetDraft();
-      delete $scope.draftMessage.sticker;
-      delete $scope.draftMessage.text;
-      delete $scope.draftMessage.template;
-      $scope.$broadcast('ui_message_send');
-      $scope.$broadcast('ui_peer_draft');
-    }
 
-    function onInlineResultSelected (qID) {
-      if (!qID) {
-        return;
+      function onTemplateSelected(template) {
+          if (!template) {
+              return;
+          }
+          sendMessageInternal(template);
+          resetDraft();
+          delete $scope.draftMessage.sticker;
+          delete $scope.draftMessage.text;
+          delete $scope.draftMessage.template;
+          delete $scope.draftMessage.command;
+          delete $scope.draftMessage.inlineResultID;
+          $scope.$broadcast('ui_message_send');
+          $scope.$broadcast('ui_peer_draft');
+      }
+  })
+
+  .controller('AppLangSelectController', function ($scope, _, Storage, ErrorService, AppRuntimeManager) {
+    $scope.supportedLocales = Config.I18n.supported;
+    $scope.langNames = Config.I18n.languages;
+    $scope.curLocale = Config.I18n.locale;
+    $scope.form = {locale: Config.I18n.locale};
+
+    $scope.localeSelect = function localeSelect (newLocale) {
+      newLocale = newLocale || $scope.form.locale;
+      if ($scope.curLocale !== newLocale) {
+        ErrorService.confirm({type: 'APPLY_LANG_WITH_RELOAD'}).then(function () {
+          Storage.set({i18n_locale: newLocale}).then(function () {
+            AppRuntimeManager.reload();
+          });
+        }, function () {
+          $scope.form.locale = $scope.curLocale;
+        });
       }
     };
   })
@@ -3266,9 +3400,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
   })
 
-  .controller('VideoModalController', function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppVideoManager, AppPeersManager, ErrorService) {
+  .controller('VideoModalController', function ($scope, $rootScope, $modalInstance, PeersSelectService, AppMessagesManager, AppDocsManager, AppPeersManager, ErrorService) {
 
-    $scope.video = AppVideoManager.wrapForFull($scope.videoID);
+    $scope.video = AppDocsManager.wrapVideoForFull($scope.docID);
 
     $scope.progress = {enabled: false};
     $scope.player = {};
@@ -3295,7 +3429,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     };
 
     $scope.download = function () {
-      AppVideoManager.saveVideoFile($scope.videoID);
+      AppDocsManager.saveDocFile($scope.docID);
     };
 
     $scope.$on('history_delete', function (e, historyUpdate) {
@@ -3383,8 +3517,9 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     };
 
     AppProfileManager.getProfile($scope.userID, $scope.override).then(function (userFull) {
-      $scope.blocked = userFull.blocked;
+      $scope.blocked = userFull.pFlags.blocked;
       $scope.bot_info = userFull.bot_info;
+      $scope.rAbout = userFull.rAbout;
 
       NotificationsManager.getPeerMuted($scope.userID).then(function (muted) {
         $scope.settings.notifications = !muted;

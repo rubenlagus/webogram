@@ -1,5 +1,5 @@
 /*!
- * Webogram v0.5.3 - messaging web application for MTProto
+ * Webogram v0.5.4 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
  * Copyright (C) 2014 Igor Zhukov <igor.beatle@gmail.com>
  * https://github.com/zhukov/webogram/blob/master/LICENSE
@@ -111,7 +111,7 @@ TLSerialization.prototype.storeLong = function (sLong, field) {
   this.writeInt(intToUint(divRem[0].intValue()), (field || '') + ':long[high]');
 };
 
-TLSerialization.prototype.storeDouble = function (f) {
+TLSerialization.prototype.storeDouble = function (f, field) {
   var buffer     = new ArrayBuffer(8);
   var intView    = new Int32Array(buffer);
   var doubleView = new Float64Array(buffer);

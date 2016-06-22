@@ -90,8 +90,8 @@
         <div ng-switch-default class="im_history_not_selected" my-vertical-position="0.35" padding="true" my-i18n="im_select_a_chat"></div>
       </div>
 
-      <div class="im_history_selected_loading_wrap im_history_loading" my-vertical-position="0.35" padding="true">
-        <div my-arc-progress stroke="5" width="50"></div>
+      <div class="im_history_selected_loading_wrap im_history_loading" my-vertical-position="0.4" padding="true">
+        <div my-arc-progress stroke="4" width="32"></div>
       </div>
 
       <div class="im_history_selected_wrap">
@@ -106,7 +106,7 @@
 
                     <div class="im_history_empty_wrap" ng-show="state.empty" ng-switch="state.mayBeHasMore">
                       <div ng-switch-when="true" class="im_history_loading" my-vertical-position="0.3" padding="true">
-                        <div my-arc-progress stroke="5" width="50"></div>
+                        <div my-arc-progress stroke="4" width="32"></div>
                       </div>
                       <div ng-switch-default class="im_history_empty" my-vertical-position="0.25" padding="true" my-i18n="im_no_messages"></div>
                     </div>
@@ -246,3 +246,5 @@
 </div>
 
 <div class="footer_wrap footer_empty"></div>
+
+<toaster-container toaster-options="{'position-class': 'toast-bottom-center'}"></toaster-container>

@@ -1,5 +1,5 @@
 /*!
- * Webogram v0.5.3 - messaging web application for MTProto
+ * Webogram v0.5.4 - messaging web application for MTProto
  * https://github.com/zhukov/webogram
  * Copyright (C) 2014 Igor Zhukov <igor.beatle@gmail.com>
  * https://github.com/zhukov/webogram/blob/master/LICENSE
@@ -26,6 +26,7 @@ angular.module('myApp', [
   'toastr',
   'LocalStorageModule',
   'mediaPlayer',
+  'toaster',
   'izhukov.utils',
   'izhukov.mtproto',
   'izhukov.mtproto.wrapper',
@@ -45,6 +46,10 @@ config(['$locationProvider', '$routeProvider', '$compileProvider', 'StorageProvi
 
   $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob|filesystem|chrome-extension|app):|data:image\//);
   $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|file|tg|mailto|blob|filesystem|chrome-extension|app):|data:/);
+
+  /*PRODUCTION_ONLY_BEGIN
+  $compileProvider.debugInfoEnabled(false);
+  PRODUCTION_ONLY_END*/
 
   if (Config.Modes.test) {
     StorageProvider.setPrefix('t_');
