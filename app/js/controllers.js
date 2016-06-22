@@ -1843,7 +1843,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     function quickForward(msgID) {
       PeersSelectService.selectPeers({
         canSend: true,
-        confirm_type: 'FORWARD_PEER'
+        confirm_type: 'FORWARD_PEER',
+        shareLinkPromise: AppMessagesManager.getMessageShareLink(msgID)
       }).then(function (peerStrings) {
         angular.forEach(peerStrings, function (peerString) {
           var peerID = AppPeersManager.getPeerID(peerString);
@@ -2857,10 +2858,11 @@ angular.module('myApp.controllers', ['myApp.i18n'])
               AppMessagesManager.sendOther($scope.curDialog.peerID, inputMedia, options);
               $scope.$broadcast('ui_message_send');
 
-              fwdsSend();
-          }
-          delete $scope.draftMessage.sticker;
+        fwdsSend();
+        resetDraft();
       }
+      delete $scope.draftMessage.sticker;
+    }
 
       function onCommandSelected(command) {
           if (!command) {
@@ -3688,13 +3690,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       $scope.chatFull = AppChatsManager.wrapForFull($scope.chatID, chatFull);
       $scope.$broadcast('ui_height');
 
-      $scope.canMigrate = $scope.chatFull &&
-                          $scope.chatFull.participants &&
-                          $scope.chatFull.participants.participants &&
-                          $scope.chatFull.participants.participants.length >= 200;
+      $scope.needMigrate = $scope.chatFull &&
+                           $scope.chatFull.participants &&
+                           $scope.chatFull.participants.participants &&
+                           $scope.chatFull.participants.participants.length >= 200;
 
       if (Config.Modes.test || Config.Modes.debug) {
-        $scope.canMigrate = true;
+        $scope.needMigrate = true;
       }
 
       NotificationsManager.savePeerSettings(-$scope.chatID, chatFull.notify_settings);
@@ -4089,9 +4091,11 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       id: {_: 'inputUserSelf'}
     }).then(function (userFullResult) {
       AppUsersManager.saveApiUser(userFullResult.user);
-      AppPhotosManager.savePhoto(userFullResult.profile_photo, {
-        user_id: userFullResult.user.id
-      });
+      if (userFullResult.profile_photo) {
+        AppPhotosManager.savePhoto(userFullResult.profile_photo, {
+          user_id: userFullResult.user.id
+        });
+      }
     });
 
     $scope.notify = {volume: 0.5};
@@ -4391,13 +4395,19 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.error = {};
 
     MtpApiManager.getUserID().then(function (id) {
-      $scope.profile = AppUsersManager.getUser(id);
+      var user = AppUsersManager.getUser(id);
+      $scope.profile = {
+        first_name: user.first_name,
+        last_name: user.last_name
+      };
     });
+
 
     $scope.updateProfile = function () {
       $scope.profile.updating = true;
-
+      var flags = (1 << 0) | (1 << 1);
       MtpApiManager.invokeApi('account.updateProfile', {
+        flags: flags,
         first_name: $scope.profile.first_name || '',
         last_name: $scope.profile.last_name || ''
       }).then(function (user) {
@@ -4433,7 +4443,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.error = {};
 
     MtpApiManager.getUserID().then(function (id) {
-      $scope.profile = angular.copy(AppUsersManager.getUser(id));
+      var user = AppUsersManager.getUser(id);
+      $scope.profile = {
+        username: user.username
+      };
     });
 
     $scope.updateUsername = function () {
@@ -4820,6 +4833,15 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.selectedPeers = {};
     $scope.selectedPeerIDs = [];
     $scope.selectedCount = 0;
+
+    if ($scope.shareLinkPromise) {
+      $scope.shareLink = {loading: true};
+      $scope.shareLinkPromise.then(function (url) {
+        $scope.shareLink = {url: url};
+      }, function () {
+        delete $scope.shareLink;
+      });
+    }
 
     $scope.dialogSelect = function (peerString) {
       if (!$scope.multiSelect) {

@@ -15,7 +15,7 @@ angular.module('izhukov.utils', [])
 
   this.$get = ['$q', function ($q) {
     var methods = {};
-    angular.forEach(['get', 'set', 'remove'], function (methodName) {
+    angular.forEach(['get', 'set', 'remove', 'clear'], function (methodName) {
       methods[methodName] = function () {
         var deferred = $q.defer(),
             args = Array.prototype.slice.call(arguments);
@@ -28,6 +28,11 @@ angular.module('izhukov.utils', [])
         return deferred.promise;
       };
     });
+
+    methods.noPrefix = function () {
+      ConfigStorage.noPrefix();
+    };
+
     return methods;
   }];
 
@@ -1397,7 +1402,7 @@ angular.module('izhukov.utils', [])
 
   function parseMarkdown (text, entities) {
     if (text.indexOf('`') == -1) {
-      return text;
+      return text.trim();
     }
     var raw = text;
     var match;
@@ -1447,6 +1452,9 @@ angular.module('izhukov.utils', [])
     if (!newText.replace(/\s+/g, '').length) {
       newText = text;
       entities.splice(0, entities.length);
+    }
+    if (!entities.length) {
+      newText = newText.trim();
     }
     return newText;
   }
@@ -1621,7 +1629,7 @@ angular.module('izhukov.utils', [])
             break;
           }
           var url = entity.url || entityText;
-          url = wrapUrl(url, entity._ == 'messageEntityTextUrl');
+          url = wrapUrl(url, entity._ == 'messageEntityTextUrl' ? 2 : false);
           html.push(
             '<a href="',
             encodeEntities(url),
@@ -1782,7 +1790,7 @@ angular.module('izhukov.utils', [])
       url = 'http://' + url;
     }
     var tgMeMatch;
-    if (unsafe) {
+    if (unsafe == 2) {
       url = 'tg://unsafe_url?url=' + encodeURIComponent(url);
     }
     else if ((tgMeMatch = url.match(/^https?:\/\/telegram\.me\/(.+)/))) {
@@ -1803,6 +1811,9 @@ angular.module('izhukov.utils', [])
             url = 'tg://resolve?domain=' + domainQuery[0] + (domainQuery[1] ? '&' + domainQuery[1] : '');
           }
       }
+    }
+    else if (unsafe) {
+      url = 'tg://unsafe_url?url=' + encodeURIComponent(url);
     }
     return url;
   }

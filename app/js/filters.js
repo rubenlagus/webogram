@@ -32,6 +32,12 @@ angular.module('myApp.filters', ['myApp.i18n'])
   .filter('userStatus', function($filter, _) {
     var relativeTimeFilter = $filter('relativeTime');
     return function (user, botChatPrivacy) {
+      if (!(user.id % 1000)) {
+        if (user.id == 777000) {
+          return _('user_status_service_notifications');
+        }
+        return _('user_status_support');
+      }
       var statusType = user && user.status && user.status._;
       if (!statusType) {
         statusType = user && user.pFlags && user.pFlags.bot ? 'userStatusBot' : 'userStatusEmpty';
@@ -222,6 +228,15 @@ angular.module('myApp.filters', ['myApp.i18n'])
   .filter('nl2br', [function () {
     return function (text) {
       return text.replace(/\n/g, '<br/>');
+    }
+  }])
+
+  .filter('shortUrl', [function () {
+    return function (text) {
+      if (typeof text !== 'string') {
+        return text;
+      }
+      return text.replace(/^https?:\/\//, '').replace(/^www\./, '');
     }
   }])
 

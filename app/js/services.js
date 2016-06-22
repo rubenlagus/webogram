@@ -1698,7 +1698,6 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
         apiWebPage.type != 'video' &&
         apiWebPage.type != 'gif' &&
         apiWebPage.type != 'document' &&
-        apiWebPage.type != 'gif' &&
         !apiWebPage.description &&
         apiWebPage.photo) {
       apiWebPage.type = 'photo';
@@ -2725,19 +2724,21 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
       peer: AppPeersManager.getInputPeerByID(peerID),
       msg_id: AppMessagesManager.getMessageLocalID(id),
       data: button.data
-    }).then(function (callbackAnswer) {
+    }, {timeout: 1, stopTime: -1, noErrorBox: true}).then(function (callbackAnswer) {
       if (typeof callbackAnswer.message != 'string' ||
           !callbackAnswer.message.length) {
         return;
       }
+      var html = RichTextProcessor.wrapRichText(callbackAnswer.message, {noLinks: true, noLinebreaks: true});
       if (callbackAnswer.pFlags.alert) {
-        ErrorService.alert(callbackAnswer.message);
+        ErrorService.show({
+          title_html: html,
+          alert: true
+        });
       } else {
-        var html = RichTextProcessor.wrapRichText(callbackAnswer.message, {noLinks: true, noLinebreaks: true}).valueOf();;
         toaster.pop({
           type: 'info',
-          // timeout: 100000,
-          body: html,
+          body: html.valueOf(),
           bodyOutputType: 'trustedHtml',
           showCloseButton: false
         });
@@ -3221,7 +3222,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
         update._ == 'updateEditChannelMessage') {
       var message = update.message;
       var toPeerID = AppPeersManager.getPeerID(message.to_id);
-      var fwdHeader = message.fwdHeader || {};
+      var fwdHeader = message.fwd_from || {};
       if (message.from_id && !AppUsersManager.hasUser(message.from_id, message.pFlags.post) ||
           fwdHeader.from_id && !AppUsersManager.hasUser(fwdHeader.from_id, !!fwdHeader.channel_id) ||
           fwdHeader.channel_id && !AppChatsManager.hasChat(fwdHeader.channel_id) ||
@@ -4316,7 +4317,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
   };
 })
 
-.service('LocationParamsService', function ($rootScope, $routeParams, AppPeersManager, AppUsersManager, AppMessagesManager, PeersSelectService, AppStickersManager, ErrorService) {
+.service('LocationParamsService', function (qSync, $rootScope, $routeParams, AppPeersManager, AppUsersManager, AppMessagesManager, PeersSelectService, AppStickersManager, ErrorService) {
 
   var tgAddrRegExp = /^(web\+)?tg:(\/\/)?(.+)/;
 
@@ -4359,7 +4360,8 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
 
         if (matches[2] == 'start') {
           params.startParam = matches[3];
-        } else {
+        }
+        else if (matches[2] == 'post') {
           params.messageID = AppMessagesManager.getFullMessageID(parseInt(matches[3]), -peerID);
         }
 
@@ -4524,8 +4526,12 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
     checkLocationTgAddr();
   };
 
-  function shareUrl (url, text) {
-    PeersSelectService.selectPeer().then(function (toPeerString) {
+  function shareUrl (url, text, shareLink) {
+    var options = {};
+    if (shareLink) {
+      options.shareLinkPromise = qSync.when(url);
+    }
+    PeersSelectService.selectPeer(options).then(function (toPeerString) {
       $rootScope.$broadcast('history_focus', {
         peerString: toPeerString,
         attachment: {
@@ -4905,3 +4911,55 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
     };
   })
 
+
+
+
+.service('DraftsManager', function (qSync, Storage) {
+
+  var localDrafts = {};
+
+  return {
+    getDraft: getDraft,
+    saveDraft: saveDraft,
+    changeDraft: changeDraft,
+    syncDraft: syncDraft
+  };
+
+  function getDraft (peerID, options) {
+    return Storage.get('draft' + peerID).then(function (draft) {
+      if (typeof draft === 'string' && draft.length > 0) {
+        draft = {
+          text: draft
+        };
+      }
+      if (draft === false || draft == null) {
+        draft = '';
+      }
+
+    });
+  }
+
+  function saveDraft(peerID, draftData) {
+    localDrafts[peerID] = draftData;
+  }
+
+  function changeDraft(peerID, message, options) {
+    options = options || {};
+    if (typeof message === 'string' || options.replyToMsgID) {
+      var localDraft = {
+        text: message,
+        replyToMsgID: replyToMsgID
+      };
+      var backupDraftObj = {};
+      backupDraftObj['draft' + peerID] = localDraft;
+      Storage.set(backupDraftObj);
+    } else {
+      Storage.remove('draft' + peerID);
+    }
+  }
+
+  function syncDraft(peerID) {
+
+  }
+
+})
