@@ -678,12 +678,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     AppStickersManager.start();
   })
 
-  .controller('AppImDialogsController', function ($scope, $location, $q, $timeout, $routeParams, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppProfileManager, AppPeersManager, PhonebookContactsService, ErrorService, AppRuntimeManager) {
+  .controller('AppImDialogsController', function ($scope, $location, $q, $timeout, $routeParams, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppProfileManager, AppPeersManager, PhonebookContactsService, ErrorService, AppRuntimeManager, Storage) {
     var numberOfSearch = 0;
     $scope.dialogs = [];
     $scope.contacts = [];
     $scope.foundPeers = [];
     $scope.foundMessages = [];
+    $scope.isWorkMode = false;
 
     if ($scope.search === undefined) {
       $scope.search = {};
@@ -714,6 +715,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
           curDialog.unreadCount = dialog.count;
         }
       });
+    });
+
+    $scope.$on('workmode_changed', function (e, newValue) {
+      $scope.isWorkMode = newValue;
     });
 
     $scope.$on('dialogs_multiupdate', function (e, dialogsUpdated) {
@@ -905,7 +910,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         }
         return result;
       });
-    };
+    }
 
     function loadDialogs (force) {
       offsetIndex = 0;
@@ -1036,7 +1041,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
           hasMore = false;
         }
       });
-    };
+    }
 
     function showMoreConversations () {
       contactsShown = true;
@@ -1100,6 +1105,13 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       }
     }
 
+    function loadWorkMode() {
+      Storage.get('workMode').then(function (workMode) {
+        $scope.isWorkMode = workMode;
+      });
+    }
+
+    loadWorkMode();
   })
   .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, toaster, $filter, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, GeoLocationManager, clipboard) {
 
@@ -4242,7 +4254,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       });
     };
 
-    Storage.get('notify_nodesktop', 'send_ctrlenter', 'notify_volume', 'notify_novibrate', 'notify_nopreview').then(function (settings) {
+    Storage.get('notify_nodesktop', 'send_ctrlenter', 'notify_volume', 'notify_novibrate', 'notify_nopreview', 'workMode').then(function (settings) {
       $scope.notify.desktop = !settings[0];
       $scope.send.enter = settings[1] ? '' : '1';
 
@@ -4257,6 +4269,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
       $scope.notify.preview = !settings[4];
 
+      $scope.isWorkMode = settings[5] || false;
+
       $scope.notify.volumeOf4 = function () {
         return 1 + Math.ceil(($scope.notify.volume - 0.1) / 0.33);
       };
@@ -4267,6 +4281,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         } else {
           $scope.notify.volume = 0.5;
         }
+      }
+
+      $scope.toggleWorkMode = function () {
+        $scope.isWorkMode = !$scope.isWorkMode;
+        Storage.set({workMode: $scope.isWorkMode});
+        $rootScope.$broadcast('workmode_changed', $scope.isWorkMode);
       }
 
       var testSoundPromise;

@@ -25,8 +25,12 @@
               <button ng-if="phonebookAvailable" type="button" class="btn btn-primary btn-sm im_dialogs_import_phonebook" ng-click="importPhonebook()" my-i18n="im_import_phonebook"></button>
             </div>
 
-            <ul class="nav nav-pills nav-stacked">
-              <li class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}"></li>
+            <div class="im_workmode_enabled" ng-switch="isWorkMode">
+              <h5 ng-switch-when="true" my-i18n="tsupport_workmode_enabled"></h5>
+            </div>
+            <ul class="nav nav-pills nav-stacked" ng-switch="isWorkMode">
+                <li ng-switch-when="true" class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}" my-peer-muted="dialogMessage.peerID" muted-class="ng-hide"></li>
+                <li ng-switch-default class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}"></li>
             </ul>
 
             <div class="im_dialogs_contacts_wrap" ng-show="contacts.length > 0">

@@ -877,6 +877,9 @@
 	"templates_add_modal_title": "Add template",
 	"templates_edit_modal_key": "Template key",
 	"templates_edit_modal_value": "Template value",
+    "tsupport_workMode": "Work mode",
+    "tsupport_workmode_enabled": "Work mode enabled",
+    "tsupport_workmode_disabled": "Work mode disabled",
 	"tsupport_wiki": "Wiki",
 	"copy": "Copy",
 	"im_copy" : "Copy {count}"
