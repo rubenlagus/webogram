@@ -685,6 +685,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.foundPeers = [];
     $scope.foundMessages = [];
     $scope.isWorkMode = false;
+    $scope.unreadFirst = false;
 
     if ($scope.search === undefined) {
       $scope.search = {};
@@ -719,6 +720,10 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     $scope.$on('workmode_changed', function (e, newValue) {
       $scope.isWorkMode = newValue;
+    });
+
+    $scope.$on('unreadfirst_changed', function (e, newValue) {
+      $scope.unreadFirst = newValue;
     });
 
     $scope.$on('dialogs_multiupdate', function (e, dialogsUpdated) {
@@ -1105,13 +1110,14 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       }
     }
 
-    function loadWorkMode() {
-      Storage.get('workMode').then(function (workMode) {
-        $scope.isWorkMode = workMode;
+    function loadWorkModeAndUnreadFirst() {
+      Storage.get('workMode', 'unreadFirst').then(function (values) {
+        $scope.isWorkMode = values[0];
+        $scope.unreadFirst = values[1];
       });
     }
 
-    loadWorkMode();
+    loadWorkModeAndUnreadFirst();
   })
   .controller('AppImHistoryController', function ($scope, $location, $timeout, $modal, $rootScope, toaster, $filter, _, MtpApiManager, AppUsersManager, AppChatsManager, AppMessagesManager, AppPeersManager, ApiUpdatesManager, PeersSelectService, IdleManager, StatusManager, NotificationsManager, ErrorService, GeoLocationManager, clipboard) {
 
@@ -4254,7 +4260,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       });
     };
 
-    Storage.get('notify_nodesktop', 'send_ctrlenter', 'notify_volume', 'notify_novibrate', 'notify_nopreview', 'workMode').then(function (settings) {
+    Storage.get('notify_nodesktop', 'send_ctrlenter', 'notify_volume', 'notify_novibrate', 'notify_nopreview',
+        'workMode', 'unreadFirst').then(function (settings) {
       $scope.notify.desktop = !settings[0];
       $scope.send.enter = settings[1] ? '' : '1';
 
@@ -4270,6 +4277,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       $scope.notify.preview = !settings[4];
 
       $scope.isWorkMode = settings[5] || false;
+
+      $scope.unreadFirst = settings[6] || false;
 
       $scope.notify.volumeOf4 = function () {
         return 1 + Math.ceil(($scope.notify.volume - 0.1) / 0.33);
@@ -4287,6 +4296,12 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         $scope.isWorkMode = !$scope.isWorkMode;
         Storage.set({workMode: $scope.isWorkMode});
         $rootScope.$broadcast('workmode_changed', $scope.isWorkMode);
+      }
+
+      $scope.toggleUnreadFirst = function () {
+        $scope.unreadFirst = !$scope.unreadFirst;
+        Storage.set({unreadFirst: $scope.unreadFirst});
+        $rootScope.$broadcast('unreadfirst_changed', $scope.unreadFirst);
       }
 
       var testSoundPromise;

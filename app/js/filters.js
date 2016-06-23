@@ -269,3 +269,39 @@ angular.module('myApp.filters', ['myApp.i18n'])
       return dateOrTimeFilter(timestamp, true);
     }
   })
+
+  .filter('dialogSorting', function () {
+    function sorter(dialog) {
+      if (dialog.unreadCount) {
+        return 0;
+      } else {
+        return 1;
+      }
+    }
+
+    return function(dialogs, field) {
+      var filtered = [];
+      if (!field.unreadFirst) {
+        return dialogs;
+      }
+      angular.forEach(dialogs, function(dialog) {
+        filtered.push(dialog);
+      });
+      filtered.sort(function (dialog1, dialog2) {
+        if (sorter(dialog1) > sorter(dialog2)) {
+          return 1;
+        } else if (sorter(dialog1) < sorter(dialog2)) {
+          return -1;
+        } else {
+          if (dialog1.date < dialog2.date) {
+            return 1;
+          } else if (dialog1.date > dialog2.date) {
+            return -1;
+          } else {
+            return 0;
+          }
+        }
+      });
+      return filtered;
+    };
+  })

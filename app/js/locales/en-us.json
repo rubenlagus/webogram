@@ -880,6 +880,7 @@
     "tsupport_workMode": "Work mode",
     "tsupport_workmode_enabled": "Work mode enabled",
     "tsupport_workmode_disabled": "Work mode disabled",
+    "tsupport_unread_first": "Unread first",
 	"tsupport_wiki": "Wiki",
 	"copy": "Copy",
 	"im_copy" : "Copy {count}"
