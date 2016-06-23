@@ -28,8 +28,8 @@
         </div>
 
         <ul class="nav nav-pills nav-stacked" ng-switch="isWorkMode">
-          <li ng-switch-when="true" class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}" my-peer-muted="dialogMessage.peerID" muted-class="ng-hide"></li>
-          <li ng-switch-default class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}"></li>
+          <li ng-switch-when="true" class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs | dialogSorting:this track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}" my-peer-muted="dialogMessage.peerID" muted-class="ng-hide"></li>
+          <li ng-switch-default class="im_dialog_wrap" my-dialog dialog-message="dialogMessage" ng-repeat="dialogMessage in dialogs | dialogSorting:this track by dialogMessage.peerID" ng-class="{active: curDialog.peerID == dialogMessage.peerID}"></li>
         </ul>
 
         <div class="im_dialogs_contacts_wrap" ng-show="contacts.length > 0">

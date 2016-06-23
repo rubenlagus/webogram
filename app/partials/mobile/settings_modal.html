@@ -92,6 +92,13 @@
     </div>
 
     <div class="mobile_modal_action_wrap">
+      <a class="mobile_modal_action tg_checkbox clearfix" ng-click="toggleUnreadFirst()" ng-class="unreadFirst ? 'tg_checkbox_on' : ''">
+        <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
+        <span class="tg_checkbox_label" my-i18n="tsupport_unread_first"></span>
+      </a>
+    </div>
+
+    <div class="mobile_modal_action_wrap">
       <a class="mobile_modal_action tg_checkbox clearfix" ng-click="toggleCtrlEnter(send.enter == 1 ? 0 : 1)" ng-class="send.enter == 1 ? 'tg_checkbox_on' : ''">
         <span class="icon icon-checkbox-outer"><i class="icon-checkbox-inner"></i></span>
         <span class="tg_checkbox_label" my-i18n="settings_modal_send_on_enter"></span>
