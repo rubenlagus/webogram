@@ -21,18 +21,18 @@
 
   <div class="md_modal_body">
 
-    <div class="md_modal_sections">
-      <div class="md_modal_versioned_section_wrap" ng-if="canShowVersion('0.5.3T')">
-        <div class="md_modal_section_version">0.5.3T</div>
-        <div class="md_modal_section_description changelog_version_changes">
-          <ul class="list-unstyled changelog_version_changes_list">
-            <li>Search improvement: Search by hashtags will show conversation instead of messages</li>
-            <li>Copy: Copy messages with right click in desktop or selecting them in web</li>
-            <li>Updated to last official Telegram Web</li>
-          </ul>
-        </div>
+    <div class="md_modal_versioned_section_wrap" ng-if="canShowVersion('0.5.5T')">
+      <div class="md_modal_section_version">0.5.5T</div>
+      <div class="md_modal_section_description changelog_version_changes">
+        <ul class="list-unstyled changelog_version_changes_list">
+          <li>Work Mode: Enable it to hide all muted chats</li>
+          <li>Unread first: Enable it to show first chats with unread messages</li>
+          <li>Updated to last official Telegram Web</li>
+        </ul>
       </div>
+    </div>
 
+    <div class="md_modal_sections">
       <div class="md_modal_versioned_section_wrap" ng-if="canShowVersion('0.5.5')">
         <div class="md_modal_section_version">0.5.5</div>
         <div class="md_modal_section_description changelog_version_changes">
@@ -41,7 +41,6 @@
             <li>Mention people in groups by typing @ and selecting them from the list — even if they don't have a username.</li>
             <li>Share links to specific posts in channels via quick forwarding menu (click on the date in a message to try this out).</li>
           </ul>
-
         </div>
       </div>
 
@@ -60,6 +59,17 @@
             <li>Improved performance.</li>
           </ul>
 
+        </div>
+      </div>
+
+      <div class="md_modal_versioned_section_wrap" ng-if="canShowVersion('0.5.3T')">
+        <div class="md_modal_section_version">0.5.3T</div>
+        <div class="md_modal_section_description changelog_version_changes">
+          <ul class="list-unstyled changelog_version_changes_list">
+            <li>Search improvement: Search by hashtags will show conversation instead of messages</li>
+            <li>Copy: Copy messages with right click in desktop or selecting them in web</li>
+            <li>Updated to last official Telegram Web</li>
+          </ul>
         </div>
       </div>
 
