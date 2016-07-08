@@ -3181,7 +3181,8 @@ angular.module('myApp.services')
       wrapForHistory: wrapForHistory,
       wrapReplyMarkup: wrapReplyMarkup,
       wrapSingleMessage: wrapSingleMessage,
-      regroupWrappedHistory: regroupWrappedHistory
+      regroupWrappedHistory: regroupWrappedHistory,
+      getDialogByPeerId: getDialogByPeerID
     }
   })
 

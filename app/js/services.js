@@ -1490,7 +1490,7 @@ angular.module('myApp.services', ['myApp.i18n', 'izhukov.utils',  'LocalStorageM
       var height = options.website ? 64 : Math.min(windowH - 100, Config.Mobile ? 210 : 260)
       var thumbPhotoSize = choosePhotoSize(photo, width, height)
       var thumb = {
-        placeholder: 'img/placeholders/PhotoThumbConversation.gif',
+        placeholder: 'img/placeholders/PhotoThumbConversation.png',
         width: width,
         height: height
       }

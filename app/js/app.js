@@ -36,7 +36,7 @@ angular.module('myApp', [
   PRODUCTION_ONLY_END*/
   'myApp.directives',
   'myApp.controllers'
-].concat(extraModules)).config(['$locationProvider', '$routeProvider', '$compileProvider', 'StorageProvider', 'localStorageServiceProvider', function ($locationProvider, $routeProvider, $compileProvider, StorageProvider) {
+].concat(extraModules)).config(['$locationProvider', '$routeProvider', '$compileProvider', 'StorageProvider', 'localStorageServiceProvider', function ($locationProvider, $routeProvider, $compileProvider, StorageProvider, localStorageServiceProvider) {
   localStorageServiceProvider.setPrefix('tsupport');
   localStorageServiceProvider.setStorageCookie(0, '/');
   localStorageServiceProvider.setStorageCookieDomain('https://rubenlagus.github.io'); // TODO set production domain

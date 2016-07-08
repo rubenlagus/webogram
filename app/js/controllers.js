@@ -523,28 +523,6 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     // setTimeout($scope.openSettings, 1000)
 
-    $scope.openFaq = function () {
-      var url = 'https://telegram.org/faq'
-      switch (Config.I18n.locale) {
-        case 'es-es':
-          url += '/es'
-          break
-        case 'it-it':
-          url += '/it'
-          break
-        case 'de-de':
-          url += '/de'
-          break
-        case 'ko-ko':
-          url += '/ko'
-          break
-        case 'pt-br':
-          url += '/br'
-          break
-      }
-      window.open(url, '_blank')
-    }
-
     $scope.openWiki = function () {
       var url = 'http://telegram.wiki/';
       window.open(url, '_blank');
@@ -2479,6 +2457,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       $scope.$broadcast('ui_message_before_send')
 
       $timeout(function () {
+        var text = $scope.draftMessage.text
+
         if (Config.Mobile && text.length > 2 && text[0] === '#' && text[text.length - 1] === '#') {
           var possibleKey = text.substring(1, text.length - 1)
           if (possibleKey in templatesDic) {
@@ -2491,6 +2471,8 @@ angular.module('myApp.controllers', ['myApp.i18n'])
             sendMessageInternal(text.trim())
           } else {
             AppMessagesManager.readHistory($scope.curDialog.peerID)
+            DraftsManager.changeDraft($scope.curDialog.peerID, undefined)
+            DraftsManager.syncDraft($scope.curDialog.peerID)
           }
           fwdsSend()
 
@@ -3759,7 +3741,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
       if ($scope.marked.shared) {
         MarkedConversationsService.deleteSharedMarkedConversation($scope.userID)
       } else {
-        MarkedConversationsService.addSharedMarkedConversation($scope.userID, $scope.user.access_hash
+        MarkedConversationsService.addSharedMarkedConversation($scope.userID, $scope.user.access_hash)
       }
       $scope.marked.shared = !$scope.marked.shared
     }

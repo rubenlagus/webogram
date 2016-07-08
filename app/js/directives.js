@@ -1519,7 +1519,7 @@ angular.module('myApp.directives', ['myApp.filters'])
           $scope.$apply(function () {
             $scope.draftMessage.command = command
           })
-        }
+        },
         onTemplateSend: function (template) {
           $scope.$apply(function () {
             $scope.draftMessage.template = template
@@ -1791,7 +1791,7 @@ angular.module('myApp.directives', ['myApp.filters'])
       }
     }
 
-    function link ($scope, element, attrs, shouldDownload, doClean) {
+    function download ($scope, element, attrs, shouldDownload, doClean) {
       var counter = 0
 
       var cachedBlob = MtpApiFileManager.getCachedFile(
