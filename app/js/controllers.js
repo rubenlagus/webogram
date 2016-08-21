@@ -2324,7 +2324,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
     $scope.$on('user_update', angular.noop)
   })
 
-  .controller('AppImSendController', function ($rootScope, $q, $scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, DraftsManager, RichTextProcessor, TemplatesService, ToastService, NotificationsManager, _) {
+  .controller('AppImSendController', function ($rootScope, $q, $scope, $timeout, MtpApiManager, Storage, AppProfileManager, AppChatsManager, AppUsersManager, AppPeersManager, AppDocsManager, AppMessagesManager, AppInlineBotsManager, MtpApiFileManager, DraftsManager, RichTextProcessor, TemplatesService, ToastService, NotificationsManager, toaster, _) {
     var contactTemplateRegex = /^contact:(\+\d+)\s([^\s]+)\s([^\n]+)\n+(.+)$/
     var mobileAutocompleteRegex = /\s\s([^\s]+)\s\s/
     var innerTemplateRegex = /^(.*\s)(\w+)$/
@@ -2397,6 +2397,7 @@ angular.module('myApp.controllers', ['myApp.i18n'])
 
     $scope.replyKeyboardToggle = replyKeyboardToggle
     $scope.toggleSlash = toggleSlash
+    $scope.onMarkAsRead = onMarkAsRead
 
     $rootScope.$watch('idle.isIDLE', function (newVal) {
       if ($rootScope.idle.initial) {
@@ -2898,6 +2899,20 @@ angular.module('myApp.controllers', ['myApp.i18n'])
         action: {_: 'sendMessageTypingAction'}
       })['catch'](function (error) {
         error.handled = true
+      })
+    }
+
+    function onMarkAsRead(event) {
+      sendMessage(event)
+      var toastData = toaster.pop({
+        type: 'info',
+        body: _('confirm_mark_as_read'),
+        bodyOutputType: 'trustedHtml',
+        showCloseButton: false,
+        timeout: 1000,
+        clickHandler: function () {
+          toaster.clear(toastData)
+        },
       })
     }
 

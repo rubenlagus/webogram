@@ -890,5 +890,6 @@
     "tsupport_unread_first": "Unread first",
 	"tsupport_wiki": "Wiki",
 	"copy": "Copy",
-	"im_copy" : "Copy {count}"
+	"im_copy" : "Copy {count}",
+    "confirm_mark_as_read": "This conversation has been marked as read without an answer"
 }
