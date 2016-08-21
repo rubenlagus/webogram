@@ -710,6 +710,9 @@ a.im_message_author_via .im_message_fwd_author {
   font-size: 13px;
   font-weight: normal;
 }
+.im_history_messages_group .im_message_sign_link {
+  font-size: 12px;
+}
 .im_grouped_short a.im_message_from_photo,
 .im_grouped_short a.im_message_author,
 .im_grouped_short a.im_message_author_via,
@@ -1478,6 +1481,9 @@ a.media_modal_date:hover {
 .composer_command_btn {
   right: 10px;
   top: 6px;
+}
+.composer_command_btn.composer_mark_read_btn {
+  right: 40px;
 }
 .composer_keyboard_btn {
   right: 10px;
