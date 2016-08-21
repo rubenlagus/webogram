@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Time: Sun Aug 21 2016 22:20:39 GMT+0200 (CEST)
+# Time: Sun Aug 21 2016 22:32:26 GMT+0200 (CEST)
 
 
 CACHE:
@@ -67,8 +67,8 @@ js/lib/crypto_worker.js
 js/lib/polyfill.js
 js/lib/push_worker.js
 js/locales/en-us.json
-vendor/cryptoJS/crypto.js
 vendor/closure/long.js
+vendor/cryptoJS/crypto.js
 vendor/jsbn/jsbn_combined.js
 vendor/leemon_bigint/bigint.js
 vendor/rusha/rusha.js
