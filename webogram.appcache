@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# Time: Wed Sep 07 2016 20:04:02 GMT+0200 (CEST)
+# Time: Wed Jan 04 2017 15:44:53 GMT+0100 (CET)
 
 
 CACHE:
@@ -29,22 +29,6 @@ js/app.js
 nacl/mtproto_crypto.nmf
 nacl/mtproto_crypto.pexe
 img/changelog/card_wecandoit.png
-img/icons/AboutLogos.png
-img/icons/AboutLogos_2x.png
-img/icons/General.png
-img/icons/General_2x.png
-img/icons/IconsetSmiles.png
-img/icons/IconsetSmiles_2x.png
-img/icons/IconsetW.png
-img/icons/IconsetW_2x.png
-img/icons/Major.png
-img/icons/Major_2x.png
-img/icons/MobileIcons.png
-img/icons/MobileIcons_2x.png
-img/icons/PhotoIcons.png
-img/icons/PhotoIcons_2x.png
-img/icons/ProfileIcons.png
-img/icons/ProfileIcons_2x.png
 img/placeholders/DialogListAvatarSystem@2x.png
 img/placeholders/GroupAvatar1@2x.png
 img/placeholders/GroupAvatar2@2x.png
@@ -62,14 +46,30 @@ img/placeholders/UserAvatar7@2x.png
 img/placeholders/UserAvatar8@2x.png
 img/placeholders/VideoThumbConversation.png
 img/placeholders/VideoThumbModal.png
+img/icons/AboutLogos.png
+img/icons/AboutLogos_2x.png
+img/icons/General.png
+img/icons/General_2x.png
+img/icons/IconsetSmiles.png
+img/icons/IconsetSmiles_2x.png
+img/icons/IconsetW.png
+img/icons/IconsetW_2x.png
+img/icons/Major.png
+img/icons/Major_2x.png
+img/icons/MobileIcons.png
+img/icons/MobileIcons_2x.png
+img/icons/PhotoIcons.png
+img/icons/PhotoIcons_2x.png
+img/icons/ProfileIcons.png
+img/icons/ProfileIcons_2x.png
 js/lib/bin_utils.js
 js/lib/crypto_worker.js
 js/lib/polyfill.js
 js/lib/push_worker.js
-js/locales/en-us.json
 vendor/closure/long.js
-vendor/cryptoJS/crypto.js
+js/locales/en-us.json
 vendor/jsbn/jsbn_combined.js
+vendor/cryptoJS/crypto.js
 vendor/leemon_bigint/bigint.js
 vendor/rusha/rusha.js
 vendor/angular/i18n/angular-locale_de-de.js
