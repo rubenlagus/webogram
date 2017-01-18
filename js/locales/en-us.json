@@ -894,5 +894,6 @@
     "confirm_mark_as_read": "This conversation has been marked as read without an answer",
 	"login_token_placeholder": "Token",
 	"login_incorrect_token": "Incorrect token",
-	"confirm_modal_clear_tsupport_token_with_reload_md": "Wrong Token! An error occurred on Layer-8! Give typing the Token another shot. This time try using both hands, your eyes AND your brain. This generally helps. Have a nice day, human!"
+	"confirm_modal_clear_tsupport_token_with_reload_md": "Wrong Token! An error occurred on Layer-8! Give typing the Token another shot. This time try using both hands, your eyes AND your brain. This generally helps. Have a nice day, human!",
+	"mark_as_read": "Mark as read"
 }
