@@ -5,8 +5,6 @@ TWebogram is a Telegram client made specially for the [Telegram Support Force](h
 
 Based on [Webogram](https://github.com/zhukov/webogram), thanks to [@zhukov](https://github.com/zhukov).
 
-That said, I'm using this app myself and I'd like to share its sources, so anyone can contribute to the development. Any help is welcome!
-
 
 ### Interface
 
@@ -18,12 +16,6 @@ Here are some screenshots of the interface:
 ![Mobile screenshot 2](/app/img/screenshot2.png)
 ![Mobile screenshot 3](/app/img/screenshot3.png)
 
-
-### Unsupported at the moment
-
-* Secret chats
-* Black list
-* ...
 
 
 ### Maintained locations
